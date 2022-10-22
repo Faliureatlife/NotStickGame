@@ -1,5 +1,4 @@
-fn main() {
-    use pixels::Pixels;
+use pixels::Pixels;
 //Dont just import all of pixels at some point
 // use pixels::wgpu::Color;
 use winit::{
@@ -37,7 +36,6 @@ fn main() -> Result<(), pixels::Error> {
         pixel[3] = 0x11; // A
     }
 
-
     event_loop.run(move |event, _, control_flow| {
         *control_flow = ControlFlow::Wait;
         pixels.render().unwrap();
@@ -53,5 +51,4 @@ fn main() -> Result<(), pixels::Error> {
     //Ok(())
     //use to crash program safely
     //
-}
 }
