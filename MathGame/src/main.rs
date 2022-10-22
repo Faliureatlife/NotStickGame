@@ -8,10 +8,10 @@ use winit::{
     event_loop::*,
     window::Window,
 };
-// use std::{
-//     time::Duration,
-//     thread::sleep,
-// };
+use std::{
+    time::Duration,
+    thread::sleep,
+};
 fn main() -> Result<(), pixels::Error> {
     //where event loop is created for future event_loop.run
     let event_loop = EventLoop::new();
@@ -29,16 +29,17 @@ fn main() -> Result<(), pixels::Error> {
 
     //Have mutable frame buffer
     let frame = pixels.get_frame();
-    for pixel in frame.chunks_exact_mut(4) {
-        pixel[0] = 0x55; // R
-        pixel[1] = 0x77; // G
-        pixel[2] = 0xFF; // B
-        pixel[3] = 0x11; // A
     }
+
+    loop {
+        for pixel in frame.chunks_exact_mut(4) {
+            pixel[0] = 0x55; // R
+            pixel[1] = 0x77; // G
+            pixel[2] = 0xFF; // B
+            pixel[3] = 0x11; // A
 
     event_loop.run(move |event, _, control_flow| {
         *control_flow = ControlFlow::Wait;
-        pixels.render().unwrap();
 
         match event {
             Event::WindowEvent {
@@ -47,6 +48,9 @@ fn main() -> Result<(), pixels::Error> {
             } if window_id == window.id() => *control_flow = ControlFlow::Exit,
             _ => (),
         }
+
+        pixels.render();
+    }
     });
     //Ok(())
     //use to crash program safely
