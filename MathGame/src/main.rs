@@ -28,9 +28,6 @@ fn main() -> Result<(), pixels::Error> {
     let mut pixels = Pixels::new(size.width, size.height, surface_texture)?;
 
     //Have mutable frame buffer
-<<<<<<< HEAD
-    let frame = pixels.get_frame();
-=======
     let frame = pixels.get_frame(); // returns slice called pixels
     //pixel is the iterator variable
     //frame is the slice
@@ -40,7 +37,6 @@ fn main() -> Result<(), pixels::Error> {
         pixel[1] = 0x77; // G
         pixel[2] = 0xFF; // B
         pixel[3] = 0x11; // A
->>>>>>> f36f057ac041d8a0448e8d738e10cbf24fd3e16e
     }
     let fr = pixels.get_frame().split_mut(|x| x % 240 == 0);
     for pixel in fr.chunks_exact_mut(4) {
@@ -62,12 +58,8 @@ fn main() -> Result<(), pixels::Error> {
 
     event_loop.run(move |event, _, control_flow| {
         *control_flow = ControlFlow::Wait;
-<<<<<<< HEAD
-
-=======
         pixels.render().unwrap();
         //close window
->>>>>>> f36f057ac041d8a0448e8d738e10cbf24fd3e16e
         match event {
             Event::WindowEvent {
                 event: WindowEvent::CloseRequested,
