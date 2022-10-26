@@ -32,25 +32,19 @@ fn main() -> Result<(), pixels::Error> {
     //pixel is the iterator variable
     //frame is the slice
     //chunks_exact_mut allows muting group in slice, 4 is the aomunt that will be changed at once
+    let mut r:u8 = 0; let mut g:u8 = 0; let mut b:u8 = 0;
+
     for pixel in frame.chunks_exact_mut(4) {
-        pixel[0] = 0x55; // R
-        pixel[1] = 0x77; // G
-        pixel[2] = 0xFF; // B
+        pixel[0] = r; // R
+        pixel[1] = g; // G
+        pixel[2] = b; // B
         pixel[3] = 0x11; // A
     }
-    let fr = pixels.get_frame().split_mut(|x| x % 240 == 0);
-    for pixel in fr.chunks_exact_mut(4) {
-        pixel[0] = 0x01; // R
-        pixel[1] = 0x01; // G
-        pixel[2] = 0x01; // B
-        pixel[3] = 0x11; // A
-    }
-
-
 
 
     event_loop.run(move |event, _, control_flow| {
         *control_flow = ControlFlow::Wait;
+
         pixels.render().unwrap();
         //close window
         match event {
