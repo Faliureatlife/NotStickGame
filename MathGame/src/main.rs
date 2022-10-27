@@ -45,7 +45,11 @@ fn main() -> Result<(), pixels::Error> {
     event_loop.run(move |event, _, control_flow| {
         *control_flow = ControlFlow::Wait;
 
-        pixels.render().unwrap();
+        if pixels
+        .render()
+        .map_err(|e| panic!("pixels.render() failed: {}", e))
+        .is_err()
+        {}
         //close window
         match event {
             Event::WindowEvent {
@@ -58,4 +62,11 @@ fn main() -> Result<(), pixels::Error> {
     //Ok(())
     //use to crash program safely
     //
+    fn draw(&self, frame: &mut [u8]){
+
+    }
+}
+struct Player {
+    x_pos: u16,
+    y_pos: u16,
 }
