@@ -1,3 +1,6 @@
+//functions associated with rendering the project
+mod render.rs;
+
 use pixels::Pixels;
 //Dont just import all of pixels at some point
 // use pixels::wgpu::Color;
@@ -9,9 +12,10 @@ use winit::{
     window::Window,
 };
 use std::{
-    time::Duration,
-    thread::sleep,
+    fs,
+    str,
 };
+use
 fn main() -> Result<(), pixels::Error> {
     //where event loop is created for future event_loop.run
     let event_loop = EventLoop::new();
@@ -27,7 +31,7 @@ fn main() -> Result<(), pixels::Error> {
     //frame buffer "pixels"
     let mut pixels = Pixels::new(size.width, size.height, surface_texture)?;
 
-    //Have mutable frame buffer
+    //Provides frame buffer as muatable slice
     let frame = pixels.get_frame(); // returns slice called pixels
     //pixel is the iterator variable
     //frame is the slice
@@ -38,22 +42,10 @@ fn main() -> Result<(), pixels::Error> {
         pixel[0] = r; // R
         pixel[1] = g; // G
         pixel[2] = b; // B
-        pixel[3] = 0x11; // A
+        pixel[3] = 0xFF; // A
     }
 
 
-<<<<<<< HEAD
-
-
-    loop {
-        for pixel in frame.chunks_exact_mut(4) {
-            pixel[0] = 0x55; // R
-            pixel[1] = 0x77; // G
-            pixel[2] = 0xFF; // B
-            pixel[3] = 0x11; // A
-
-=======
->>>>>>> 913f27df06b77ecb271a9559ec320b6f4efd0eb1
     event_loop.run(move |event, _, control_flow| {
         *control_flow = ControlFlow::Wait;
 
@@ -71,17 +63,25 @@ fn main() -> Result<(), pixels::Error> {
             _ => (),
         }
 
-        pixels.render();
     }
     });
     //Ok(())
     //use to crash program safely
     //
-    fn draw(&self, frame: &mut [u8]){
 
-    }
 }
-struct Player {
+
+struct sprite {
     x_pos: u16,
     y_pos: u16,
+}
+impl sprite {
+
+}
+
+trait Player {
+
+}
+impl Player for sprite {
+
 }
