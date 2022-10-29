@@ -1,6 +1,3 @@
-//functions associated with rendering the project
-mod render.rs;
-
 use pixels::Pixels;
 //Dont just import all of pixels at some point
 // use pixels::wgpu::Color;
@@ -11,11 +8,10 @@ use winit::{
     event_loop::*,
     window::Window,
 };
-use std::{
-    fs,
-    str,
-};
-use
+// use std::{
+//     time::Duration,
+//     thread::sleep,
+// };
 fn main() -> Result<(), pixels::Error> {
     //where event loop is created for future event_loop.run
     let event_loop = EventLoop::new();
@@ -31,20 +27,8 @@ fn main() -> Result<(), pixels::Error> {
     //frame buffer "pixels"
     let mut pixels = Pixels::new(size.width, size.height, surface_texture)?;
 
-    //Provides frame buffer as muatable slice
+    //Have mutable frame buffer
     let frame = pixels.get_frame(); // returns slice called pixels
-    //pixel is the iterator variable
-    //frame is the slice
-    //chunks_exact_mut allows muting group in slice, 4 is the aomunt that will be changed at once
-    let mut r:u8 = 0; let mut g:u8 = 0; let mut b:u8 = 0;
-
-    for pixel in frame.chunks_exact_mut(4) {
-        pixel[0] = r; // R
-        pixel[1] = g; // G
-        pixel[2] = b; // B
-        pixel[3] = 0xFF; // A
-    }
-
 
     event_loop.run(move |event, _, control_flow| {
         *control_flow = ControlFlow::Wait;
@@ -62,26 +46,12 @@ fn main() -> Result<(), pixels::Error> {
             } if window_id == window.id() => *control_flow = ControlFlow::Exit,
             _ => (),
         }
-
-    }
     });
     //Ok(())
     //use to crash program safely
     //
-
 }
-
-struct sprite {
+struct Player {
     x_pos: u16,
     y_pos: u16,
-}
-impl sprite {
-
-}
-
-trait Player {
-
-}
-impl Player for sprite {
-
 }
