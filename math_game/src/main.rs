@@ -27,9 +27,6 @@ fn main() -> Result<(), pixels::Error> {
     //frame buffer "pixels"
     let mut pixels = Pixels::new(size.width, size.height, surface_texture)?;
 
-    //Have mutable frame buffer
-    let frame = pixels.get_frame(); // returns slice called pixels
-
     event_loop.run(move |event, _, control_flow| {
         *control_flow = ControlFlow::Wait;
 
