@@ -1,4 +1,4 @@
-fn draw(pix: &mut [u8], world, Spritelist: [sprite]){
+fn draw(pix: &mut [u8]){// world, spritelist
     //read the entire pixel map with fs::read
     //unwrap to take from result<Vec[u8],e> to Vec[u8]
     let colors = fs::read("WorldData/Houses").unwrap();
@@ -22,9 +22,9 @@ fn draw(pix: &mut [u8], world, Spritelist: [sprite]){
         let mut b = str::from_utf8(&colors[pos + 4]).unwrap();
         b.push(str::from_utf8(&colors[pos + 5]).unwrap())
         //Shoves string pointer into u8 sized hole
-        pixel[0] = r.parse::<u8>().unwrap(); // R
-        pixel[1] = g.parse::<u8>().unwrap(); // G
-        pixel[2] = b.parse::<u8>().unwrap(); // B
+        pixel[0] = r.parse().unwrap(); // R
+        pixel[1] = g.parse().unwrap(); // G
+        pixel[2] = b.parse().unwrap(); // B
         pixel[3] = 0xFF; // A
         i += 1;
     }
