@@ -1,4 +1,4 @@
-fn draw(pix: &mut [u8]){// world, spritelist
+fn draw(&self, pix: &mut [u8]){
     //read the entire pixel map with fs::read
     //unwrap to take from result<Vec[u8],e> to Vec[u8]
     let colors = fs::read("WorldData/Houses").unwrap();

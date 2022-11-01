@@ -29,7 +29,7 @@ fn main() -> Result<(), pixels::Error> {
 
     event_loop.run(move |event, _, control_flow| {
         *control_flow = ControlFlow::Wait;
-
+        draw(pixels.get_frame());
         if pixels
         .render()
         .map_err(|e| panic!("pixels.render() failed: {}", e))
@@ -51,4 +51,22 @@ fn main() -> Result<(), pixels::Error> {
 struct Player {
     x_pos: u16,
     y_pos: u16,
+}
+
+struct Screen {
+    baddies: Vec<Baddie>,
+    area: Vec<u8>,
+}
+
+impl Screen {
+    fn new(place: String) -> Self {
+        Self {
+            entities: vec![],
+            //check the types that are used if errors, maybe &str ?
+            area: fs::read("{}",place).unwrap(),
+        }
+    }
+}
+fn _update(&mut self) {
+
 }
