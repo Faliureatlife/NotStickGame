@@ -1,3 +1,6 @@
+//extra functions for idiomadic code or wtv
+mod render;
+
 use pixels::Pixels;
 //Dont just import all of pixels at some point
 // use pixels::wgpu::Color;
@@ -8,10 +11,11 @@ use winit::{
     event_loop::*,
     window::Window,
 };
-// use std::{
+use std::{
+    fs::*,
 //     time::Duration,
 //     thread::sleep,
-// };
+};
 fn main() -> Result<(), pixels::Error> {
     //where event loop is created for future event_loop.run
     let event_loop = EventLoop::new();
@@ -27,14 +31,18 @@ fn main() -> Result<(), pixels::Error> {
     //frame buffer "pixels"
     let mut pixels = Pixels::new(size.width, size.height, surface_texture)?;
 
+    let mut screen = Screen::new("WorldData/Houses");
+
+
     event_loop.run(move |event, _, control_flow| {
         *control_flow = ControlFlow::Wait;
-        draw(pixels.get_frame());
-        if pixels
+        let pix = pixels.get_frame();
+        screen.render::draw(pix);
+        {if pixels
         .render()
         .map_err(|e| panic!("pixels.render() failed: {}", e))
         .is_err()
-        {}
+        {}}
         //close window
         match event {
             Event::WindowEvent {
@@ -54,19 +62,19 @@ struct Player {
 }
 
 struct Screen {
-    baddies: Vec<Baddie>,
+    //baddies: Vec<Baddie>,
     area: Vec<u8>,
 }
 
 impl Screen {
-    fn new(place: String) -> Self {
+    fn new(place: &str) -> Self {
         Self {
-            entities: vec![],
+            //baddies: vec![],
             //check the types that are used if errors, maybe &str ?
             area: fs::read("{}",place).unwrap(),
         }
     }
 }
-fn _update(&mut self) {
-
-}
+// fn _update(&mut self) {
+//
+// }
