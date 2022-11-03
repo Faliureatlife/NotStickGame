@@ -37,7 +37,7 @@ fn main() -> Result<(), pixels::Error> {
     event_loop.run(move |event, _, control_flow| {
         *control_flow = ControlFlow::Wait;
         let pix = pixels.get_frame();
-        screen.render::draw(pix);
+        screen.draw(pix);
         {if pixels
         .render()
         .map_err(|e| panic!("pixels.render() failed: {}", e))
@@ -64,6 +64,7 @@ struct Player {
 struct Screen {
     //baddies: Vec<Baddie>,
     area: Vec<u8>,
+    fn draw ()
 }
 
 impl Screen {
@@ -71,7 +72,7 @@ impl Screen {
         Self {
             //baddies: vec![],
             //check the types that are used if errors, maybe &str ?
-            area: fs::read("{}",place).unwrap(),
+            area: std::fs::read(place).unwrap(),
         }
     }
 }
