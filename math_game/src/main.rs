@@ -91,8 +91,8 @@ impl Screen {
             //i hate this part
             //takes u8 at pos and turns into utf8
             //unwrap to take from Result to
-            // let a = self.area.capacity();
-            // println!("{}",a);
+            let a = self.area.capacity();
+            println!("{}",a);
 
             //println!("pixel is {:?}",pixel);
             let r: Vec<u8> = vec![self.area[pos], self.area[pos+1]];
