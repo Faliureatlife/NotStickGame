@@ -90,7 +90,7 @@ def rgb_to_hex(red, green, blue):
 
 
 # Loads Image
-img = Image.open("math_game/WorldData/houses.png")
+img = Image.open("math_game/WorldData/Untitled.png")
 img.show()
 width, height = img.size
 pixels = img.load()
@@ -104,7 +104,7 @@ for y in range(height):
         allColors = allColors + rgb_to_hex(r, g, b)
 
 # open text file
-text_file = open("math_game/WorldData/houses.txt", "w+")
+text_file = open("math_game/WorldData/u.txt", "w+")
 # write string to file
 text_file.write(allColors)
 # close file
