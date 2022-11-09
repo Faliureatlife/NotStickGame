@@ -20,12 +20,17 @@ use std::{
  };
 
 fn main() -> Result<(), pixels::Error> {
-    //where event loop is created for future event_loop.run
+    //where event loop is created for the future event_loop.run
     let event_loop = EventLoop::new();
+
+    //handle inputs with winit_input_helper
     let mut input = WinitInputHelper::new();
+
+    //set env variable to give simple backtrace of broken runtime code
     let var = "RUST_BACKTRACE";
     env::set_var(var, "1");
-    //Create window and give it Logical Size of 720 4:3
+
+    //Create window and give it Physical Size of 720 4:3
     let window = Window::new(&event_loop).unwrap();
     window.set_inner_size(PhysicalSize::new(720, 540));
     //let size = window.inner_size();
@@ -36,26 +41,36 @@ fn main() -> Result<(), pixels::Error> {
     //frame buffer "pixels"
     let mut pixels = Pixels::new(720, 540, surface_texture)?;
 
+    //screen object that has the text.txt souce file
     let screen = Screen::new("WorldData/test.txt");
-
+    //loop that runs program
+    //todo: multithread to have game thinking and rendering at same time
     event_loop.run(move |event, _, control_flow| {
+        //When it wants to redraw do this
         if let Event::RedrawRequested(_) = event {
+            //framebuffer that we shall mut
             let pix = pixels.get_frame();
             screen.draw(pix);
+            //do the thinking for the drawing process
+            //render the frame buffer and panic if it has something passed to it
             if pixels
             .render()
             .map_err(|e| panic!("pixels.render() failed: {}",e))
             .is_err()
             {
+                //after the panic close the process
                 *control_flow = ControlFlow::Exit;
                 return;
             }
         }
+        //update part of code that handles keypresses and simple window things
         if input.update(&event) {
+            //close on pressing esc
             if input.key_pressed(VirtualKeyCode::Escape) || input.quit() {
                 *control_flow = ControlFlow::Exit;
                 return;
             }
+            //after updates happen redraw the screen
             window.request_redraw();
         }
 
@@ -92,8 +107,6 @@ impl Screen {
         }
     }
     fn draw(&self, pix: &mut [u8]){
-        let e = pix.len();
-        println!("the length of pix is {}, and area should be {}",e,(e*4));
         //read the entire pixel map with fs::read
         //unwrap to take from result<Vec[u8],e> to Vec[u8]
         //let colors = std::fs::read("WorldData/Houses").unwrap();
@@ -104,13 +117,18 @@ impl Screen {
             //i*6 is the byte chunk
             let pos = it*6;
             //i hate this part
-            //takes u8 at pos and turns into utf8
-            //unwrap to take from Result to
             // let a = self.area.capacity();
             // println!("{}",a);
 
+            //takes u8 at pos and turns into utf8
+            //unwrap to take from Result to
+
+            //kinda hacky workaround to turn two &str into a valid hex byte
+            //takes two u8 and puts together
             let r: Vec<u8> = vec![self.area[pos], self.area[pos+1]];
+            //takes it from u8 bytes to &str UTF-8
             let red = std::str::from_utf8(&r).unwrap();
+            //sets red value in the thing into the hex value contained in red
             pixel[0] = u8::from_str_radix(red,16).unwrap(); // R
 
             let g: Vec<u8> = vec![self.area[pos+2], self.area[pos+3]];
@@ -120,7 +138,7 @@ impl Screen {
             let b: Vec<u8> = vec![self.area[pos+4], self.area[pos+5]];
             let blue = std::str::from_utf8(&b).unwrap();
             pixel[2] = u8::from_str_radix(blue,16).unwrap(); // B
-            //Shoves string pointer into u8 sized hole
+            //Sets transparency value to none because that is stupid
             pixel[3] = 0xFF; // A
             it += 1;
         }
