@@ -43,6 +43,7 @@ fn main() -> Result<(), pixels::Error> {
 
     //screen object that has the text.txt souce file
     let screen = Screen::new("WorldData/test.txt");
+
     //loop that runs program
     //todo: multithread to have game thinking and rendering at same time
     event_loop.run(move |event, _, control_flow| {
