@@ -19,7 +19,13 @@ use std::{
 //     thread::sleep,
  };
 
+//starting position of player
+const x_start:u16 = 0;
+const u_start:u16 = 0;
+
 fn main() -> Result<(), pixels::Error> {
+    std::fs::create("screen.txt");
+    let screen_data = std::fs::read("screen.txt")
     //where event loop is created for the future event_loop.run
     let event_loop = EventLoop::new();
 
@@ -90,30 +96,38 @@ fn main() -> Result<(), pixels::Error> {
     //use to crash program safely
     //
 }
-struct _Player {
+struct Player {
+    //top right of player
     x_pos: u16,
     y_pos: u16,
 }
 
+impl Player {
+    fn new() -> {
+        x_pos: x_start,
+        y_pos: y_start,
+    }
+}
+
 struct Screen {
+    player: Player,
     //baddies: Vec<Baddie>,
     area: Vec<u8>,
 }
+
 impl Screen {
     fn new(place: &str) -> Self {
         Self {
+            player: Player::new(),
             //baddies: vec![],
             //check the types that are used if errors, maybe &str ?
             area: std::fs::read(place).unwrap(),
         }
     }
     fn draw(&self, pix: &mut [u8]){
-        //read the entire pixel map with fs::read
-        //unwrap to take from result<Vec[u8],e> to Vec[u8]
-        //let colors = std::fs::read("WorldData/Houses").unwrap();
         //iterator var
-
         let mut it:usize = 0;
+
         for pixel in pix.chunks_exact_mut(4) {
             //i*6 is the byte chunk
             let pos = it*6;
@@ -145,6 +159,7 @@ impl Screen {
         }
     }
 }
-// fn _update(&mut self) {
-//
-// }
+fn _update(&mut self, sc) -> std::io::Result <()> {
+    std::fs::copy(self.place,"screen.txt");
+
+}
