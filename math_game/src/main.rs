@@ -18,6 +18,8 @@ use std::{
 //     time::Duration,
 //     thread::sleep,
  };
+ const start_y: u16 = 0;
+ const start_x: u16 = 0;
 
 fn main() -> Result<(), pixels::Error> {
     //where event loop is created for the future event_loop.run
@@ -90,21 +92,32 @@ fn main() -> Result<(), pixels::Error> {
     //use to crash program safely
     //
 }
-struct _Player {
+struct Player {
     x_pos: u16,
     y_pos: u16,
 }
+impl Player {
+    fn new() -> Self {
+        Self {
+            x_pos: start_x,
+            y_pos: start_y,
+        }
+    }
 
+}
 struct Screen {
+    player: Player,
     //baddies: Vec<Baddie>,
     area: Vec<u8>,
 }
 impl Screen {
     fn new(place: &str) -> Self {
         Self {
+            player: Player::new(),
             //baddies: vec![],
             //check the types that are used if errors, maybe &str ?
             area: std::fs::read(place).unwrap(),
+
         }
     }
     fn draw(&self, pix: &mut [u8]){
