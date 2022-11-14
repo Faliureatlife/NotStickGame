@@ -18,16 +18,12 @@ use std::{
 //     time::Duration,
 //     thread::sleep,
  };
+
+ //starting position of player
  const START_Y: u16 = 0;
  const START_X: u16 = 0;
 
-//starting position of player
-const x_start:u16 = 0;
-const u_start:u16 = 0;
-
 fn main() -> Result<(), pixels::Error> {
-    std::fs::create("screen.txt");
-    let screen_data = std::fs::read("screen.txt")
     //where event loop is created for the future event_loop.run
     let event_loop = EventLoop::new();
 
@@ -81,31 +77,18 @@ fn main() -> Result<(), pixels::Error> {
             }
             //after updates happen redraw the screen
             window.request_redraw();
-        }
-
-        // *control_flow = ControlFlow::Wait;
-        // pixels.render().unwrap();
-        // //close window
-        // match event {
-        //     Event::WindowEvent {
-        //         event: WindowEvent::CloseRequested,
-        //         window_id,
-        //     } if window_id == window.id() => *control_flow = ControlFlow::Exit,
-        //     _ => (),
-        // }
+        };
     });
     //Ok(())
     //use to crash program safely
     //
 }
 struct Player {
-<<<<<<< HEAD
     //top right of player
-=======
->>>>>>> 7149ff2b8eaca8ebd5c6d8d463532d211313cdf5
     x_pos: u16,
     y_pos: u16,
     sprite: Vec<u8>,
+    //direction: u8
 }
 impl Player {
     //make &string into directory not file
@@ -119,19 +102,9 @@ impl Player {
 
 }
 
-impl Player {
-    fn new() -> {
-        x_pos: x_start,
-        y_pos: y_start,
-    }
-}
-
 struct Screen {
     player: Player,
-<<<<<<< HEAD
-=======
     //triggers: idk
->>>>>>> 7149ff2b8eaca8ebd5c6d8d463532d211313cdf5
     //baddies: Vec<Baddie>,
     area: Vec<u8>,
 }
@@ -139,11 +112,7 @@ struct Screen {
 impl Screen {
     fn new(place: &str) -> Self {
         Self {
-<<<<<<< HEAD
-            player: Player::new(),
-=======
             player: Player::new("SpriteData/Nav/nav0.txt"),
->>>>>>> 7149ff2b8eaca8ebd5c6d8d463532d211313cdf5
             //baddies: vec![],
             //check the types that are used if errors, maybe &str ?
             area: std::fs::read(place).unwrap(),
@@ -152,11 +121,6 @@ impl Screen {
     }
     fn draw(&self, pix: &mut [u8]){
         //iterator var
-<<<<<<< HEAD
-        let mut it:usize = 0;
-
-        for pixel in pix.chunks_exact_mut(4) {
-=======
         let mut fb = self.area.clone();
         //fb.get_mut(((720*self.player.x_pos + self.player.y_pos) as usize)..(((720*self.player.x_pos + self.player.y_pos) as usize )+self.player.sprite.len())) = &self.player.sprite;
         // for (i, bit) in fb.get_mut(((720*self.player.x_pos + self.player.y_pos) as usize)..(((720*self.player.x_pos + self.player.y_pos) as usize )+self.player.sprite.len())).into_iter().enumerate(){
@@ -174,7 +138,6 @@ impl Screen {
         std::fs::write("asdf", &fb).unwrap();
 
         for (it, pixel) in pix.chunks_exact_mut(4).enumerate() {
->>>>>>> 7149ff2b8eaca8ebd5c6d8d463532d211313cdf5
             //i*6 is the byte chunk
             let pos = it*6;
             //i hate this part
@@ -200,15 +163,27 @@ impl Screen {
             let blue = std::str::from_utf8(&b).unwrap();
             pixel[2] = u8::from_str_radix(blue,16).unwrap(); // B
             //Sets transparency value to none because that is stupid
+            pixel[3] = 0xFF;
             let st = format!("{}{}{}",red,green,blue);
-            match st.as_str() {
-                "000000" => pixel[3] = 0x00,
-                _ => pixel[3] = 0xFF, // A
+            if st.as_str() {
+                //optimize this later
+                "000000" => {pixel[0] = {let r2 = vec![self.area[pos],self.area[pos + 1]];
+                                        let red2 = std::str::from_utf8(&r2).unwrap();
+                                        u8::from_str_radix(red2,16).unwrap()};
+                            pixel[1] = {let b2 = vec![self.area[pos+2],self.area[pos + 3]];
+                                        let blu2 = std::str::from_utf8(&b2).unwrap();
+                                        u8::from_str_radix(blu2,16).unwrap()};
+                            pixel[2] = {let g2 = vec![self.area[pos+2],self.area[pos + 3]];
+                                        let gre2 = std::str::from_utf8(&g2).unwrap();
+                                        u8::from_str_radix(gre2,16).unwrap()};
+
+                },
+                _ => , // A
             }
         }
     }
 }
-fn _update(&mut self, sc) -> std::io::Result <()> {
-    std::fs::copy(self.place,"screen.txt");
-
-}
+// fn _update(&mut self, sc) -> std::io::Result <()> {
+//     std::fs::copy(self.place,"screen.txt");
+//
+// }
