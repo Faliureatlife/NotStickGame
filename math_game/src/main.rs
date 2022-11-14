@@ -18,8 +18,8 @@ use std::{
 //     time::Duration,
 //     thread::sleep,
  };
- const start_y: u16 = 0;
- const start_x: u16 = 0;
+ const START_Y: u16 = 0;
+ const START_X: u16 = 0;
 
 fn main() -> Result<(), pixels::Error> {
     //where event loop is created for the future event_loop.run
@@ -30,7 +30,7 @@ fn main() -> Result<(), pixels::Error> {
 
     //set env variable to give simple backtrace of broken runtime code
     let var = "RUST_BACKTRACE";
-    env::set_var(var, "1");
+    env::set_var(var, "FULL");
 
     //Create window and give it Physical Size of 720 4:3
     let window = Window::new(&event_loop).unwrap();
@@ -95,25 +95,31 @@ fn main() -> Result<(), pixels::Error> {
 struct Player {
     x_pos: u16,
     y_pos: u16,
+    sprite: Vec<u8>,
 }
 impl Player {
-    fn new() -> Self {
+    //make &string into directory not file
+    fn new(spr: &str) -> Self {
         Self {
-            x_pos: start_x,
-            y_pos: start_y,
+            x_pos: START_X,
+            y_pos: START_Y,
+            sprite: std::fs::read(spr).unwrap(),
         }
     }
 
 }
+
 struct Screen {
     player: Player,
+    //triggers: idk
     //baddies: Vec<Baddie>,
     area: Vec<u8>,
 }
+
 impl Screen {
     fn new(place: &str) -> Self {
         Self {
-            player: Player::new(),
+            player: Player::new("SpriteData/Nav/nav0.txt"),
             //baddies: vec![],
             //check the types that are used if errors, maybe &str ?
             area: std::fs::read(place).unwrap(),
@@ -125,9 +131,23 @@ impl Screen {
         //unwrap to take from result<Vec[u8],e> to Vec[u8]
         //let colors = std::fs::read("WorldData/Houses").unwrap();
         //iterator var
+        let mut fb = self.area.clone();
+        //fb.get_mut(((720*self.player.x_pos + self.player.y_pos) as usize)..(((720*self.player.x_pos + self.player.y_pos) as usize )+self.player.sprite.len())) = &self.player.sprite;
+        // for (i, bit) in fb.get_mut(((720*self.player.x_pos + self.player.y_pos) as usize)..(((720*self.player.x_pos + self.player.y_pos) as usize )+self.player.sprite.len())).into_iter().enumerate(){
+        //     bit = &mut [self.player.sprite[i]];
+        // }
+        //^^ failed ideas that im keeping because they could be useful
 
-        let mut it:usize = 0;
-        for pixel in pix.chunks_exact_mut(4) {
+        //below here needs to be recommented
+        let (b4,l8) = fb.split_at_mut((720*self.player.x_pos + self.player.y_pos) as usize);
+        let (_,l8r) = l8.split_at_mut((720*self.player.x_pos + self.player.y_pos) as usize + self.player.sprite.len());
+        let good = &mut self.player.sprite
+        .as_slice()
+        .to_owned();
+        fb = [b4,good,l8r].concat();
+        std::fs::write("asdf", &fb).unwrap();
+
+        for (it, pixel) in pix.chunks_exact_mut(4).enumerate() {
             //i*6 is the byte chunk
             let pos = it*6;
             //i hate this part
@@ -139,22 +159,25 @@ impl Screen {
 
             //kinda hacky workaround to turn two &str into a valid hex byte
             //takes two u8 and puts together
-            let r: Vec<u8> = vec![self.area[pos], self.area[pos+1]];
+            let r: Vec<u8> = vec![fb[pos], fb[pos+1]];
             //takes it from u8 bytes to &str UTF-8
             let red = std::str::from_utf8(&r).unwrap();
             //sets red value in the thing into the hex value contained in red
-            pixel[0] = u8::from_str_radix(red,16).unwrap(); // R
+            pixel[0] =  u8::from_str_radix(red,16).unwrap(); // R
 
-            let g: Vec<u8> = vec![self.area[pos+2], self.area[pos+3]];
+            let g: Vec<u8> = vec![fb[pos+2], fb[pos+3]];
             let green = std::str::from_utf8(&g).unwrap();
             pixel[1] = u8::from_str_radix(green,16).unwrap(); // G
 
-            let b: Vec<u8> = vec![self.area[pos+4], self.area[pos+5]];
+            let b: Vec<u8> = vec![fb[pos+4], fb[pos+5]];
             let blue = std::str::from_utf8(&b).unwrap();
             pixel[2] = u8::from_str_radix(blue,16).unwrap(); // B
             //Sets transparency value to none because that is stupid
-            pixel[3] = 0xFF; // A
-            it += 1;
+            let st = format!("{}{}{}",red,green,blue);
+            match st.as_str() {
+                "000000" => pixel[3] = 0x00,
+                _ => pixel[3] = 0xFF, // A
+            }
         }
     }
 }
