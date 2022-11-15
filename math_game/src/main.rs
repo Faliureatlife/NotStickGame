@@ -119,6 +119,7 @@ impl Screen {
 
         }
     }
+
     fn draw(&self, pix: &mut [u8]){
         //iterator var
         let mut fb = self.area.clone();
@@ -135,7 +136,14 @@ impl Screen {
         .as_slice()
         .to_owned();
         fb = [b4,good,l8r].concat();
-        std::fs::write("asdf", &fb).unwrap();
+        //std::fs::write("asdf", &fb).unwrap();
+
+        //entities are 18x27
+        for v in 0..26{
+            println!("{}",v);
+            let (b4,l8) = fb.split_at_mut(((720*self.player.y_pos + self.player.x_pos)+(720*v)) as usize);
+        }
+
 
         for (it, pixel) in pix.chunks_exact_mut(4).enumerate() {
             //i*6 is the byte chunk
@@ -165,20 +173,16 @@ impl Screen {
             //Sets transparency value to none because that is stupid
             pixel[3] = 0xFF;
             let st = format!("{}{}{}",red,green,blue);
-            if st.as_str() {
-                //optimize this later
-                "000000" => {pixel[0] = {let r2 = vec![self.area[pos],self.area[pos + 1]];
-                                        let red2 = std::str::from_utf8(&r2).unwrap();
-                                        u8::from_str_radix(red2,16).unwrap()};
-                            pixel[1] = {let b2 = vec![self.area[pos+2],self.area[pos + 3]];
-                                        let blu2 = std::str::from_utf8(&b2).unwrap();
-                                        u8::from_str_radix(blu2,16).unwrap()};
-                            pixel[2] = {let g2 = vec![self.area[pos+2],self.area[pos + 3]];
-                                        let gre2 = std::str::from_utf8(&g2).unwrap();
-                                        u8::from_str_radix(gre2,16).unwrap()};
-
-                },
-                _ => , // A
+            if st.as_str() == "000000" {
+                pixel[0] = {let r2 = vec![self.area[pos],self.area[pos + 1]];
+                            let red2 = std::str::from_utf8(&r2).unwrap();
+                            u8::from_str_radix(red2,16).unwrap()};
+                pixel[1] = {let b2 = vec![self.area[pos+2],self.area[pos + 3]];
+                            let blu2 = std::str::from_utf8(&b2).unwrap();
+                            u8::from_str_radix(blu2,16).unwrap()};
+                pixel[2] = {let g2 = vec![self.area[pos+2],self.area[pos + 3]];
+                            let gre2 = std::str::from_utf8(&g2).unwrap();
+                            u8::from_str_radix(gre2,16).unwrap()};
             }
         }
     }
