@@ -32,7 +32,7 @@ fn main() -> Result<(), pixels::Error> {
 
     //set env variable to give simple backtrace of broken runtime code
     let var = "RUST_BACKTRACE";
-    env::set_var(var, "FULL");
+    env::set_var(var, "1");
 
     //Create window and give it Physical Size of 720 4:3
     let window = Window::new(&event_loop).unwrap();
@@ -99,7 +99,6 @@ impl Player {
             sprite: std::fs::read(spr).unwrap(),
         }
     }
-
 }
 
 struct Screen {
@@ -116,7 +115,6 @@ impl Screen {
             //baddies: vec![],
             //check the types that are used if errors, maybe &str ?
             area: std::fs::read(place).unwrap(),
-
         }
     }
 
@@ -130,19 +128,24 @@ impl Screen {
         //^^ failed ideas that im keeping because they could be useful
 
         //below here needs to be recommented
-        let (b4,l8) = fb.split_at_mut((720*self.player.x_pos + self.player.y_pos) as usize);
-        let (_,l8r) = l8.split_at_mut((720*self.player.x_pos + self.player.y_pos) as usize + self.player.sprite.len());
-        let good = &mut self.player.sprite
-        .as_slice()
-        .to_owned();
-        fb = [b4,good,l8r].concat();
-        //std::fs::write("asdf", &fb).unwrap();
+                        // let (b4,l8) = fb.split_at_mut((720*self.player.x_pos + self.player.y_pos) as usize);
+                        // let (_,l8r) = l8.split_at_mut((720*self.player.x_pos + self.player.y_pos) as usize + self.player.sprite.len());
+                        // let good = &mut self.player.sprite
+                        // .as_slice()
+                        // .to_owned();
+                        // fb = [b4,good,l8r].concat();
 
         //entities are 18x27
         for v in 0..26{
-            println!("{}",v);
-            let (b4,l8) = fb.split_at_mut(((720*self.player.y_pos + self.player.x_pos)+(720*v)) as usize);
+            let p = ((720*self.player.y_pos) + self.player.x_pos)+(720*v);
+            let (b4,l8) = fb.split_at(p as usize);
+            println!("the first part is {}, and the second is {}",b4.len(),l8.len());
+            let (a,l8r) = l8.split_at((p + 18) as usize);
+            println!("the first of the second is {} and the second of the second is {}",a.len(),l8r.len());
+            let good = &self.player.sprite.get((6*18*v) as usize..(6*18*v + 18*6) as usize).unwrap();
+            fb = [b4,good,l8r].concat();
         }
+        std::fs::write("asdf", &fb).unwrap();
 
 
         for (it, pixel) in pix.chunks_exact_mut(4).enumerate() {
