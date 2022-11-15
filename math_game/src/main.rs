@@ -136,13 +136,16 @@ impl Screen {
                         // fb = [b4,good,l8r].concat();
 
         //entities are 18x27
-        for v in 0..26{
-            let p = ((720*self.player.y_pos) + self.player.x_pos)+(720*v);
+        for v in 0..27{
+            println!("{}",v);
+            let p:u32 = (((720*self.player.y_pos) + self.player.x_pos)+(720*v)).into();
             let (b4,l8) = fb.split_at(p as usize);
             println!("the first part is {}, and the second is {}",b4.len(),l8.len());
-            let (a,l8r) = l8.split_at((p + 18) as usize);
+
+            let (a,l8r) = l8.split_at(((p + 18)) as usize);
             println!("the first of the second is {} and the second of the second is {}",a.len(),l8r.len());
-            let good = &self.player.sprite.get((6*18*v) as usize..(6*18*v + 18*6) as usize).unwrap();
+
+            let good = &(self.player.sprite.get((6*18*v) as usize..(6*18*v + 18*6) as usize).unwrap());
             fb = [b4,good,l8r].concat();
         }
         std::fs::write("asdf", &fb).unwrap();
