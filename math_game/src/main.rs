@@ -32,7 +32,7 @@ fn main() -> Result<(), pixels::Error> {
 
     //set env variable to give simple backtrace of broken runtime code
     let var = "RUST_BACKTRACE";
-    env::set_var(var, "1");
+    env::set_var(var, "0");
 
     //Create window and give it Physical Size of 720 4:3
     let window = Window::new(&event_loop).unwrap();
@@ -122,7 +122,7 @@ impl Screen {
         //iterator var
         let mut fb = self.area.clone();
         //fb.get_mut(((720*self.player.x_pos + self.player.y_pos) as usize)..(((720*self.player.x_pos + self.player.y_pos) as usize )+self.player.sprite.len())) = &self.player.sprite;
-        // for (i, bit) in fb.get_mut(((720*self.player.x_pos + self.player.y_pos) as usize)..(((720*self.player.x_pos + self.player.y_pos) as usize )+self.player.sprite.len())).into_iter().enumerate(){
+        //for (i, bit) in fb.get_mut(((720*self.player.x_pos + self.player.y_pos) as usize)..(((720*self.player.x_pos + self.player.y_pos) as usize )+self.player.sprite.len())).into_iter().enumerate(){
         //     bit = &mut [self.player.sprite[i]];
         // }
         //^^ failed ideas that im keeping because they could be useful
@@ -136,17 +136,19 @@ impl Screen {
                         // fb = [b4,good,l8r].concat();
 
         //entities are 18x27
-        for v in 0..27{
+        for v in 0..27{   //0-26
             println!("{}",v);
             let p:u32 = (((720*self.player.y_pos) + self.player.x_pos)+(720*v)).into();
             let (b4,l8) = fb.split_at(p as usize);
-            println!("the first part is {}, and the second is {}",b4.len(),l8.len());
-
-            let (a,l8r) = l8.split_at(((p + 18)) as usize);
-            println!("the first of the second is {} and the second of the second is {}",a.len(),l8r.len());
-
+            println!{"the split point is {}",p}
+            let (_,l8r) = l8.split_at(108 as usize);
+            //THIS LINE IS NOT THE PROBLEM
+            //jk lol it is
             let good = &(self.player.sprite.get((6*18*v) as usize..(6*18*v + 18*6) as usize).unwrap());
             fb = [b4,good,l8r].concat();
+//test infodumps
+//println!("the first part is {}, and the second is {}, and this is equal to {}",b4.len(),l8.len(),b4.len() + l8.len());
+//println!("the discrepancy of the first part is {} \n",(b4.len() + l8.len())-(a.len() + l8r.len()));
         }
         std::fs::write("asdf", &fb).unwrap();
 
