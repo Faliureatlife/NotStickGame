@@ -111,7 +111,7 @@ struct Screen {
 impl Screen {
     fn new(place: &str) -> Self {
         Self {
-            player: Player::new("SpriteData/Nav/nav0.txt"),
+            player: Player::new("SpriteData/Nav/back_nav0.txt"),
             //baddies: vec![],
             //check the types that are used if errors, maybe &str ?
             area: std::fs::read(place).unwrap(),
@@ -138,7 +138,7 @@ impl Screen {
         //entities are 18x27
         for v in 0..27{   //0-26
             println!("{}",v);
-            let p:u32 = (((720*self.player.y_pos) + self.player.x_pos)+(720*v)).into();
+            let p:u32 = ((6*720*self.player.y_pos)+ 6*(self.player.x_pos)) as u32 +(6*720*v);
             let (b4,l8) = fb.split_at(p as usize);
             println!{"the split point is {}",p}
             let (_,l8r) = l8.split_at(108 as usize);

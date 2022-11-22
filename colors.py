@@ -90,8 +90,7 @@ def rgb_to_hex(red, green, blue):
 
 
 # Loads Image
-img = Image.open("math_game/SpriteData/pixil-frame-0.png")
-img.show()
+img = Image.open("math_game/SpriteData/pixil-frame-3.png")
 width, height = img.size
 pixels = img.load()
 allColors = ""
@@ -104,7 +103,7 @@ for y in range(height):
         allColors = allColors + rgb_to_hex(r, g, b)
 
 # open text file
-text_file = open("math_game/SpriteData/nav0.txt", "w+")
+text_file = open("math_game/SpriteData/back_nav3.txt", "w+")
 # write string to file
 text_file.write(allColors)
 # close file
