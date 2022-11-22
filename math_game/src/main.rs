@@ -145,10 +145,9 @@ impl Screen {
 
         //entities are 18x27
         for v in 0..27{   //0-26
-            println!("{}",v);
-            let p:u32 = ((6*720*self.player.y_pos)+ 6*(self.player.x_pos)) as u32 +(6*720*v);
-            let (b4,l8) = fb.split_at(p as usize);
-            println!{"the split point is {}",p}
+            //println!("{}",v);
+            let (b4,l8) = fb.split_at((((6*720*self.player.y_pos)+ 6*(self.player.x_pos)) as u32 +(6*720*v)) as usize);
+            //println!{"the split point is {}",p}
             let (_,l8r) = l8.split_at(108 as usize);
             //THIS LINE IS NOT THE PROBLEM
             //jk lol it is
