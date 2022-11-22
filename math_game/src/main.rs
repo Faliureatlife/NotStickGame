@@ -150,7 +150,8 @@ impl Screen {
 //println!("the first part is {}, and the second is {}, and this is equal to {}",b4.len(),l8.len(),b4.len() + l8.len());
 //println!("the discrepancy of the first part is {} \n",(b4.len() + l8.len())-(a.len() + l8r.len()));
         }
-        std::fs::write("asdf", &fb).unwrap();
+//framebuffer dump for errors
+//std::fs::write("asdf", &fb).unwrap();
 
 
         for (it, pixel) in pix.chunks_exact_mut(4).enumerate() {
