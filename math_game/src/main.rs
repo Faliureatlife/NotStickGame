@@ -14,6 +14,7 @@ use winit_input_helper::WinitInputHelper;
 use std::{
      env,
      u8,
+     time::SystemTime,
 //     fs::*,
 //     time::Duration,
 //     thread::sleep,
@@ -24,6 +25,7 @@ use std::{
  const START_X: u16 = 0;
 
 fn main() -> Result<(), pixels::Error> {
+    let mut times:SystemTime = SystemTime::now();
     //where event loop is created for the future event_loop.run
     let event_loop = EventLoop::new();
 
@@ -46,16 +48,14 @@ fn main() -> Result<(), pixels::Error> {
     let mut pixels = Pixels::new(720, 540, surface_texture)?;
 
     //screen object that has the text.txt souce file
-    let screen = Screen::new("WorldData/test.txt");
-
+    let mut screen = Screen::new("WorldData/test.txt");
     //loop that runs program
     //todo: multithread to have game thinking and rendering at same time
     event_loop.run(move |event, _, control_flow| {
         //When it wants to redraw do this
         if let Event::RedrawRequested(_) = event {
             //framebuffer that we shall mut
-            let pix = pixels.get_frame();
-            screen.draw(pix);
+            screen.draw(pixels.get_frame());
             //do the thinking for the drawing process
             //render the frame buffer and panic if it has something passed to it
             if pixels
@@ -75,8 +75,16 @@ fn main() -> Result<(), pixels::Error> {
                 *control_flow = ControlFlow::Exit;
                 return;
             }
+            if input.key_pressed(VirtualKeyCode::S){
+                screen.player.y_pos += 1;
+                return;
+            }
             //after updates happen redraw the screen
+            let time_n = SystemTime::now();
+            let diff = time_n.duration_since(times).unwrap();
+            println!("{:.?}",diff);
             window.request_redraw();
+            times = SystemTime::now();
         };
     });
     //Ok(())
@@ -111,7 +119,7 @@ struct Screen {
 impl Screen {
     fn new(place: &str) -> Self {
         Self {
-            player: Player::new("SpriteData/Nav/back_nav0.txt"),
+            player: Player::new("SpriteData/Nav/up/back_nav0.txt"),
             //baddies: vec![],
             //check the types that are used if errors, maybe &str ?
             area: std::fs::read(place).unwrap(),
