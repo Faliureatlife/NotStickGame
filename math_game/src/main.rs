@@ -191,13 +191,10 @@ impl Screen {
                 .sprite
                 .get((6 * 18 * v) as usize..(6 * 18 * v + 18 * 6) as usize)
                 .unwrap());
-            let times = SystemTime::now();
 
+            //400-500 microseconds
             fb = [b4, good, l8r].concat();
 
-            let time_n = SystemTime::now();
-            let diff = time_n.duration_since(times).unwrap();
-            println!("{:.?}", diff);
 
             //test infodumps
             //println!("the first part is {}, and the second is {}, and this is equal to {}",b4.len(),l8.len(),b4.len() + l8.len());
@@ -207,9 +204,12 @@ impl Screen {
         //framebuffer dump for errors
         //std::fs::write("asdf", &fb).unwrap();
 
+        //ENTIRE thing takes 1.8 microseconds
         for (it, pixel) in pix.chunks_exact_mut(4).enumerate() {
             //i*6 is the byte chunk
+            //either 0 or 100 ns, avg about 25
             let pos = it * 6;
+
             //i hate this part
             // let a = self.area.capacity();
             // println!("{}",a);
@@ -219,12 +219,16 @@ impl Screen {
 
             //kinda hacky workaround to turn two &str into a valid hex byte
             //takes two u8 and puts together
+            //either 100 or 200ns, avg about 150
             let r: Vec<u8> = vec![fb[pos], fb[pos + 1]];
+
+
             //takes it from u8 bytes to &str UTF-8
+            //again either 0 or 100ns averaging about 25
             let red = std::str::from_utf8(&r).unwrap();
             //sets red value in the thing into the hex value contained in red
             pixel[0] = u8::from_str_radix(red, 16).unwrap(); // R
-
+            //this whole bit takes about 200ns reliably
             let g: Vec<u8> = vec![fb[pos + 2], fb[pos + 3]];
             let green = std::str::from_utf8(&g).unwrap();
             pixel[1] = u8::from_str_radix(green, 16).unwrap(); // G
@@ -232,9 +236,10 @@ impl Screen {
             let b: Vec<u8> = vec![fb[pos + 4], fb[pos + 5]];
             let blue = std::str::from_utf8(&b).unwrap();
             pixel[2] = u8::from_str_radix(blue, 16).unwrap(); // B
-                                                              //Sets transparency value to none because that is stupid
+             //Sets transparency value to none because that is stupid
             pixel[3] = 0xFF;
             let st = format!("{}{}{}", red, green, blue);
+            let times = SystemTime::now();
             if st.as_str() == "000000" {
                 pixel[0] = {
                     let r2 = vec![self.area[pos], self.area[pos + 1]];
@@ -252,6 +257,9 @@ impl Screen {
                     u8::from_str_radix(gre2, 16).unwrap()
                 };
             }
+            let time_n = SystemTime::now();
+            let diff = time_n.duration_since(times).unwrap();
+            println!("{:.?}", diff);
         }
     }
 }
