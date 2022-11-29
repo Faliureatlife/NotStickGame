@@ -93,6 +93,7 @@ fn main() -> Result<(), pixels::Error> {
             }
             //after updates happen redraw the screen
             window.request_redraw();
+
         };
     });
     //Ok(())
@@ -153,6 +154,7 @@ impl Screen {
     }
 
     fn draw(&self, pix: &mut [u8]) {
+        let times = SystemTime::now();
         //iterator var
         let mut fb = self.area.clone();
         //fb.get_mut(((720*self.player.x_pos + self.player.y_pos) as usize)..(((720*self.player.x_pos + self.player.y_pos) as usize )+self.player.sprite.len())) = &self.player.sprite;
@@ -220,8 +222,7 @@ impl Screen {
             //kinda hacky workaround to turn two &str into a valid hex byte
             //takes two u8 and puts together
             //either 100 or 200ns, avg about 150
-            let r: Vec<u8> = vec![fb[pos], fb[pos + 1]];
-
+            let r = [fb[pos], fb[pos + 1]];
 
             //takes it from u8 bytes to &str UTF-8
             //again either 0 or 100ns averaging about 25
@@ -229,38 +230,39 @@ impl Screen {
             //sets red value in the thing into the hex value contained in red
             pixel[0] = u8::from_str_radix(red, 16).unwrap(); // R
             //this whole bit takes about 200ns reliably
-            let g: Vec<u8> = vec![fb[pos + 2], fb[pos + 3]];
+            let g = [fb[pos + 2], fb[pos + 3]];
             let green = std::str::from_utf8(&g).unwrap();
             pixel[1] = u8::from_str_radix(green, 16).unwrap(); // G
 
-            let b: Vec<u8> = vec![fb[pos + 4], fb[pos + 5]];
+            let b = [fb[pos + 4], fb[pos + 5]];
             let blue = std::str::from_utf8(&b).unwrap();
             pixel[2] = u8::from_str_radix(blue, 16).unwrap(); // B
              //Sets transparency value to none because that is stupid
             pixel[3] = 0xFF;
+            //test for transparency in image
+            //takes 100-200ns
             let st = format!("{}{}{}", red, green, blue);
-            let times = SystemTime::now();
             if st.as_str() == "000000" {
                 pixel[0] = {
-                    let r2 = vec![self.area[pos], self.area[pos + 1]];
+                    let r2 = [self.area[pos], self.area[pos + 1]];
                     let red2 = std::str::from_utf8(&r2).unwrap();
                     u8::from_str_radix(red2, 16).unwrap()
                 };
                 pixel[1] = {
-                    let b2 = vec![self.area[pos + 2], self.area[pos + 3]];
+                    let b2 = [self.area[pos + 2], self.area[pos + 3]];
                     let blu2 = std::str::from_utf8(&b2).unwrap();
                     u8::from_str_radix(blu2, 16).unwrap()
                 };
                 pixel[2] = {
-                    let g2 = vec![self.area[pos + 2], self.area[pos + 3]];
+                    let g2 = [self.area[pos + 2], self.area[pos + 3]];
                     let gre2 = std::str::from_utf8(&g2).unwrap();
                     u8::from_str_radix(gre2, 16).unwrap()
                 };
             }
-            let time_n = SystemTime::now();
-            let diff = time_n.duration_since(times).unwrap();
-            println!("{:.?}", diff);
         }
+        let time_n = SystemTime::now();
+        let diff = time_n.duration_since(times).unwrap();
+        println!("{:.?}", diff);
     }
 }
 // fn _update(&mut self, sc) -> std::io::Result <()> {
