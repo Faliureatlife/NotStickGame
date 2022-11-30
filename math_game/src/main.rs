@@ -209,14 +209,14 @@ impl Screen {
         //framebuffer dump for errors
         //std::fs::write("asdf", &fb).unwrap();
 
+
         //ENTIRE thing takes 1.8 microseconds
         let mut r:[u8;2];
         let mut g:[u8;2];
         let mut b:[u8;2];
         let pix_iter = pix.as_parallel_slice_mut();
-        // pix_iter.par_chunks_exact_mut(4).
-
-        for (it, pixel) in pix_iter.chunks_exact_mut(4).enumerate() {
+        pix_iter.par_chunks_exact_mut(4).for_each( |pixel| {
+        //for (it, pixel) in pix_iter.chunks_exact_mut(4).enumerate() {
             pixel[3] = 0xFF;
             //i*6 is the byte chunk
             //either 0 or 100 ns, avg about 25
@@ -266,7 +266,7 @@ impl Screen {
 
             // let blue = std::str::from_utf8().unwrap();
             //Sets transparency value to none because that isnt needed
-        }
+        });
         let time_n = SystemTime::now();
         let diff = time_n.duration_since(times).unwrap();
         println!("{:?}", diff);
