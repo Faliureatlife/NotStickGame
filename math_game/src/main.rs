@@ -152,6 +152,7 @@ impl Screen {
             area: std::fs::read(place).unwrap(),
         }
     }
+//test comment
 
     fn draw(&self, pix: &mut [u8]) {
         let times = SystemTime::now();
