@@ -1,5 +1,6 @@
-//extra functions for idiomadic code or wtv
+//extra functions for idiomatic code or wtv
 mod render;
+
 use pixels::Pixels;
 //Dont just import all of pixels at some point
 // use pixels::wgpu::Color;
@@ -18,6 +19,7 @@ use winit::{
     event_loop::*,
     window::Window,
 };
+use rayon::prelude::*;
 use winit_input_helper::WinitInputHelper;
 
 //starting position of player
@@ -46,10 +48,10 @@ fn main() -> Result<(), pixels::Error> {
     //frame buffer "pixels"
     let mut pixels = Pixels::new(720, 540, surface_texture)?;
 
-    //screen object that has the text.txt souce file
+    //screen object that has the text.txt source file
     let mut screen = Screen::new("WorldData/test.txt");
     //loop that runs program
-    //todo: multithread to have game thinking and rendering at same time
+    //todo: multithreading to have game thinking and rendering at same time
     event_loop.run(move |event, _, control_flow| {
         //When it wants to redraw do this
         if let Event::RedrawRequested(_) = event {
@@ -67,7 +69,7 @@ fn main() -> Result<(), pixels::Error> {
                 return;
             }
         }
-        //update part of code that handles keypresses and simple window things
+        //update part of code that handles key-presses and simple window things
         if input.update(&event) {
             //make into a match statement at some point maybe
             //close on pressing esc
@@ -208,38 +210,32 @@ impl Screen {
         //std::fs::write("asdf", &fb).unwrap();
 
         //ENTIRE thing takes 1.8 microseconds
-        for (it, pixel) in pix.chunks_exact_mut(4).enumerate() {
+        let mut r:[u8;2];
+        let mut g:[u8;2];
+        let mut b:[u8;2];
+        let pix_iter = pix.as_parallel_slice_mut();
+        // pix_iter.par_chunks_exact_mut(4).
+
+        for (it, pixel) in pix_iter.chunks_exact_mut(4).enumerate() {
+            pixel[3] = 0xFF;
             //i*6 is the byte chunk
             //either 0 or 100 ns, avg about 25
             let pos = it * 6;
 
-            //i hate this part
-            // let a = self.area.capacity();
-            // println!("{}",a);
-
-            //takes u8 at pos and turns into utf8
-            //unwrap to take from Result to
-
-            //kinda hacky workaround to turn two &str into a valid hex byte
             //takes two u8 and puts together
             //either 100 or 200ns, avg about 150
-            let r = [fb[pos], fb[pos + 1]];
-
-            //takes it from u8 bytes to &str UTF-8
+            r = [fb[pos], fb[pos + 1]];
+            //kinda hacky workaround to turn two &str into a valid hex byte
             //again either 0 or 100ns averaging about 25
             let red = std::str::from_utf8(&r).unwrap();
-            //sets red value in the thing into the hex value contained in red
-            pixel[0] = u8::from_str_radix(red, 16).unwrap(); // R
             //this whole bit takes about 200ns reliably
-            let g = [fb[pos + 2], fb[pos + 3]];
-            let green = std::str::from_utf8(&g).unwrap();
-            pixel[1] = u8::from_str_radix(green, 16).unwrap(); // G
 
-            let b = [fb[pos + 4], fb[pos + 5]];
+            g = [fb[pos + 2], fb[pos + 3]];
+            let green = std::str::from_utf8(&g).unwrap();
+
+            b = [fb[pos + 4], fb[pos + 5]];
             let blue = std::str::from_utf8(&b).unwrap();
-            pixel[2] = u8::from_str_radix(blue, 16).unwrap(); // B
-             //Sets transparency value to none because that is stupid
-            pixel[3] = 0xFF;
+
             //test for transparency in image
             //takes 100-200ns
             let st = format!("{}{}{}", red, green, blue);
@@ -259,11 +255,21 @@ impl Screen {
                     let gre2 = std::str::from_utf8(&g2).unwrap();
                     u8::from_str_radix(gre2, 16).unwrap()
                 };
+                continue;
             }
+
+            //takes it from u8 bytes to &str UTF-8
+            //sets red value in the thing into the hex value contained in red
+            pixel[0] = u8::from_str_radix(red, 16).unwrap(); // R
+            pixel[1]  = u8::from_str_radix(green, 16).unwrap(); // G
+            pixel[2] = u8::from_str_radix(blue, 16).unwrap(); // B
+
+            // let blue = std::str::from_utf8().unwrap();
+            //Sets transparency value to none because that isnt needed
         }
         let time_n = SystemTime::now();
         let diff = time_n.duration_since(times).unwrap();
-        println!("{:.?}", diff);
+        println!("{:?}", diff);
     }
 }
 // fn _update(&mut self, sc) -> std::io::Result <()> {
