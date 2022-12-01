@@ -214,6 +214,7 @@ impl Screen {
         let mut r:[u8;2];
         let mut g:[u8;2];
         let mut b:[u8;2];
+        let mut it:usize = 0;
         let pix_iter = pix.as_parallel_slice_mut();
         pix_iter.par_chunks_exact_mut(4).for_each( |pixel| {
         //for (it, pixel) in pix_iter.chunks_exact_mut(4).enumerate() {
@@ -255,7 +256,6 @@ impl Screen {
                     let gre2 = std::str::from_utf8(&g2).unwrap();
                     u8::from_str_radix(gre2, 16).unwrap()
                 };
-                continue;
             }
 
             //takes it from u8 bytes to &str UTF-8
@@ -270,6 +270,7 @@ impl Screen {
         let time_n = SystemTime::now();
         let diff = time_n.duration_since(times).unwrap();
         println!("{:?}", diff);
+        it = it + 1;
     }
 }
 // fn _update(&mut self, sc) -> std::io::Result <()> {
