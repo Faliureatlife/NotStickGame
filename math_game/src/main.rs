@@ -7,6 +7,7 @@ use pixels::Pixels;
 use std::{
     env,
     time::SystemTime,
+    mem,
     //     fs::*,
     //     time::Duration,
     //     thread::sleep,
@@ -35,7 +36,7 @@ fn main() -> Result<(), pixels::Error> {
 
     //set env variable to give simple backtrace of broken runtime code
     let var = "RUST_BACKTRACE";
-    env::set_var(var, "0");
+    env::set_var(var, "1");
 
     //Create window and give it Physical Size of 720 4:3
     let window = Window::new(&event_loop).unwrap();
@@ -154,8 +155,6 @@ impl Screen {
             area: std::fs::read(place).unwrap(),
         }
     }
-//test comment
-
     fn draw(&self, pix: &mut [u8]) {
         let times = SystemTime::now();
         //iterator var
@@ -182,10 +181,14 @@ impl Screen {
             //println!("{}",v);
             //about 130 nanoseconds
             let (b4, l8) = fb.split_at(
-                (((6 * 720 * self.player.y_pos) + 6 * (self.player.x_pos)) as u32 + (6 * 720 * v))
+                (((6 * 720 * self.player.y_pos) + 6 * (self.player.x_pos)) as u64 + (6 * 720 * v))
                 as usize,
             );
-
+            // let x = (((6 * 720 * self.player.y_pos) + 6 * (self.player.x_pos)) as u32 + (6 * 720 * v))
+            //     as usize;
+            // let a = mem::size_of_val(&x);
+            // println!("{}",x);
+            // println!("{}",a);
             //println!{"the split point is {}",p}
             //either 70 or 200 nanoseconds
             let (_, l8r) = l8.split_at(108);
@@ -214,10 +217,10 @@ impl Screen {
         let mut r:[u8;2];
         let mut g:[u8;2];
         let mut b:[u8;2];
-        let mut it:usize = 0;
-        let pix_iter = pix.as_parallel_slice_mut();
-        pix_iter.par_chunks_exact_mut(4).for_each( |pixel| {
-        //for (it, pixel) in pix_iter.chunks_exact_mut(4).enumerate() {
+        // let mut it:usize = 0;
+        // let pix_iter = pix.as_parallel_slice_mut();
+        // pix_iter.par_chunks_exact_mut(4).for_each( |pixel| {
+        for (it, pixel) in pix.chunks_exact_mut(4).enumerate() {
             pixel[3] = 0xFF;
             //i*6 is the byte chunk
             //either 0 or 100 ns, avg about 25
@@ -256,6 +259,7 @@ impl Screen {
                     let gre2 = std::str::from_utf8(&g2).unwrap();
                     u8::from_str_radix(gre2, 16).unwrap()
                 };
+                continue;
             }
 
             //takes it from u8 bytes to &str UTF-8
@@ -266,11 +270,10 @@ impl Screen {
 
             // let blue = std::str::from_utf8().unwrap();
             //Sets transparency value to none because that isnt needed
-        });
-        let time_n = SystemTime::now();
-        let diff = time_n.duration_since(times).unwrap();
-        println!("{:?}", diff);
-        it = it + 1;
+            // let time_n = SystemTime::now();
+            // let diff = time_n.duration_since(times).unwrap();
+            // println!("{:?}", diff);
+        }
     }
 }
 // fn _update(&mut self, sc) -> std::io::Result <()> {
