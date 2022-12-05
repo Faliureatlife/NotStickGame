@@ -78,19 +78,19 @@ fn main() -> Result<(), pixels::Error> {
                 *control_flow = ControlFlow::Exit;
                 return;
             }
-            if input.key_pressed(VirtualKeyCode::W) {
+            if input.key_held(VirtualKeyCode::W) {
                 screen.player.mov(1);
                 return;
             }
-            if input.key_pressed(VirtualKeyCode::A) {
+            if input.key_held(VirtualKeyCode::A) {
                 screen.player.mov(2);
                 return;
             }
-            if input.key_pressed(VirtualKeyCode::S) {
+            if input.key_held(VirtualKeyCode::S) {
                 screen.player.mov(3);
                 return;
             }
-            if input.key_pressed(VirtualKeyCode::D) {
+            if input.key_held(VirtualKeyCode::D) {
                 screen.player.mov(4);
                 return;
             }
@@ -156,7 +156,7 @@ impl Screen {
         }
     }
     fn draw(&self, pix: &mut [u8]) {
-        let times = SystemTime::now();
+        // let times = SystemTime::now();
         //iterator var
         let mut fb = self.area.clone();
         //fb.get_mut(((720*self.player.x_pos + self.player.y_pos) as usize)..(((720*self.player.x_pos + self.player.y_pos) as usize )+self.player.sprite.len())) = &self.player.sprite;
@@ -176,19 +176,19 @@ impl Screen {
         //entities are 18x27
         //whole thing takes about 8ms
         //each iteration is about 300 microseconds
+
+        const byte_len: u64 = 6;
+        const screen_width: u64 = 720;
         for v in 0..27 {
             //0-26
             //println!("{}",v);
             //about 130 nanoseconds
-            let (b4, l8) = fb.split_at(
-                (((6 * 720 * self.player.y_pos) + 6 * (self.player.x_pos)) as u64 + (6 * 720 * v))
-                as usize,
-            );
-            // let x = (((6 * 720 * self.player.y_pos) + 6 * (self.player.x_pos)) as u32 + (6 * 720 * v))
-            //     as usize;
+            let x = ((byte_len * screen_width * self.player.y_pos as u64) + (byte_len * (self.player.x_pos as u64)) + (byte_len * screen_width * v))
+                as u64;
             // let a = mem::size_of_val(&x);
             // println!("{}",x);
             // println!("{}",a);
+            let (b4, l8) = fb.split_at(x as usize);
             //println!{"the split point is {}",p}
             //either 70 or 200 nanoseconds
             let (_, l8r) = l8.split_at(108);
@@ -197,7 +197,7 @@ impl Screen {
             let good = &(self
                 .player
                 .sprite
-                .get((6 * 18 * v) as usize..(6 * 18 * v + 18 * 6) as usize)
+                .get((byte_len * 18 * v) as usize..(byte_len * 18 * (v + 1)) as usize)
                 .unwrap());
 
             //400-500 microseconds
