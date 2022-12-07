@@ -78,19 +78,19 @@ fn main() -> Result<(), pixels::Error> {
                 *control_flow = ControlFlow::Exit;
                 return;
             }
-            if input.key_held(VirtualKeyCode::W) {
+            if input.key_pressed_os(VirtualKeyCode::W) {
                 screen.player.mov(1);
                 return;
             }
-            if input.key_held(VirtualKeyCode::A) {
+            if input.key_pressed_os(VirtualKeyCode::A) {
                 screen.player.mov(2);
                 return;
             }
-            if input.key_held(VirtualKeyCode::S) {
+            if input.key_pressed_os(VirtualKeyCode::S) {
                 screen.player.mov(3);
                 return;
             }
-            if input.key_held(VirtualKeyCode::D) {
+            if input.key_pressed_os(VirtualKeyCode::D) {
                 screen.player.mov(4);
                 return;
             }
@@ -122,16 +122,16 @@ impl Player {
     fn mov(&mut self, dir: u8) {
         match dir {
             //Move up W
-            1 if self.y_pos > 1 => self.y_pos -= 2,
+            1 if self.y_pos > 3 => self.y_pos -= 2,
             1 => {}
             //Move left A
-            2 if self.x_pos > 1 => self.x_pos -= 2,
+            2 if self.x_pos > 3 => self.x_pos -= 2,
             2 => {}
             //Move down S
-            3 if self.y_pos < 539 => self.y_pos += 2,
+            3 if self.y_pos < 511 => self.y_pos += 2,
             3 => {}
             //Move right D
-            4 if self.x_pos < 719 => self.x_pos += 2,
+            4 if self.x_pos < 700 => self.x_pos += 2,
             4 => {}
             _ => panic!("Invalid movement"),
         }
@@ -177,13 +177,13 @@ impl Screen {
         //whole thing takes about 8ms
         //each iteration is about 300 microseconds
 
-        const byte_len: u64 = 6;
-        const screen_width: u64 = 720;
+        const BYTE_LEN: u64 = 6;
+        const SCREEN_WIDTH: u64 = 720;
         for v in 0..27 {
             //0-26
             //println!("{}",v);
             //about 130 nanoseconds
-            let x = ((byte_len * screen_width * self.player.y_pos as u64) + (byte_len * (self.player.x_pos as u64)) + (byte_len * screen_width * v))
+            let x = ((BYTE_LEN * SCREEN_WIDTH * self.player.y_pos as u64) + (BYTE_LEN * (self.player.x_pos as u64)) + (BYTE_LEN * SCREEN_WIDTH * v))
                 as u64;
             // let a = mem::size_of_val(&x);
             // println!("{}",x);
@@ -197,7 +197,7 @@ impl Screen {
             let good = &(self
                 .player
                 .sprite
-                .get((byte_len * 18 * v) as usize..(byte_len * 18 * (v + 1)) as usize)
+                .get((BYTE_LEN * 18 * v) as usize..(BYTE_LEN * 18 * (v + 1)) as usize)
                 .unwrap());
 
             //400-500 microseconds
