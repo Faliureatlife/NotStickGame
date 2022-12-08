@@ -153,6 +153,11 @@ impl Screen {
             //baddies: vec![],
             //check the types that are used if errors, maybe &str ?
             area: std::fs::read(place).unwrap(),
+        //     {
+        // add in the whole framebuffer thing and just copy it later
+        // render adds in just the characters on top
+        // i hate myself
+        // }
         }
     }
     fn draw(&self, pix: &mut [u8]) {
@@ -212,8 +217,6 @@ impl Screen {
         //framebuffer dump for errors
         //std::fs::write("asdf", &fb).unwrap();
 
-
-        //ENTIRE thing takes 1.8 microseconds
         let mut r:[u8;2];
         let mut g:[u8;2];
         let mut b:[u8;2];
