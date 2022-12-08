@@ -160,10 +160,10 @@ impl Screen {
        // i hate myself
 	   //render all of place into a vec<u8> same as pixels
 	   let temp_area = std::fs::read(place).unwrap();
-	   for pix in temp_area.chunks_exact_mut(2).enumerate(){
+	   for (it,pix) in temp_area.chunks_exact_mut(2).enumerate(){
 			//std::str::from_utf8(&g).unwrap()
 			//u8::from_str_radix(blu2, 16).unwrap()
-            area.
+            area[it] = from_str_radix(from_utf8(pix),16).unwrap()
 	   }
        // }
        }
