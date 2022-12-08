@@ -147,19 +147,27 @@ struct Screen {
 }
 
 impl Screen {
-    fn new(place: &str) -> Self {
-        Self {
-            player: Player::new("SpriteData/Nav/up/back_nav0.txt"),
-            //baddies: vec![],
-            //check the types that are used if errors, maybe &str ?
-            area: std::fs::read(place).unwrap(),
-        //     {
-        // add in the whole framebuffer thing and just copy it later
-        // render adds in just the characters on top
-        // i hate myself
-        // }
-        }
-    }
+   fn new(place: &str) -> Self {
+       Self {
+           player: Player::new("SpriteData/Nav/up/back_nav0.txt"),
+           //baddies: vec![],
+           //check the types that are used if errors, maybe &str ?
+		   //area maybe as an array, convert to slice later on?
+           area: std::fs::read(place).unwrap(),
+       //     {
+       // add in the whole framebuffer thing and just copy it later
+       // render adds in just the characters on top
+       // i hate myself
+	   //render all of place into a vec<u8> same as pixels
+	   let temp_area = std::fs::read(place).unwrap();
+	   for pix in temp_area.chunks_exact_mut(2).enumerate(){
+			//std::str::from_utf8(&g).unwrap()
+			//u8::from_str_radix(blu2, 16).unwrap()
+            area.
+	   }
+       // }
+       }
+   }
     fn draw(&self, pix: &mut [u8]) {
         // let times = SystemTime::now();
         //iterator var
