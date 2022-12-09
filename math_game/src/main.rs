@@ -50,14 +50,14 @@ fn main() -> Result<(), pixels::Error> {
     let mut pixels = Pixels::new(720, 540, surface_texture)?;
 
     //screen object that has the text.txt source file
-    let mut screen = Screen::new("WorldData/test.txt");
+    let mut current_screen = Screen::new("WorldData/test.txt");
     //loop that runs program
     //todo: multithreading to have game thinking and rendering at same time
     event_loop.run(move |event, _, control_flow| {
         //When it wants to redraw do this
         if let Event::RedrawRequested(_) = event {
             //framebuffer that we shall mut
-            screen.draw(pixels.get_frame());
+            current_screen.draw(pixels.get_frame());
             //do the thinking for the drawing process
             //render the frame buffer and panic if it has something passed to it
             if pixels
@@ -107,6 +107,8 @@ struct Player {
     //top right of player
     x_pos: u16,
     y_pos: u16,
+    move_state:u8,
+    // data:
     sprite: Vec<u8>,
     //direction: u8
 }
@@ -116,22 +118,28 @@ impl Player {
         Self {
             x_pos: START_X,
             y_pos: START_Y,
+            move_state: 0,
+
             sprite: std::fs::read(spr).unwrap(),
         }
     }
     fn mov(&mut self, dir: u8) {
         match dir {
             //Move up W
-            1 if self.y_pos > 3 => self.y_pos -= 2,
+            1 if self.y_pos > 3 => {self.y_pos -= 2;
+                                    move_state +=1;},
             1 => {}
             //Move left A
-            2 if self.x_pos > 3 => self.x_pos -= 2,
+            2 if self.x_pos > 3 => {self.x_pos -= 2;
+                                    move_state +=1;},
             2 => {}
             //Move down S
-            3 if self.y_pos < 511 => self.y_pos += 2,
+            3 if self.y_pos < 511 => {self.y_pos += 2;
+                                    move_state +=1;},
             3 => {}
             //Move right D
-            4 if self.x_pos < 700 => self.x_pos += 2,
+            4 if self.x_pos < 700 => {self.x_pos += 2;
+                                    move_state +=1;},
             4 => {}
             _ => panic!("Invalid movement"),
         }
@@ -140,7 +148,6 @@ impl Player {
 
 struct Screen {
     player: Player,
-    //player_pos: enum
     //triggers: idk
     //baddies: Vec<Baddie>,
     area: Vec<u8>,
