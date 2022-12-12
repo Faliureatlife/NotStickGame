@@ -50,8 +50,7 @@ fn main() -> Result<(), pixels::Error> {
     let mut pixels = Pixels::new(720, 540, surface_texture)?;
 
     //screen object that has the text.txt source file
-    let mut screen = Screen::new();
-    screen.new_screen("WorldData/test.txt");
+    let mut screen = Screen::new("WorldData/test.txt");
     //loop that runs program
     //todo: multithreading to have game thinking and rendering at same time
     event_loop.run(move |event, _, control_flow| {
@@ -108,8 +107,6 @@ struct Player {
     //top right of player
     x_pos: u16,
     y_pos: u16,
-    move_state:u8,
-    // data:
     sprite: Vec<u8>,
     //direction: u8
 }
@@ -119,28 +116,22 @@ impl Player {
         Self {
             x_pos: START_X,
             y_pos: START_Y,
-            move_state: 0,
-
             sprite: std::fs::read(spr).unwrap(),
         }
     }
     fn mov(&mut self, dir: u8) {
         match dir {
             //Move up W
-            1 if self.y_pos > 3 => {self.y_pos -= 2;
-                                    self.move_state +=1;},
+            1 if self.y_pos > 3 => self.y_pos -= 2,
             1 => {}
             //Move left A
-            2 if self.x_pos > 3 => {self.x_pos -= 2;
-                                    self.move_state +=1;},
+            2 if self.x_pos > 3 => self.x_pos -= 2,
             2 => {}
             //Move down S
-            3 if self.y_pos < 511 => {self.y_pos += 2;
-                                    self.move_state +=1;},
+            3 if self.y_pos < 511 => self.y_pos += 2,
             3 => {}
             //Move right D
-            4 if self.x_pos < 700 => {self.x_pos += 2;
-                                    self.move_state +=1;},
+            4 if self.x_pos < 700 => self.x_pos += 2,
             4 => {}
             _ => panic!("Invalid movement"),
         }
@@ -156,33 +147,32 @@ struct Screen {
 }
 
 impl Screen {
-   fn new(/*place: &str*/) -> Self {
-       Self {
-           player: Player::new("SpriteData/Nav/up/back_nav0.txt"),
-           //baddies: vec![],
-           //check the types that are used if errors, maybe &str ?
-		   //area maybe as an array, convert to slice later on?
-           area: vec!(),
-
-       // add in the whole framebuffer thing and just copy it later
-       // render adds in just the characters on top
-       // i hate myself
-	   //render all of place into a vec<u8> same as pixels
-       // }
-       }
-   }
-    fn new_screen(&mut self,place: &str) {
-        for (it,pix) in std::fs::read(place).unwrap().chunks_exact_mut(2).enumerate(){
-            //std::str::from_utf8(&g).unwrap()
-            //u8::from_str_radix(blu2, 16).unwrap()
-            self.area.push(u8::from_str_radix(std::str::from_utf8(pix).unwrap(),16).unwrap())
+    fn new(place: &str) -> Self {
+        Self {
+            player: Player::new("SpriteData/Nav/up/back_nav0.txt"),
+            //baddies: vec![],
+            //check the types that are used if errors, maybe &str ?
+            area: std::fs::read(place).unwrap(),
         }
-
     }
-    fn draw(&self, pix: &[u8]) {
+    fn draw(&self, pix: & [u8]) {
         // let times = SystemTime::now();
         //iterator var
         let mut fb = self.area.clone();
+        //fb.get_mut(((720*self.player.x_pos + self.player.y_pos) as usize)..(((720*self.player.x_pos + self.player.y_pos) as usize )+self.player.sprite.len())) = &self.player.sprite;
+        //for (i, bit) in fb.get_mut(((720*self.player.x_pos + self.player.y_pos) as usize)..(((720*self.player.x_pos + self.player.y_pos) as usize )+self.player.sprite.len())).into_iter().enumerate(){
+        //     bit = &mut [self.player.sprite[i]];
+        // }
+        //^^ failed ideas that im keeping because they could be useful
+
+        //below here needs to be recommented
+        // let (b4,l8) = fb.split_at_mut((720*self.player.x_pos + self.player.y_pos) as usize);
+        // let (_,l8r) = l8.split_at_mut((720*self.player.x_pos + self.player.y_pos) as usize + self.player.sprite.len());
+        // let good = &mut self.player.sprite
+        // .as_slice()
+        // .to_owned();
+        // fb = [b4,good,l8r].concat();
+
         //entities are 18x27
         //whole thing takes about 8ms
         //each iteration is about 300 microseconds
@@ -190,15 +180,11 @@ impl Screen {
         const BYTE_LEN: u64 = 6;
         const SCREEN_WIDTH: u64 = 720;
         for v in 0..27 {
-            // for it in 0 .. 18 {
-            //     if std::str::from_utf8(self.player.sprite.get((BYTE_LEN*v+it) as usize .. (BYTE_LEN*v+it+BYTE_LEN) as usize).unwrap()).unwrap() == "000000" {
-            //
-            //     }
-            // }
             //0-26
             //println!("{}",v);
             //about 130 nanoseconds
-            let x = (BYTE_LEN * SCREEN_WIDTH * self.player.y_pos as u64) + (BYTE_LEN * (self.player.x_pos as u64)) + (BYTE_LEN * SCREEN_WIDTH * v);
+            let x = ((BYTE_LEN * SCREEN_WIDTH * self.player.y_pos as u64) + (BYTE_LEN * (self.player.x_pos as u64)) + (BYTE_LEN * SCREEN_WIDTH * v))
+                as u64;
             // let a = mem::size_of_val(&x);
             // println!("{}",x);
             // println!("{}",a);
@@ -222,8 +208,72 @@ impl Screen {
             //println!("the first part is {}, and the second is {}, and this is equal to {}",b4.len(),l8.len(),b4.len() + l8.len());
             //println!("the discrepancy of the first part is {} \n",(b4.len() + l8.len())-(a.len() + l8r.len()));
         }
-        pix = &fb;
+        //until this point is about 8ms, too long id say
+        //framebuffer dump for errors
+        //std::fs::write("asdf", &fb).unwrap();
 
+
+        //ENTIRE thing takes 1.8 microseconds
+        let mut r:[u8;2];
+        let mut g:[u8;2];
+        let mut b:[u8;2];
+        // let mut it:usize = 0;
+        // let pix_iter = pix.as_parallel_slice_mut();
+        // pix_iter.par_chunks_exact_mut(4).for_each( |pixel| {
+        for (it, pixel) in pix.chunks_exact_mut(4).enumerate() {
+            pixel[3] = 0xFF;
+            //i*6 is the byte chunk
+            //either 0 or 100 ns, avg about 25
+            let pos = it * 6;
+
+            //takes two u8 and puts together
+            //either 100 or 200ns, avg about 150
+            r = [fb[pos], fb[pos + 1]];
+            //kinda hacky workaround to turn two &str into a valid hex byte
+            //again either 0 or 100ns averaging about 25
+            let red = std::str::from_utf8(&r).unwrap();
+            //this whole bit takes about 200ns reliably
+
+            g = [fb[pos + 2], fb[pos + 3]];
+            let green = std::str::from_utf8(&g).unwrap();
+
+            b = [fb[pos + 4], fb[pos + 5]];
+            let blue = std::str::from_utf8(&b).unwrap();
+
+            //test for transparency in image
+            //takes 100-200ns
+            let st = format!("{}{}{}", red, green, blue);
+            if st.as_str() == "000000" {
+                pixel[0] = {
+                    let r2 = [self.area[pos], self.area[pos + 1]];
+                    let red2 = std::str::from_utf8(&r2).unwrap();
+                    u8::from_str_radix(red2, 16).unwrap()
+                };
+                pixel[1] = {
+                    let b2 = [self.area[pos + 2], self.area[pos + 3]];
+                    let blu2 = std::str::from_utf8(&b2).unwrap();
+                    u8::from_str_radix(blu2, 16).unwrap()
+                };
+                pixel[2] = {
+                    let g2 = [self.area[pos + 2], self.area[pos + 3]];
+                    let gre2 = std::str::from_utf8(&g2).unwrap();
+                    u8::from_str_radix(gre2, 16).unwrap()
+                };
+                continue;
+            }
+
+            //takes it from u8 bytes to &str UTF-8
+            //sets red value in the thing into the hex value contained in red
+            pixel[0] = u8::from_str_radix(red, 16).unwrap(); // R
+            pixel[1]  = u8::from_str_radix(green, 16).unwrap(); // G
+            pixel[2] = u8::from_str_radix(blue, 16).unwrap(); // B
+
+            // let blue = std::str::from_utf8().unwrap();
+            //Sets transparency value to none because that isnt needed
+            // let time_n = SystemTime::now();
+            // let diff = time_n.duration_since(times).unwrap();
+            // println!("{:?}", diff);
+        }
     }
 }
 // fn _update(&mut self, sc) -> std::io::Result <()> {
