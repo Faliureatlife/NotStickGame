@@ -8,7 +8,8 @@ use std::{
     env,
     time::SystemTime,
     mem,
-    //     fs::*,
+    io::Write,
+    fs::*,
     //     time::Duration,
     //     thread::sleep,
     u8,
@@ -171,15 +172,17 @@ impl Screen {
        }
    }
     fn new_screen(place: &str) -> Vec<u8> {
+
         let mut data: Vec<u8> = vec![];
         for pix in std::fs::read(place).unwrap().chunks_exact_mut(2){
             //std::str::from_utf8(&g).unwrap()
             //u8::from_str_radix(blu2, 16).unwrap()
             data.push(u8::from_str_radix(std::str::from_utf8(pix).unwrap(),16).unwrap());
-            // println!("{:?}",pix);
+            // write!(a,"{:.?}", "{b}")
 
         }
-        std::fs::write("asdf.txt", &data).unwrap();
+        let a = format!("{:.?}",&data);
+        std::fs::write("asda.txt", &a).unwrap();
         println!("File created");
         data
 
