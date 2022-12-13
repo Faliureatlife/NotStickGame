@@ -50,8 +50,7 @@ fn main() -> Result<(), pixels::Error> {
     let mut pixels = Pixels::new(720, 540, surface_texture)?;
 
     //screen object that has the text.txt source file
-    let mut screen = Screen::new();
-    screen.new_screen("WorldData/test.txt");
+    let mut screen = Screen::new("WorldData/test.txt");
     //loop that runs program
     //todo: multithreading to have game thinking and rendering at same time
     event_loop.run(move |event, _, control_flow| {
@@ -156,13 +155,13 @@ struct Screen {
 }
 
 impl Screen {
-   fn new(/*place: &str*/) -> Self {
+   fn new(place: &str) -> Self {
        Self {
            player: Player::new("SpriteData/Nav/up/back_nav0.txt"),
            //baddies: vec![],
            //check the types that are used if errors, maybe &str ?
 		   //area maybe as an array, convert to slice later on?
-           area: vec!(),
+           area: Screen::new_screen(place),
 
        // add in the whole framebuffer thing and just copy it later
        // render adds in just the characters on top
@@ -171,15 +170,21 @@ impl Screen {
        // }
        }
    }
-    fn new_screen(&mut self,place: &str) {
-        for (it,pix) in std::fs::read(place).unwrap().chunks_exact_mut(2).enumerate(){
+    fn new_screen(place: &str) -> Vec<u8> {
+        let mut data: Vec<u8> = vec![];
+        for pix in std::fs::read(place).unwrap().chunks_exact_mut(2){
             //std::str::from_utf8(&g).unwrap()
             //u8::from_str_radix(blu2, 16).unwrap()
-            self.area.push(u8::from_str_radix(std::str::from_utf8(pix).unwrap(),16).unwrap())
+            data.push(u8::from_str_radix(std::str::from_utf8(pix).unwrap(),16).unwrap());
+            // println!("{:?}",pix);
+
         }
+        std::fs::write("asdf.txt", &data).unwrap();
+        println!("File created");
+        data
 
     }
-    fn draw(&self, pix: &[u8]) {
+    fn draw(&self, pix: &mut [u8]) {
         // let times = SystemTime::now();
         //iterator var
         let mut fb = self.area.clone();
@@ -217,13 +222,19 @@ impl Screen {
             //400-500 microseconds
             fb = [b4, good, l8r].concat();
 
-
             //test infodumps
             //println!("the first part is {}, and the second is {}, and this is equal to {}",b4.len(),l8.len(),b4.len() + l8.len());
             //println!("the discrepancy of the first part is {} \n",(b4.len() + l8.len())-(a.len() + l8r.len()));
         }
-        pix = &fb;
-
+        // for (it, pixel) in pix.chunks_exact_mut(4).enumerate() {
+        //     pixel[0] = fb[it*6];
+        //     pixel[1] = fb[it*6+2];
+        //     pixel[2] = fb[it*6+4];
+        //     pixel[3] = 0xFF;
+        // }
+        // let time_n = SystemTime::now();
+        // let diff = time_n.duration_since(times).unwrap();
+        // println!("{:?}", diff);
     }
 }
 // fn _update(&mut self, sc) -> std::io::Result <()> {
