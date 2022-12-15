@@ -179,14 +179,17 @@ impl Screen {
             //u8::from_str_radix(blu2, 16).unwrap()
             data.push(u8::from_str_radix(std::str::from_utf8(pix).unwrap(),16).unwrap());
             // write!(a,"{:.?}", "{b}")
-
         }
-        let a = format!("{:.?}",&data);
-        std::fs::write("asda.txt", &a).unwrap();
-        println!("File created");
+        for x in data {
+            data.split_at(4 * x as usize)
+        }
+        // let a = format!("{:.?}",&data);
+        // std::fs::write("asda.txt", &a).unwrap();
+        // println!("File created");
+        //output the whole thing
         data
-
     }
+
     fn draw(&self, pix: &mut [u8]) {
         // let times = SystemTime::now();
         //iterator var
