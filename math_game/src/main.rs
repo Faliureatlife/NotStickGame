@@ -174,7 +174,7 @@ impl Screen {
     fn new_screen(place: &str) -> Vec<u8> {
 
         let mut data: Vec<u8> = vec![];
-        let mut real_data: Vec<u8> = vec![];
+        // let mut real_data: Vec<u8> = vec![];
         for pix in std::fs::read(place).unwrap().chunks_exact_mut(2){
             //std::str::from_utf8(&g).unwrap()
             //u8::from_str_radix(blu2, 16).unwrap()
@@ -183,20 +183,21 @@ impl Screen {
             // write!(a,"{:.?}", "{b}")
         }
 
-        for (it,x) in data.into_iter().enumerate() {
-            if it % 4 == 0 {
-                real_data.push(0);
-            }
-            real_data.push(x);
-        }
-        let a = format!("{:?}",&real_data);
-        std::fs::write("with_opacity.txt", a).unwrap();
+        // for (it,x) in data.into_iter().enumerate() {
+        //     if it == 0 {continue;}
+        //     if it % 4 == 0 {
+        //         real_data.push(0);
+        //     }
+        //     real_data.push(x);
+        // }
+        let a = format!("{:?}",&data);
+        std::fs::write("without_opacity.txt", a).unwrap();
         println!("File created");
         //output the whole thing
-        real_data
+        data
     }
 //pix never used but needed in order to draw to framebuffer
-    fn draw(&self, _pix: &mut [u8]) {
+    fn draw(&self, pix: &mut [u8]) {
         // let times = SystemTime::now();
         //iterator var
         let mut fb = self.area.clone();
@@ -212,14 +213,14 @@ impl Screen {
             //
             //     }
             // }
-            //0-26
-            //println!("{}",v);
             //about 130 nanoseconds
             let x = (BYTE_LEN * SCREEN_WIDTH * self.player.y_pos as u64) + (BYTE_LEN * (self.player.x_pos as u64)) + (BYTE_LEN * SCREEN_WIDTH * v);
             // let a = mem::size_of_val(&x);
             // println!("{}",x);
             // println!("{}",a);
             let (b4, l8) = fb.split_at(x as usize);
+            //0-26
+            //println!("{}",v);
             //println!{"the split point is {}",p}
             //either 70 or 200 nanoseconds
             let (_, l8r) = l8.split_at(108);
@@ -237,6 +238,12 @@ impl Screen {
             //test infodumps
             //println!("the first part is {}, and the second is {}, and this is equal to {}",b4.len(),l8.len(),b4.len() + l8.len());
             //println!("the discrepancy of the first part is {} \n",(b4.len() + l8.len())-(a.len() + l8r.len()));
+        }
+        for (it,pixel) in pix.chunks_exact_mut(4).enumerate() {
+            pixel[0] = self.area[it];
+            pixel[1] = self.area[it+1];
+            pixel[2] = self.area[it+2];
+            pixel[3] = 255;
         }
         // for (it, pixel) in pix.chunks_exact_mut(4).enumerate() {
         //     pixel[0] = fb[it*6];
