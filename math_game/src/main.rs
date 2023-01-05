@@ -6,10 +6,10 @@ use pixels::Pixels;
 // use pixels::wgpu::Color;
 use std::{
     env,
-    time::SystemTime,
-    mem,
-    io::Write,
-    fs::*,
+    // time::SystemTime,
+    // mem,
+    // io::Write,
+    // fs::*,
     //     time::Duration,
     //     thread::sleep,
     u8,
@@ -21,7 +21,7 @@ use winit::{
     event_loop::*,
     window::Window,
 };
-use rayon::prelude::*;
+// use rayon::prelude::*;
 use winit_input_helper::WinitInputHelper;
 
 //starting position of player
@@ -174,23 +174,29 @@ impl Screen {
     fn new_screen(place: &str) -> Vec<u8> {
 
         let mut data: Vec<u8> = vec![];
+        let mut real_data: Vec<u8> = vec![];
         for pix in std::fs::read(place).unwrap().chunks_exact_mut(2){
             //std::str::from_utf8(&g).unwrap()
             //u8::from_str_radix(blu2, 16).unwrap()
+            //gives a vec<u8> of all "valid" bits for the fb without the added opacity bits
             data.push(u8::from_str_radix(std::str::from_utf8(pix).unwrap(),16).unwrap());
             // write!(a,"{:.?}", "{b}")
         }
-        for x in data {
-            data.split_at(4 * x as usize)
-        }
-        // let a = format!("{:.?}",&data);
-        // std::fs::write("asda.txt", &a).unwrap();
-        // println!("File created");
-        //output the whole thing
-        data
-    }
 
-    fn draw(&self, pix: &mut [u8]) {
+        for (it,x) in data.into_iter().enumerate() {
+            if it % 4 == 0 {
+                real_data.push(0);
+            }
+            real_data.push(x);
+        }
+        let a = format!("{:?}",&real_data);
+        std::fs::write("with_opacity.txt", a).unwrap();
+        println!("File created");
+        //output the whole thing
+        real_data
+    }
+//pix never used but needed in order to draw to framebuffer
+    fn draw(&self, _pix: &mut [u8]) {
         // let times = SystemTime::now();
         //iterator var
         let mut fb = self.area.clone();
@@ -219,11 +225,11 @@ impl Screen {
             let (_, l8r) = l8.split_at(108);
 
             //about 100 nanoseconds again with 400 spikes
-            let good = &(self
+            let good = self
                 .player
                 .sprite
                 .get((BYTE_LEN * 18 * v) as usize..(BYTE_LEN * 18 * (v + 1)) as usize)
-                .unwrap());
+                .unwrap();
 
             //400-500 microseconds
             fb = [b4, good, l8r].concat();
