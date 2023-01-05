@@ -182,7 +182,7 @@ impl Screen {
             data.push(u8::from_str_radix(std::str::from_utf8(pix).unwrap(),16).unwrap());
             // write!(a,"{:.?}", "{b}")
         }
-
+        println!("Its this long, supposed to be like 2,332,800: {}",data.len());
         // for (it,x) in data.into_iter().enumerate() {
         //     if it == 0 {continue;}
         //     if it % 4 == 0 {
@@ -245,6 +245,12 @@ impl Screen {
             pixel[2] = self.area[it+2];
             pixel[3] = 255;
         }
+    //0-388799 it, should be right amt
+    //testing the fb contents
+    // let a = format!("{:?}",&pix);
+    // std::fs::write("framebuffer.txt", a).unwrap();
+    // println!("File created");
+
         // for (it, pixel) in pix.chunks_exact_mut(4).enumerate() {
         //     pixel[0] = fb[it*6];
         //     pixel[1] = fb[it*6+2];
