@@ -49,7 +49,9 @@ fn main() -> Result<(), pixels::Error> {
 
     //frame buffer "pixels"
     let mut pixels = Pixels::new(720, 540, surface_texture)?;
-
+    // for pixel in pixels.get_frame().chunks_exact_mut(4) {
+    //     pixel[3] = 255;
+    // }
     //screen object that has the text.txt source file
     let mut screen = Screen::new("WorldData/dots.txt");
     //loop that runs program
@@ -120,9 +122,15 @@ impl Player {
             x_pos: START_X,
             y_pos: START_Y,
             move_state: 0,
-
-            sprite: std::fs::read(spr).unwrap(),
+            sprite: Player::gen_sprite(spr),
         }
+    }
+    fn gen_sprite(spr: &str) -> Vec<u8> {
+        let mut data = vec![];
+        for pix in std::fs::read(spr).unwrap().chunks_exact(2) {
+            data.push(u8::from_str_radix(std::str::from_utf8(pix).unwrap(), 16).unwrap());
+        }
+        data
     }
     fn mov(&mut self, dir: u8) {
         match dir {
@@ -185,82 +193,50 @@ impl Screen {
         }
         println!("Its this long, supposed to be like 2,332,800: {}",data.len());
         // for (it,x) in data.into_iter().enumerate() {
-        //     if it == 0 {continue;}
-        //     if it % 4 == 0 {
-        //         real_data.push(0);
+        //     // if it == 0 {continue;}
+        //     if it % 3 == 0 {
+        //         real_data.push(255);
         //     }
         //     real_data.push(x);
         // }
-        let a = format!("{:?}",&data);
-        std::fs::write("without_opacity.txt", a).unwrap();
-        println!("File created");
+        // real_data.remove(0);
+        // let a = format!("{:?}",&real_data);
+        // std::fs::write("without_opacity.txt", a).unwrap();
+        // println!("File created");
         //output the whole thing
         data
     }
 //pix never used but needed in order to draw to framebuffer
     fn draw(&self, pix: &mut [u8]) {
-        let times = SystemTime::now();
-        //iterator var
-        let mut fb = self.area.clone();
-        //entities are 18x27
-        //whole thing takes about 8ms
-        //each iteration is about 300 microseconds
-
-        const BYTE_LEN: u64 = 6;
-        const SCREEN_WIDTH: u64 = 720;
-        for v in 0..27 {
-            // for it in 0 .. 18 {
-            //     if std::str::from_utf8(self.player.sprite.get((BYTE_LEN*v+it) as usize .. (BYTE_LEN*v+it+BYTE_LEN) as usize).unwrap()).unwrap() == "000000" {
-            //
-            //     }
-            // }
-            //about 130 nanoseconds
-            let x = (BYTE_LEN * SCREEN_WIDTH * self.player.y_pos as u64) + (BYTE_LEN * (self.player.x_pos as u64)) + (BYTE_LEN * SCREEN_WIDTH * v);
-            // let a = mem::size_of_val(&x);
-            // println!("{}",x);
-            // println!("{}",a);
-            let (b4, l8) = fb.split_at(x as usize);
-            //0-26
-            //println!("{}",v);
-            //println!{"the split point is {}",p}
-            //either 70 or 200 nanoseconds
-            let (_, l8r) = l8.split_at(108);
-
-            //about 100 nanoseconds again with 400 spikes
-            let good = self
-                .player
-                .sprite
-                .get((BYTE_LEN * 18 * v) as usize..(BYTE_LEN * 18 * (v + 1)) as usize)
-                .unwrap();
-
-            //400-500 microseconds
-            fb = [b4, good, l8r].concat();
-
-            //test infodumps
-            //println!("the first part is {}, and the second is {}, and this is equal to {}",b4.len(),l8.len(),b4.len() + l8.len());
-            //println!("the discrepancy of the first part is {} \n",(b4.len() + l8.len())-(a.len() + l8r.len()));
+    let mut trig:bool = false;
+    let mut start = 0;
+    for (it,pixel) in pix.chunks_exact_mut(4).enumerate() {
+            if it % 720 > self.player.x_pos as usize && it % 720 < (self.player.x_pos + 17) as usize {
+                if it / 720 > self.player.y_pos as usize && it / 720 < (self.player.y_pos + 27) as usize{
+                    if !trig {trig = !trig;
+                    start = it;}
+                    pixel[0] = self.player.sprite[(it-start)*3];
+                    //do the expect thing tomorrow
+                    pixel[1] = self.player.sprite[(it-start)*3 + 1];
+                    pixel[2] = self.player.sprite[(it-start)*3 + 2];
+                    pixel[3] = 255;
+                }
+            } else {
+                pixel[0] = self.area[it * 3];
+                pixel[1] = self.area[it * 3 + 1];
+                pixel[2] = self.area[it * 3 + 2];
+                pixel[3] = 255;
+            }
         }
-        for (it,pixel) in pix.chunks_exact_mut(4).enumerate() {
-            pixel[0] = self.area[it*3];
-            pixel[1] = self.area[it*3+1];
-            pixel[2] = self.area[it*3+2];
-            pixel[3] = 255;
-        }
+
+
+
     //0-388799 it, should be right amt
     //testing the fb contents
     // let a = format!("{:?}",&pix);
     // std::fs::write("framebuffer.txt", a).unwrap();
     // println!("File created");
 
-        // for (it, pixel) in pix.chunks_exact_mut(4).enumerate() {
-        //     pixel[0] = fb[it*6];
-        //     pixel[1] = fb[it*6+2];
-        //     pixel[2] = fb[it*6+4];
-        //     pixel[3] = 0xFF;
-        // }
-        let time_n = SystemTime::now();
-        let diff = time_n.duration_since(times).unwrap();
-        println!("{:?}", diff);
     }
 }
 // fn _update(&mut self, sc) -> std::io::Result <()> {
