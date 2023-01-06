@@ -51,7 +51,7 @@ fn main() -> Result<(), pixels::Error> {
     let mut pixels = Pixels::new(720, 540, surface_texture)?;
 
     //screen object that has the text.txt source file
-    let mut screen = Screen::new("WorldData/test.txt");
+    let mut screen = Screen::new("WorldData/dots.txt");
     //loop that runs program
     //todo: multithreading to have game thinking and rendering at same time
     event_loop.run(move |event, _, control_flow| {
@@ -172,14 +172,15 @@ impl Screen {
        }
    }
     fn new_screen(place: &str) -> Vec<u8> {
-
+        let mut bit:bool = false;
         let mut data: Vec<u8> = vec![];
         // let mut real_data: Vec<u8> = vec![];
         for pix in std::fs::read(place).unwrap().chunks_exact_mut(2){
+            bit = !bit;
             //std::str::from_utf8(&g).unwrap()
             //u8::from_str_radix(blu2, 16).unwrap()
             //gives a vec<u8> of all "valid" bits for the fb without the added opacity bits
-            data.push(u8::from_str_radix(std::str::from_utf8(pix).unwrap(),16).unwrap());
+            if bit {data.push(u8::from_str_radix(std::str::from_utf8(pix).unwrap(),16).unwrap());}
             // write!(a,"{:.?}", "{b}")
         }
         println!("Its this long, supposed to be like 2,332,800: {}",data.len());
