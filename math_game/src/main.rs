@@ -6,13 +6,13 @@ use pixels::Pixels;
 // use pixels::wgpu::Color;
 use std::{
     env,
-    // time::SystemTime,
+    time::SystemTime,
     // mem,
     // io::Write,
     // fs::*,
     //     time::Duration,
     //     thread::sleep,
-    u8,
+    // u8,
 };
 use winit::{
     dpi::PhysicalSize,
@@ -173,14 +173,14 @@ impl Screen {
    }
     fn new_screen(place: &str) -> Vec<u8> {
         // let mut bit:bool = false;
-        let mut data: Vec<u8> = vec![];
+        let mut data = vec![];
         // let mut real_data: Vec<u8> = vec![];
-        for pix in std::fs::read(place).unwrap().chunks_exact_mut(2){
+        for pix in std::fs::read(place).unwrap().chunks_exact(2){
             // bit = !bit;
             //std::str::from_utf8(&g).unwrap()
             //u8::from_str_radix(blu2, 16).unwrap()
             //gives a vec<u8> of all "valid" bits for the fb without the added opacity bits
-            /*if bit {*/data.push(u8::from_str_radix(std::str::from_utf8(pix).unwrap(),16).unwrap());/*}*/
+            data.push(u8::from_str_radix(std::str::from_utf8(pix).unwrap(),16).unwrap());
             // write!(a,"{:.?}", "{b}")
         }
         println!("Its this long, supposed to be like 2,332,800: {}",data.len());
@@ -199,7 +199,7 @@ impl Screen {
     }
 //pix never used but needed in order to draw to framebuffer
     fn draw(&self, pix: &mut [u8]) {
-        // let times = SystemTime::now();
+        let times = SystemTime::now();
         //iterator var
         let mut fb = self.area.clone();
         //entities are 18x27
@@ -241,9 +241,9 @@ impl Screen {
             //println!("the discrepancy of the first part is {} \n",(b4.len() + l8.len())-(a.len() + l8r.len()));
         }
         for (it,pixel) in pix.chunks_exact_mut(4).enumerate() {
-            pixel[0] = self.area[it];
-            pixel[1] = self.area[it+1];
-            pixel[2] = self.area[it+2];
+            pixel[0] = self.area[it*3];
+            pixel[1] = self.area[it*3+1];
+            pixel[2] = self.area[it*3+2];
             pixel[3] = 255;
         }
     //0-388799 it, should be right amt
@@ -258,9 +258,9 @@ impl Screen {
         //     pixel[2] = fb[it*6+4];
         //     pixel[3] = 0xFF;
         // }
-        // let time_n = SystemTime::now();
-        // let diff = time_n.duration_since(times).unwrap();
-        // println!("{:?}", diff);
+        let time_n = SystemTime::now();
+        let diff = time_n.duration_since(times).unwrap();
+        println!("{:?}", diff);
     }
 }
 // fn _update(&mut self, sc) -> std::io::Result <()> {

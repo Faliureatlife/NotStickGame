@@ -265,7 +265,7 @@ impl Screen {
             //takes it from u8 bytes to &str UTF-8
             //sets red value in the thing into the hex value contained in red
             pixel[0] = u8::from_str_radix(red, 16).unwrap(); // R
-            pixel[1]  = u8::from_str_radix(green, 16).unwrap(); // G
+            pixel[1] = u8::from_str_radix(green, 16).unwrap(); // G
             pixel[2] = u8::from_str_radix(blue, 16).unwrap(); // B
 
             // let blue = std::str::from_utf8().unwrap();
