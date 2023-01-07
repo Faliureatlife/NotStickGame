@@ -105,23 +105,59 @@ fn main() -> Result<(), pixels::Error> {
     //use to crash program safely
     //
 }
+
 struct Player {
     //top right of player
     x_pos: u16,
     y_pos: u16,
     move_state: u8,
     // data:
-    sprite: Vec<u8>,
-    //direction: u8
+    sprite: [Vec<u8>; 16],
+    direction: u8,
 }
 impl Player {
     //make &string into directory not file
-    fn new(spr: &str) -> Self {
+    fn new(
+        spr0: &str,
+        spr1: &str,
+        spr2: &str,
+        spr3: &str,
+        spr4: &str,
+        spr5: &str,
+        spr6: &str,
+        spr7: &str,
+        spr8: &str,
+        spr9: &str,
+        spr10: &str,
+        spr11: &str,
+        spr12: &str,
+        spr13: &str,
+        spr14: &str,
+        spr15: &str,
+    ) -> Self {
         Self {
             x_pos: START_X,
             y_pos: START_Y,
             move_state: 0,
-            sprite: Player::gen_sprite(spr),
+            sprite: [
+                Player::gen_sprite(spr0),
+                Player::gen_sprite(spr1),
+                Player::gen_sprite(spr2),
+                Player::gen_sprite(spr3),
+                Player::gen_sprite(spr4),
+                Player::gen_sprite(spr5),
+                Player::gen_sprite(spr6),
+                Player::gen_sprite(spr7),
+                Player::gen_sprite(spr8),
+                Player::gen_sprite(spr9),
+                Player::gen_sprite(spr10),
+                Player::gen_sprite(spr11),
+                Player::gen_sprite(spr12),
+                Player::gen_sprite(spr13),
+                Player::gen_sprite(spr14),
+                Player::gen_sprite(spr15),
+            ],
+            direction: 0,
         }
     }
     fn gen_sprite(spr: &str) -> Vec<u8> {
@@ -139,24 +175,28 @@ impl Player {
             1 if self.y_pos > 3 => {
                 self.y_pos -= 2;
                 self.move_state += 1;
+                self.direction = 1;
             }
             1 => {}
             //Move left A
             2 if self.x_pos > 1 => {
                 self.x_pos -= 2;
                 self.move_state += 1;
+                self.direction = 2;
             }
             2 => {}
             //Move down S
             3 if self.y_pos < 511 => {
                 self.y_pos += 2;
                 self.move_state += 1;
+                self.direction = 0;
             }
             3 => {}
             //Move right D
             4 if self.x_pos < 700 => {
                 self.x_pos += 2;
                 self.move_state += 1;
+                self.direction = 3;
             }
             4 => {}
             _ => panic!("Invalid movement"),
@@ -178,16 +218,27 @@ struct Screen {
 impl Screen {
     fn new(place: &str) -> Self {
         Self {
-            player: Player::new("SpriteData/Nav/up/back_nav0.txt"),
+            player: Player::new(
+                "SpriteData/Nav/down/front_nav0.txt",
+                "SpriteData/Nav/down/front_nav1.txt",
+                "SpriteData/Nav/down/front_nav2.txt",
+                "SpriteData/Nav/down/front_nav3.txt",
+                "SpriteData/Nav/up/back_nav0.txt",
+                "SpriteData/Nav/up/back_nav1.txt",
+                "SpriteData/Nav/up/back_nav2.txt",
+                "SpriteData/Nav/up/back_nav3.txt",
+                "SpriteData/Nav/left/L0.txt",
+                "SpriteData/Nav/left/L1.txt",
+                "SpriteData/Nav/left/L2.txt",
+                "SpriteData/Nav/left/L3.txt",
+                "SpriteData/Nav/right/R0.txt",
+                "SpriteData/Nav/right/R1.txt",
+                "SpriteData/Nav/right/R2.txt",
+                "SpriteData/Nav/right/R3.txt",
+            ),
             //baddies: vec![],
-            //check the types that are used if errors, maybe &str ?
-            //area maybe as an array, convert to slice later on?
             area: Screen::new_screen(place),
-            // add in the whole framebuffer thing and just copy it later
-            // render adds in just the characters on top
             // i hate myself
-            //render all of place into a vec<u8> same as pixels
-            // }
         }
     }
     fn new_screen(place: &str) -> Vec<u8> {
@@ -204,7 +255,6 @@ impl Screen {
         }
         data
     }
-    //pix never used but needed in order to draw to framebuffer
     fn draw(&self, pix: &mut [u8]) {
         //TODO: Update in chunks
         //TODO: Use premade transparency values
@@ -222,10 +272,14 @@ impl Screen {
                 && it / 720 < (self.player.y_pos + 28) as usize
             {
                 // println!("char {}",it);
-                pixel[0] = self.player.sprite[(it2) * 3];
+
+                pixel[0] = self.player.sprite
+                    [(self.player.move_state + 4 * self.player.direction) as usize][(it2) * 3];
                 //do the expect thing tomorrow
-                pixel[1] = self.player.sprite[(it2) * 3 + 1];
-                pixel[2] = self.player.sprite[(it2) * 3 + 2];
+                pixel[1] = self.player.sprite
+                    [(self.player.move_state + 4 * self.player.direction) as usize][(it2) * 3 + 1];
+                pixel[2] = self.player.sprite
+                    [(self.player.move_state + 4 * self.player.direction) as usize][(it2) * 3 + 2];
                 // pixel[3] = 255;
                 it2 += 1;
             } else {
