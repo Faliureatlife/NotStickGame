@@ -81,19 +81,41 @@ fn main() -> Result<(), pixels::Error> {
                 *control_flow = ControlFlow::Exit;
                 return;
             }
-            if input.key_pressed_os(VirtualKeyCode::W) {
+            //Todo: Diagonal movement
+
+            // if input.key_pressed_os(VirtualKeyCode::W) && input.key_pressed_os(VirtualKeyCode::D) {
+            //     screen.player.mov(1);
+            //     screen.player.mov(4);
+            //     return;
+            // }
+            // if input.key_pressed_os(VirtualKeyCode::W) && input.key_pressed_os(VirtualKeyCode::A) {
+            //     screen.player.mov(1);
+            //     screen.player.mov(2);
+            //     return;
+            // }
+            // if input.key_pressed_os(VirtualKeyCode::S) && input.key_pressed_os(VirtualKeyCode::D) {
+            //     screen.player.mov(3);
+            //     screen.player.mov(4);
+            //     return;
+            // }
+            // if input.key_pressed_os(VirtualKeyCode::S) && input.key_pressed_os(VirtualKeyCode::A) {
+            //     screen.player.mov(3);
+            //     screen.player.mov(2);
+            //     return;
+            // }
+            if input.key_pressed_os(VirtualKeyCode::W) || input.key_pressed_os(VirtualKeyCode::Up) {
                 screen.player.mov(1);
                 return;
             }
-            if input.key_pressed_os(VirtualKeyCode::A) {
+            if input.key_pressed_os(VirtualKeyCode::A) || input.key_pressed_os(VirtualKeyCode::Left){
                 screen.player.mov(2);
                 return;
             }
-            if input.key_pressed_os(VirtualKeyCode::S) {
+            if input.key_pressed_os(VirtualKeyCode::S) || input.key_pressed_os(VirtualKeyCode::Down){
                 screen.player.mov(3);
                 return;
             }
-            if input.key_pressed_os(VirtualKeyCode::D) {
+            if input.key_pressed_os(VirtualKeyCode::D) || input.key_pressed_os(VirtualKeyCode::Right){
                 screen.player.mov(4);
                 return;
             }
@@ -112,7 +134,7 @@ struct Player {
     y_pos: u16,
     move_state: u8,
     // data:
-    sprite: [Vec<u8>; 16],
+    sprite: [[Vec<u8>; 4]; 4],
     direction: u8,
 }
 impl Player {
@@ -140,22 +162,30 @@ impl Player {
             y_pos: START_Y,
             move_state: 0,
             sprite: [
-                Player::gen_sprite(spr0),
-                Player::gen_sprite(spr1),
-                Player::gen_sprite(spr2),
-                Player::gen_sprite(spr3),
-                Player::gen_sprite(spr4),
-                Player::gen_sprite(spr5),
-                Player::gen_sprite(spr6),
-                Player::gen_sprite(spr7),
-                Player::gen_sprite(spr8),
-                Player::gen_sprite(spr9),
-                Player::gen_sprite(spr10),
-                Player::gen_sprite(spr11),
-                Player::gen_sprite(spr12),
-                Player::gen_sprite(spr13),
-                Player::gen_sprite(spr14),
-                Player::gen_sprite(spr15),
+                [
+                    Player::gen_sprite(spr0),
+                    Player::gen_sprite(spr1),
+                    Player::gen_sprite(spr2),
+                    Player::gen_sprite(spr3),
+                ],
+                [
+                    Player::gen_sprite(spr4),
+                    Player::gen_sprite(spr5),
+                    Player::gen_sprite(spr6),
+                    Player::gen_sprite(spr7),
+                ],
+                [
+                    Player::gen_sprite(spr8),
+                    Player::gen_sprite(spr9),
+                    Player::gen_sprite(spr10),
+                    Player::gen_sprite(spr11),
+                ],
+                [
+                    Player::gen_sprite(spr12),
+                    Player::gen_sprite(spr13),
+                    Player::gen_sprite(spr14),
+                    Player::gen_sprite(spr15),
+                ],
             ],
             direction: 0,
         }
@@ -271,16 +301,30 @@ impl Screen {
                 && it / 720 > self.player.y_pos as usize
                 && it / 720 < (self.player.y_pos + 28) as usize
             {
-                // println!("char {}",it);
-
-                pixel[0] = self.player.sprite
-                    [(self.player.move_state + 4 * self.player.direction) as usize][(it2) * 3];
-                //do the expect thing tomorrow
-                pixel[1] = self.player.sprite
-                    [(self.player.move_state + 4 * self.player.direction) as usize][(it2) * 3 + 1];
-                pixel[2] = self.player.sprite
-                    [(self.player.move_state + 4 * self.player.direction) as usize][(it2) * 3 + 2];
-                // pixel[3] = 255;
+                if (self.player.sprite[self.player.direction as usize]
+                    [self.player.move_state as usize][(it2) * 3] as u16)
+                    + (self.player.sprite[self.player.direction as usize]
+                        [self.player.move_state as usize][(it2) * 3 + 1]
+                        as u16)
+                    + (self.player.sprite[self.player.direction as usize]
+                        [self.player.move_state as usize][(it2) * 3 + 2]
+                        as u16)
+                    == 0
+                {
+                    pixel[0] = self.area[it * 3];
+                    pixel[1] = self.area[it * 3 + 1];
+                    pixel[2] = self.area[it * 3 + 2];
+                } else {
+                    // println!("char {}",it);
+                    pixel[0] = self.player.sprite[self.player.direction as usize]
+                        [self.player.move_state as usize][(it2) * 3];
+                    //do the expect thing tomorrow
+                    pixel[1] = self.player.sprite[self.player.direction as usize]
+                        [self.player.move_state as usize][(it2) * 3 + 1];
+                    pixel[2] = self.player.sprite[self.player.direction as usize]
+                        [self.player.move_state as usize][(it2) * 3 + 2];
+                    // pixel[3] = 255;
+                }
                 it2 += 1;
             } else {
                 // println!("b {}",it);
