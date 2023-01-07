@@ -119,6 +119,17 @@ fn main() -> Result<(), pixels::Error> {
                 screen.player.mov(4);
                 return;
             }
+            if input.key_released(VirtualKeyCode::W)
+                || input.key_released(VirtualKeyCode::A)
+                || input.key_released(VirtualKeyCode::S)
+                || input.key_released(VirtualKeyCode::D)
+                || input.key_released(VirtualKeyCode::Up)
+                || input.key_released(VirtualKeyCode::Left)
+                || input.key_released(VirtualKeyCode::Down)
+                || input.key_released(VirtualKeyCode::Right){
+                screen.player.move_state = 0;
+                screen.player.move_delay = 0;
+            }
             //after updates happen redraw the screen
             window.request_redraw();
         };
@@ -136,6 +147,7 @@ struct Player {
     // data:
     sprite: [[Vec<u8>; 4]; 4],
     direction: u8,
+    move_delay: u8,
 }
 impl Player {
     //make &string into directory not file
@@ -188,6 +200,7 @@ impl Player {
                 ],
             ],
             direction: 0,
+            move_delay: 0,
         }
     }
     fn gen_sprite(spr: &str) -> Vec<u8> {
@@ -204,32 +217,36 @@ impl Player {
             //Move up W
             1 if self.y_pos > 3 => {
                 self.y_pos -= 2;
-                self.move_state += 1;
+                self.move_delay += 1;
                 self.direction = 1;
             }
             1 => {}
             //Move left A
             2 if self.x_pos > 1 => {
                 self.x_pos -= 2;
-                self.move_state += 1;
+                self.move_delay += 1;
                 self.direction = 2;
             }
             2 => {}
             //Move down S
             3 if self.y_pos < 511 => {
                 self.y_pos += 2;
-                self.move_state += 1;
+                self.move_delay += 1;
                 self.direction = 0;
             }
             3 => {}
             //Move right D
             4 if self.x_pos < 700 => {
                 self.x_pos += 2;
-                self.move_state += 1;
+                self.move_delay += 1;
                 self.direction = 3;
             }
             4 => {}
             _ => panic!("Invalid movement"),
+        }
+        if self.move_delay == 3 {
+            self.move_delay -= 3;
+            self.move_state += 1;
         }
         if self.move_state == 4 {
             self.move_state -= 4;
