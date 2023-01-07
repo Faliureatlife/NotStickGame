@@ -139,7 +139,7 @@ impl Player {
                                     self.move_state +=1;},
             1 => {}
             //Move left A
-            2 if self.x_pos > 3 => {self.x_pos -= 2;
+            2 if self.x_pos > 1 => {self.x_pos -= 2;
                                     self.move_state +=1;},
             2 => {}
             //Move down S
@@ -152,6 +152,7 @@ impl Player {
             4 => {}
             _ => panic!("Invalid movement"),
         }
+        if self.move_state == 4 {self.move_state -= 4;}
     }
 }
 
@@ -191,7 +192,7 @@ impl Screen {
             data.push(u8::from_str_radix(std::str::from_utf8(pix).unwrap(),16).unwrap());
             // write!(a,"{:.?}", "{b}")
         }
-        println!("Its this long, supposed to be like 2,332,800: {}",data.len());
+        // println!("Its this long, supposed to be like 2,332,800: {}",data.len());
         // for (it,x) in data.into_iter().enumerate() {
         //     // if it == 0 {continue;}
         //     if it % 3 == 0 {
@@ -208,25 +209,28 @@ impl Screen {
     }
 //pix never used but needed in order to draw to framebuffer
     fn draw(&self, pix: &mut [u8]) {
-    let mut trig:bool = false;
-    let mut start = 0;
+    let mut it2 = 0;
     for (it,pixel) in pix.chunks_exact_mut(4).enumerate() {
-            if it % 720 > self.player.x_pos as usize && it % 720 < (self.player.x_pos + 17) as usize {
-                if it / 720 > self.player.y_pos as usize && it / 720 < (self.player.y_pos + 27) as usize{
-                    if !trig {trig = !trig;
-                    start = it;}
-                    pixel[0] = self.player.sprite[(it-start)*3];
+            if it % 720 > self.player.x_pos as usize && it % 720 < (self.player.x_pos + 19) as usize {
+                //it % 720 = x
+                if it / 720 > self.player.y_pos as usize && it / 720 < (self.player.y_pos + 28) as usize{
+                    // it / 720 = y
+                    // println!("char {}",it);
+                    pixel[0] = self.player.sprite[(it2)*3];
                     //do the expect thing tomorrow
-                    pixel[1] = self.player.sprite[(it-start)*3 + 1];
-                    pixel[2] = self.player.sprite[(it-start)*3 + 2];
+                    pixel[1] = self.player.sprite[(it2)*3 + 1];
+                    pixel[2] = self.player.sprite[(it2)*3 + 2];
                     pixel[3] = 255;
+                    it2 += 1;
                 }
             } else {
+                // println!("b {}",it);
                 pixel[0] = self.area[it * 3];
                 pixel[1] = self.area[it * 3 + 1];
                 pixel[2] = self.area[it * 3 + 2];
                 pixel[3] = 255;
             }
+
         }
 
 
