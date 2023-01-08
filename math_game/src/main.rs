@@ -148,6 +148,7 @@ struct Player {
     sprite: [[Vec<u8>; 4]; 4],
     direction: u8,
     move_delay: u8,
+    collision: Vec<u16>,
 }
 impl Player {
     //make &string into directory not file
@@ -201,6 +202,7 @@ impl Player {
             ],
             direction: 0,
             move_delay: 0,
+            collision: vec![0,0],
         }
     }
     fn gen_sprite(spr: &str) -> Vec<u8> {
@@ -216,7 +218,9 @@ impl Player {
             //TODO: use different sprites for movement
             //Move up W
             1 if self.y_pos > 3 => {
-                self.y_pos -= 2;
+                if self::check_collision(false, self.y_pos - 2){
+                    self.y_pos -= 2;
+                }
                 self.move_delay += 1;
                 self.direction = 1;
             }
@@ -252,11 +256,21 @@ impl Player {
             self.move_state -= 4;
         }
     }
+    //true = x; false = y;
+    fn check_collision(&self, x_y: bool,y_pos:u16){
+            match x_y {
+                true => for colliders in self.collision{
+                if
+                }
+                false -> for colliders in self.collision
+            }
+        }
+    }
 }
 
 struct Screen {
     player: Player,
-    //player_pos: enum
+    // collision:Vec<u16>,
     //triggers: idk
     //baddies: Vec<Baddie>,
     area: Vec<u8>,
@@ -283,6 +297,7 @@ impl Screen {
                 "SpriteData/Nav/right/R2.txt",
                 "SpriteData/Nav/right/R3.txt",
             ),
+            // collision: vec![],
             //baddies: vec![],
             area: Screen::new_screen(place),
             // i hate myself
