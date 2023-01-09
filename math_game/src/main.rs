@@ -262,6 +262,7 @@ impl Player {
             self.move_state -= 4;
         }
     }
+
     //true = x; false = y;
     fn check_collision(&mut Player, x_y: bool,pos:u16) -> bool {
             match x_y {
