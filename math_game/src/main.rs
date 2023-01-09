@@ -218,7 +218,7 @@ impl Player {
             //TODO: use different sprites for movement
             //Move up W
             1 if self.y_pos > 3 => {
-                if self::check_collision(false, self.y_pos - 2){
+                if Player::check_collision(false, self.y_pos - 2){
                     self.y_pos -= 2;
                 }
                 self.move_delay += 1;
@@ -227,21 +227,27 @@ impl Player {
             1 => {}
             //Move left A
             2 if self.x_pos > 1 => {
-                self.x_pos -= 2;
+                if Player::check_collision(false, self.x_pos - 2) {
+                    self.x_pos -= 2;
+                }
                 self.move_delay += 1;
                 self.direction = 2;
             }
             2 => {}
             //Move down S
             3 if self.y_pos < 511 => {
-                self.y_pos += 2;
+                if Player::check_collision(false, self.y_pos - 2) {
+                    self.y_pos += 2;
+                }
                 self.move_delay += 1;
                 self.direction = 0;
             }
             3 => {}
             //Move right D
             4 if self.x_pos < 700 => {
-                self.x_pos += 2;
+                if Player::check_collision(false, self.x_pos + 2) {
+                    self.x_pos += 2;
+                }
                 self.move_delay += 1;
                 self.direction = 3;
             }
@@ -257,14 +263,22 @@ impl Player {
         }
     }
     //true = x; false = y;
-    fn check_collision(&self, x_y: bool,y_pos:u16){
+    fn check_collision(&mut Player, x_y: bool,pos:u16) -> bool {
             match x_y {
                 true => for colliders in self.collision{
-                if
+                    if colliders < pos && colliders > pos + 18 {
+                        return true;
+                    }
+                    return false;
                 }
-                false -> for colliders in self.collision
+                false => for colliders in self.collision{
+                    if colliders < pos && colliders > pos + 27 {
+                        return true;
+                    }
+                    return false;
+                }
             }
-        }
+        false
     }
 }
 
@@ -304,16 +318,12 @@ impl Screen {
         }
     }
     fn new_screen(place: &str) -> Vec<u8> {
-        // let mut bit:bool = false;
         let mut data = vec![];
-        // let mut real_data: Vec<u8> = vec![];
         for pix in std::fs::read(place).unwrap().chunks_exact(2) {
-            // bit = !bit;
             //std::str::from_utf8(&g).unwrap()
             //u8::from_str_radix(blu2, 16).unwrap()
             //gives a vec<u8> of all "valid" bits for the fb without the added opacity bits
             data.push(u8::from_str_radix(std::str::from_utf8(pix).unwrap(), 16).unwrap());
-            // write!(a,"{:.?}", "{b}")
         }
         data
     }
