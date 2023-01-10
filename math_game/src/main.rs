@@ -205,7 +205,7 @@ impl Player {
             //Move up W
             1 if self.y_pos > 1 => {
                 for colliders in self.collision.chunks_exact(2) {
-                    if colliders[0] < self.x_pos && colliders[0] > self.x_pos+18 && colliders[1] < (self.y_pos - MVMT_D) && colliders[1] > (self.y_pos - MVMT_D + 27) {
+                    if colliders[0] > self.x_pos && colliders[0] < self.x_pos+18 && colliders[1] > (self.y_pos - MVMT_D) && colliders[1] < (self.y_pos - MVMT_D + 27) {
                         bad = !bad;
                         break
                     }
@@ -220,7 +220,7 @@ impl Player {
             //Move left A
             2 if self.x_pos > 1 => {
                 for colliders in self.collision.chunks_exact(2) {
-                    if colliders[0] < self.x_pos - MVMT_D && colliders[0] > self.x_pos + 18 - MVMT_D && colliders[1] < self.y_pos && colliders[1] > self.y_pos + 27 {
+                    if colliders[0] > self.x_pos - MVMT_D && colliders[0] < self.x_pos + 18 - MVMT_D && colliders[1] > self.y_pos && colliders[1] < self.y_pos + 27 {
                         bad = !bad;
                         break
                     }
@@ -235,7 +235,7 @@ impl Player {
             //Move down S
             3 if self.y_pos < 511 => {
                 for colliders in self.collision.chunks_exact(2) {
-                    if colliders[0] < self.x_pos && colliders[0] > self.x_pos+18 && colliders[1] < (self.y_pos + MVMT_D) && colliders[1] > (self.y_pos + MVMT_D + 27) {
+                    if colliders[0] > self.x_pos && colliders[0] < self.x_pos+18 && colliders[1] > (self.y_pos + MVMT_D) && colliders[1] < (self.y_pos + MVMT_D + 27) {
                         bad = !bad;
                         break
                     }
@@ -251,7 +251,7 @@ impl Player {
             //Move right D
             4 if self.x_pos < 700 => {
                 for colliders in self.collision.chunks_exact(2) {
-                    if colliders[0] < self.x_pos + MVMT_D && colliders[0] > self.x_pos+18+MVMT_D && colliders[1] < self.y_pos && colliders[1] > self.y_pos + 27 {
+                    if colliders[0] > self.x_pos + MVMT_D && colliders[0] < self.x_pos+18+MVMT_D && colliders[1] > self.y_pos && colliders[1] < self.y_pos + 27 {
                         bad = !bad;
                         break
                     }
@@ -274,23 +274,6 @@ impl Player {
         }
     }
 }
-    //true = x; false = y;
-/*    fn check_collision(collision: Vec<u16>, x_y: bool,pos:u16) -> bool {
-            match x_y {
-                true => for colliders in collision{
-                    if colliders < pos && colliders > pos + 18 {
-                        return true;
-                    }
-                }
-                false => for colliders in collision{
-                    if colliders < pos && colliders > pos + 27 {
-                        return true;
-                    }
-                }
-            }
-        false
-    }
-}*/
 
 struct Screen {
     player: Player,
