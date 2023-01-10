@@ -181,8 +181,7 @@ impl Player {
             ],
             direction: 0,
             move_delay: 0,
-            collision_y: vec![60],
-            collision_x: vec![],
+            collision: vec![60],
         }
     }
 
