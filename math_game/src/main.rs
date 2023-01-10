@@ -181,7 +181,7 @@ impl Player {
             ],
             direction: 0,
             move_delay: 0,
-            collision: vec![60],
+            collision: vec![60,60],
         }
     }
 
@@ -193,14 +193,19 @@ impl Player {
         data
     }
     fn mov(&mut self, dir: u8) {
+        const MVMT_D:u16 = 2;
         let mut bad:bool = false;
+        println!("x1 {}", self.x_pos);
+        println!("x2 {}", self.x_pos+18);
+        println!("y1 {}", self.y_pos);
+        println!("y2 {}", self.y_pos+27);
         match dir {
             //TODO: make the movement flush with edges
             //TODO: use different sprites for movement
             //Move up W
             1 if self.y_pos > 1 => {
-                for colliders in &self.collision {
-                    if colliders < &(self.y_pos - 2) && colliders > &(self.y_pos - 2 + 27) {
+                for colliders in self.collision.chunks_exact(2) {
+                    if colliders[0] < self.x_pos && colliders[0] > self.x_pos+18 && colliders[1] < (self.y_pos - MVMT_D) && colliders[1] > (self.y_pos - MVMT_D + 27) {
                         bad = !bad;
                         break
                     }
@@ -214,8 +219,8 @@ impl Player {
             1 => {}
             //Move left A
             2 if self.x_pos > 1 => {
-                for colliders in &self.collision {
-                    if colliders < &(self.x_pos - 2) && colliders > &(self.x_pos - 2 + 18) {
+                for colliders in self.collision.chunks_exact(2) {
+                    if colliders[0] < self.x_pos - MVMT_D && colliders[0] > self.x_pos + 18 - MVMT_D && colliders[1] < self.y_pos && colliders[1] > self.y_pos + 27 {
                         bad = !bad;
                         break
                     }
@@ -229,8 +234,8 @@ impl Player {
             2 => {}
             //Move down S
             3 if self.y_pos < 511 => {
-                for colliders in &self.collision {
-                    if colliders > &(self.y_pos + 2) && colliders < &(self.y_pos + 2 + 27) {
+                for colliders in self.collision.chunks_exact(2) {
+                    if colliders[0] < self.x_pos && colliders[0] > self.x_pos+18 && colliders[1] < (self.y_pos + MVMT_D) && colliders[1] > (self.y_pos + MVMT_D + 27) {
                         bad = !bad;
                         break
                     }
@@ -238,14 +243,15 @@ impl Player {
                 if !bad {
                     self.y_pos += 2;
                 }
+
                 self.move_delay += 1;
                 self.direction = 0;
             }
             3 => {}
             //Move right D
             4 if self.x_pos < 700 => {
-                for colliders in &self.collision {
-                    if colliders < &(self.x_pos + 2) && colliders > &(self.x_pos + 2 + 18) {
+                for colliders in self.collision.chunks_exact(2) {
+                    if colliders[0] < self.x_pos + MVMT_D && colliders[0] > self.x_pos+18+MVMT_D && colliders[1] < self.y_pos && colliders[1] > self.y_pos + 27 {
                         bad = !bad;
                         break
                     }
