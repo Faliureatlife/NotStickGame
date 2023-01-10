@@ -6,7 +6,7 @@ use pixels::Pixels;
 // use pixels::wgpu::Color;
 use std::{
     env,
-    time::SystemTime,
+    // time::SystemTime,
     // mem,
     // io::Write,
     // fs::*,
@@ -25,7 +25,7 @@ use winit::{
 use winit_input_helper::WinitInputHelper;
 
 //starting position of player
-const START_Y: u16 = 0;
+const START_Y: u16 = 10;
 const START_X: u16 = 0;
 
 fn main() -> Result<(), pixels::Error> {
@@ -82,27 +82,6 @@ fn main() -> Result<(), pixels::Error> {
                 return;
             }
             //Todo: Diagonal movement
-
-            // if input.key_pressed_os(VirtualKeyCode::W) && input.key_pressed_os(VirtualKeyCode::D) {
-            //     screen.player.mov(1);
-            //     screen.player.mov(4);
-            //     return;
-            // }
-            // if input.key_pressed_os(VirtualKeyCode::W) && input.key_pressed_os(VirtualKeyCode::A) {
-            //     screen.player.mov(1);
-            //     screen.player.mov(2);
-            //     return;
-            // }
-            // if input.key_pressed_os(VirtualKeyCode::S) && input.key_pressed_os(VirtualKeyCode::D) {
-            //     screen.player.mov(3);
-            //     screen.player.mov(4);
-            //     return;
-            // }
-            // if input.key_pressed_os(VirtualKeyCode::S) && input.key_pressed_os(VirtualKeyCode::A) {
-            //     screen.player.mov(3);
-            //     screen.player.mov(2);
-            //     return;
-            // }
             if input.key_pressed_os(VirtualKeyCode::W) || input.key_pressed_os(VirtualKeyCode::Up) {
                 screen.player.mov(1);
                 return;
@@ -202,9 +181,11 @@ impl Player {
             ],
             direction: 0,
             move_delay: 0,
-            collision: vec![0,0],
+            collision_y: vec![60],
+            collision_x: vec![],
         }
     }
+
     fn gen_sprite(spr: &str) -> Vec<u8> {
         let mut data = vec![];
         for pix in std::fs::read(spr).unwrap().chunks_exact(2) {
@@ -213,12 +194,19 @@ impl Player {
         data
     }
     fn mov(&mut self, dir: u8) {
+        let mut bad:bool = false;
         match dir {
             //TODO: make the movement flush with edges
             //TODO: use different sprites for movement
             //Move up W
-            1 if self.y_pos > 3 => {
-                if Player::check_collision(false, self.y_pos - 2){
+            1 if self.y_pos > 1 => {
+                for colliders in &self.collision {
+                    if colliders < &(self.y_pos - 2) && colliders > &(self.y_pos - 2 + 27) {
+                        bad = !bad;
+                        break
+                    }
+                }
+                if !bad {
                     self.y_pos -= 2;
                 }
                 self.move_delay += 1;
@@ -227,8 +215,14 @@ impl Player {
             1 => {}
             //Move left A
             2 if self.x_pos > 1 => {
-                if Player::check_collision(false, self.x_pos - 2) {
-                    self.x_pos -= 2;
+                for colliders in &self.collision {
+                    if colliders < &(self.x_pos - 2) && colliders > &(self.x_pos - 2 + 18) {
+                        bad = !bad;
+                        break
+                    }
+                }
+                if !bad {
+                    self.x_pos -=2;
                 }
                 self.move_delay += 1;
                 self.direction = 2;
@@ -236,7 +230,13 @@ impl Player {
             2 => {}
             //Move down S
             3 if self.y_pos < 511 => {
-                if Player::check_collision(false, self.y_pos - 2) {
+                for colliders in &self.collision {
+                    if colliders > &(self.y_pos + 2) && colliders < &(self.y_pos + 2 + 27) {
+                        bad = !bad;
+                        break
+                    }
+                }
+                if !bad {
                     self.y_pos += 2;
                 }
                 self.move_delay += 1;
@@ -245,7 +245,13 @@ impl Player {
             3 => {}
             //Move right D
             4 if self.x_pos < 700 => {
-                if Player::check_collision(false, self.x_pos + 2) {
+                for colliders in &self.collision {
+                    if colliders < &(self.x_pos + 2) && colliders > &(self.x_pos + 2 + 18) {
+                        bad = !bad;
+                        break
+                    }
+                }
+                if !bad {
                     self.x_pos += 2;
                 }
                 self.move_delay += 1;
@@ -262,26 +268,24 @@ impl Player {
             self.move_state -= 4;
         }
     }
-
+}
     //true = x; false = y;
-    fn check_collision(&mut Player, x_y: bool,pos:u16) -> bool {
+/*    fn check_collision(collision: Vec<u16>, x_y: bool,pos:u16) -> bool {
             match x_y {
-                true => for colliders in self.collision{
+                true => for colliders in collision{
                     if colliders < pos && colliders > pos + 18 {
                         return true;
                     }
-                    return false;
                 }
-                false => for colliders in self.collision{
+                false => for colliders in collision{
                     if colliders < pos && colliders > pos + 27 {
                         return true;
                     }
-                    return false;
                 }
             }
         false
     }
-}
+}*/
 
 struct Screen {
     player: Player,
