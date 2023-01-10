@@ -181,7 +181,7 @@ impl Player {
             ],
             direction: 0,
             move_delay: 0,
-            collision: vec![60,60],
+            collision: vec![60,60,100,100],
         }
     }
 
@@ -195,10 +195,6 @@ impl Player {
     fn mov(&mut self, dir: u8) {
         const MVMT_D:u16 = 2;
         let mut bad:bool = false;
-        println!("x1 {}", self.x_pos);
-        println!("x2 {}", self.x_pos+18);
-        println!("y1 {}", self.y_pos);
-        println!("y2 {}", self.y_pos+27);
         match dir {
             //TODO: make the movement flush with edges
             //TODO: use different sprites for movement
@@ -306,7 +302,7 @@ impl Screen {
             ),
             // collision: vec![],
             //baddies: vec![],
-            area: Screen::new_screen(place),
+            area: Screen::new_screen("WorldData/" + place),
             // i hate myself
         }
     }
