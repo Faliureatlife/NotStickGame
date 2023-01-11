@@ -27,6 +27,7 @@ use winit_input_helper::WinitInputHelper;
 //starting position of player
 const START_Y: u16 = 10;
 const START_X: u16 = 0;
+const world:&str = "WorldData/";
 
 fn main() -> Result<(), pixels::Error> {
     //where event loop is created for the future event_loop.run
@@ -53,7 +54,7 @@ fn main() -> Result<(), pixels::Error> {
         pixel[3] = 255;
     }
     //screen object that has the text.txt source file
-    let mut screen = Screen::new("WorldData/dots.txt");
+    let mut screen = Screen::new("dots.txt");
     //loop that runs program
     //todo: multithreading to have game thinking and rendering at same time
     event_loop.run(move |event, _, control_flow| {
@@ -279,34 +280,36 @@ struct Screen {
     area: Vec<u8>,
 }
 
+
 impl Screen {
     fn new(place: &str) -> Self {
         Self {
             player: Player::new(
-                "SpriteData/Nav/down/front_nav0.txt",
-                "SpriteData/Nav/down/front_nav1.txt",
-                "SpriteData/Nav/down/front_nav2.txt",
-                "SpriteData/Nav/down/front_nav3.txt",
-                "SpriteData/Nav/up/back_nav0.txt",
-                "SpriteData/Nav/up/back_nav1.txt",
-                "SpriteData/Nav/up/back_nav2.txt",
-                "SpriteData/Nav/up/back_nav3.txt",
-                "SpriteData/Nav/left/L0.txt",
-                "SpriteData/Nav/left/L1.txt",
-                "SpriteData/Nav/left/L2.txt",
-                "SpriteData/Nav/left/L3.txt",
-                "SpriteData/Nav/right/R0.txt",
-                "SpriteData/Nav/right/R1.txt",
-                "SpriteData/Nav/right/R2.txt",
-                "SpriteData/Nav/right/R3.txt",
+            "SpriteData/Nav/down/front_nav0.txt",
+            "SpriteData/Nav/down/front_nav1.txt",
+            "SpriteData/Nav/down/front_nav2.txt",
+            "SpriteData/Nav/down/front_nav3.txt",
+            "SpriteData/Nav/up/back_nav0.txt",
+            "SpriteData/Nav/up/back_nav1.txt",
+            "SpriteData/Nav/up/back_nav2.txt",
+            "SpriteData/Nav/up/back_nav3.txt",
+            "SpriteData/Nav/left/L0.txt",
+            "SpriteData/Nav/left/L1.txt",
+            "SpriteData/Nav/left/L2.txt",
+            "SpriteData/Nav/left/L3.txt",
+            "SpriteData/Nav/right/R0.txt",
+            "SpriteData/Nav/right/R1.txt",
+            "SpriteData/Nav/right/R2.txt",
+            "SpriteData/Nav/right/R3.txt",
             ),
             // collision: vec![],
             //baddies: vec![],
-            area: Screen::new_screen("WorldData/" + place),
+            area: Screen::new_screen(format!("{}{}",world,place)),
             // i hate myself
         }
     }
-    fn new_screen(place: &str) -> Vec<u8> {
+
+    fn new_screen(place: String) -> Vec<u8> {
         let mut data = vec![];
         for pix in std::fs::read(place).unwrap().chunks_exact(2) {
             //std::str::from_utf8(&g).unwrap()
