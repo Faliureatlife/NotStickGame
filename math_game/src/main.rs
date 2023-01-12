@@ -58,6 +58,7 @@ fn main() -> Result<(), pixels::Error> {
     }
     //screen object that has the text.txt source file
     let mut screen = Screen::new("dots.txt");
+    screen.screen_len = screen.area.len() as u32;
     //loop that runs program
     //todo: multithreading to have game thinking and rendering at same time
     event_loop.run(move |event, _, control_flow| {
@@ -282,7 +283,7 @@ struct Screen {
     entities: Vec<Vec<u8>>,
     area: Vec<u8>,
     scroll_dist: u16,
-    screen_len: u16,
+    screen_len: u32,
 }
 
 
@@ -312,7 +313,7 @@ impl Screen {
             area: Screen::new_screen(format!("{}{}", WORLD, place)),
             // i hate myself
             scroll_dist: 0,
-            screen_len: area.len() / 3 / SCREEN_HEIGHT,
+            screen_len: 0,
         }
     }
 
