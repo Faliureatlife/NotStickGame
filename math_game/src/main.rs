@@ -28,6 +28,9 @@ use winit_input_helper::WinitInputHelper;
 const START_Y: u16 = 10;
 const START_X: u16 = 0;
 const WORLD:&str = "WorldData/";
+const SCREEN_WIDTH:u16 = 720;
+const SCREEN_HEIGHT:u16 = 540;
+const SCROLL_OFFSET:u16 = 10;
 
 fn main() -> Result<(), pixels::Error> {
     //where event loop is created for the future event_loop.run
@@ -42,11 +45,11 @@ fn main() -> Result<(), pixels::Error> {
 
     //Create window and give it Physical Size of 720 4:3
     let window = Window::new(&event_loop).unwrap();
-    window.set_inner_size(PhysicalSize::new(720, 540));
+    window.set_inner_size(PhysicalSize::new(SCREEN_WIDTH, SCREEN_HEIGHT));
     //let size = window.inner_size();
 
     //Create surface texture of given width and height with deref window
-    let surface_texture = pixels::SurfaceTexture::new(720, 540, &window);
+    let surface_texture = pixels::SurfaceTexture::new(SCREEN_WIDTH as u32, SCREEN_HEIGHT as u32, &window);
 
     //frame buffer "pixels"
     let mut pixels = Pixels::new(720, 540, surface_texture)?;
@@ -276,8 +279,10 @@ struct Screen {
     player: Player,
     // collision:Vec<u16>,
     //triggers: idk
-    //baddies: Vec<Baddie>,
+    entities: Vec<Vec<u8>>,
     area: Vec<u8>,
+    scroll_dist: u16,
+    screen_len: u16,
 }
 
 
@@ -303,9 +308,11 @@ impl Screen {
             "SpriteData/Nav/right/3.txt",
             ),
             // collision: vec![],
-            //baddies: vec![],
+            entities: vec![],
             area: Screen::new_screen(format!("{}{}", WORLD, place)),
             // i hate myself
+            scroll_dist: 0,
+            screen_len: area.len() / 3 / SCREEN_HEIGHT,
         }
     }
 
@@ -362,9 +369,9 @@ impl Screen {
                 it2 += 1;
             } else {
                 // println!("b {}",it);
-                pixel[0] = self.area[it * 3];
-                pixel[1] = self.area[it * 3 + 1];
-                pixel[2] = self.area[it * 3 + 2];
+                pixel[0] = self.area[(self.scroll_dist + (self.screen_len * ((it * 3) as u16 / SCREEN_WIDTH)) + ((it * 3) as u16 % SCREEN_WIDTH)) as usize];
+                pixel[1] = self.area[(self.scroll_dist + (self.screen_len * ((it * 3 + 1) as u16 / SCREEN_WIDTH)) + ((it * 3 + 1) as u16 % SCREEN_WIDTH)) as usize];
+                pixel[2] = self.area[(self.scroll_dist + (self.screen_len * ((it * 3 + 2) as u16 / SCREEN_WIDTH)) + ((it * 3 + 2) as u16 % SCREEN_WIDTH)) as usize];
                 // pixel[3] = 255;
             }
         }
