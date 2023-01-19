@@ -57,7 +57,7 @@ fn main() -> Result<(), pixels::Error> {
         pixel[3] = 255;
     }
     //screen object that has the text.txt source file
-    let mut screen = Screen::new("dots.txt");
+    let mut screen = Screen::new("dots");
     screen.screen_len = screen.area.len() as u32;
     //loop that runs program
     //todo: multithreading to have game thinking and rendering at same time
@@ -310,7 +310,7 @@ impl Screen {
             ),
             // collision: vec![],
             entities: vec![],
-            area: Screen::new_screen(format!("{}{}", WORLD, place)),
+            area: Screen::new_screen(format!("{}{}{}", WORLD, place,"/picture.txt")),
             // i hate myself
             scroll_dist: 0,
             screen_len: 0,
@@ -370,9 +370,9 @@ impl Screen {
                 it2 += 1;
             } else {
                 // println!("b {}",it);
-                pixel[0] = self.area[(self.scroll_dist + (self.screen_len * ((it * 3) as u16 / SCREEN_WIDTH)) + ((it * 3) as u16 % SCREEN_WIDTH)) as usize];
-                pixel[1] = self.area[(self.scroll_dist + (self.screen_len * ((it * 3 + 1) as u16 / SCREEN_WIDTH)) + ((it * 3 + 1) as u16 % SCREEN_WIDTH)) as usize];
-                pixel[2] = self.area[(self.scroll_dist + (self.screen_len * ((it * 3 + 2) as u16 / SCREEN_WIDTH)) + ((it * 3 + 2) as u16 % SCREEN_WIDTH)) as usize];
+                pixel[0] = self.area[(self.scroll_dist as u32 + (self.screen_len * ((it * 3) / SCREEN_WIDTH as usize) as u32)  + ((it * 3) as u16 % SCREEN_WIDTH) as u32) as usize];
+                pixel[1] = self.area[(self.scroll_dist as u32 + (self.screen_len * ((it * 3 + 1) / SCREEN_WIDTH as usize) as u32) + ((it * 3 + 1) as u16 % SCREEN_WIDTH) as u32) as usize];
+                pixel[2] = self.area[(self.scroll_dist as u32 + (self.screen_len * ((it * 3 + 2) / SCREEN_WIDTH as usize) as u32) + ((it * 3 + 2) as u16 % SCREEN_WIDTH) as u32) as usize];
                 // pixel[3] = 255;
             }
         }
