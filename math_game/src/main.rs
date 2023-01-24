@@ -58,7 +58,7 @@ fn main() -> Result<(), pixels::Error> {
     }
     //screen object that has the text.txt source file
     let mut screen = Screen::new("dots");
-    screen.screen_len = screen.area.len() as u32;
+    screen.screen_len = screen.area.len() as u16;
     //loop that runs program
     //todo: multithreading to have game thinking and rendering at same time
     event_loop.run(move |event, _, control_flow| {
@@ -283,7 +283,7 @@ struct Screen {
     entities: Vec<Vec<u8>>,
     area: Vec<u8>,
     scroll_dist: u16,
-    screen_len: u32,
+    screen_len: u16,
 }
 
 
@@ -370,9 +370,14 @@ impl Screen {
                 it2 += 1;
             } else {
                 // println!("b {}",it);
-                pixel[0] = self.area[(self.scroll_dist as u32 + (self.screen_len * ((it * 3) / SCREEN_WIDTH as usize) as u32)  + ((it * 3) as u16 % SCREEN_WIDTH) as u32) as usize];
-                pixel[1] = self.area[(self.scroll_dist as u32 + (self.screen_len * ((it * 3 + 1) / SCREEN_WIDTH as usize) as u32) + ((it * 3 + 1) as u16 % SCREEN_WIDTH) as u32) as usize];
-                pixel[2] = self.area[(self.scroll_dist as u32 + (self.screen_len * ((it * 3 + 2) / SCREEN_WIDTH as usize) as u32) + ((it * 3 + 2) as u16 % SCREEN_WIDTH) as u32) as usize];
+                let a = self.area[(self.scroll_dist + (self.screen_len * ((it * 3) / SCREEN_WIDTH as usize) as u16) + ((it * 3) as u16 % SCREEN_WIDTH)) as usize];
+                println!("{}", a);
+                pixel[0] =
+                    self.area[(self.scroll_dist + (self.screen_len * ((it * 3) / SCREEN_WIDTH as usize) as u16) + ((it * 3) as u16 % SCREEN_WIDTH)) as usize];
+                pixel[1] =
+                    self.area[(self.scroll_dist + (self.screen_len * ((it * 3 + 1) / SCREEN_WIDTH as usize) as u32) + ((it * 3 + 1) as u16 % SCREEN_WIDTH)) as usize];
+                pixel[2] =
+                    self.area[(self.scroll_dist + (self.screen_len * ((it * 3 + 2) / SCREEN_WIDTH as usize) as u32) + ((it * 3 + 2) as u16 % SCREEN_WIDTH)) as usize];
                 // pixel[3] = 255;
             }
         }
