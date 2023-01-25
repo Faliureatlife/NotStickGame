@@ -58,7 +58,7 @@ fn main() -> Result<(), pixels::Error> {
     }
     //screen object that has the text.txt source file
     let mut screen = Screen::new("dots");
-    screen.screen_len = screen.area.len() as u16;
+    screen.screen_len = screen.area.len() / SCREEN_HEIGHT as usize;
     //loop that runs program
     //todo: multithreading to have game thinking and rendering at same time
     event_loop.run(move |event, _, control_flow| {
@@ -283,7 +283,7 @@ struct Screen {
     entities: Vec<Vec<u8>>,
     area: Vec<u8>,
     scroll_dist: u16,
-    screen_len: u16,
+    screen_len: usize,
 }
 
 
@@ -331,6 +331,7 @@ impl Screen {
         //TODO: Update in chunks
         //TODO: Use premade transparency values
         let mut it2: usize = 0;
+        let mut b:Vec<usize> = vec![];
         for (it, pixel) in pix.chunks_exact_mut(4).enumerate() {
             /*Four checks:
             it % 720 > x_pos
@@ -370,14 +371,17 @@ impl Screen {
                 it2 += 1;
             } else {
                 // println!("b {}",it);
-                let a = self.area[(self.scroll_dist + (self.screen_len * ((it * 3) / SCREEN_WIDTH as usize) as u16) + ((it * 3) as u16 % SCREEN_WIDTH)) as usize];
-                println!("{}", a);
+                let _ = (self.screen_len * ((it * 3) / SCREEN_WIDTH as usize));
+                let a = self.scroll_dist as usize + (self.screen_len * ((it * 3) / SCREEN_WIDTH as usize)) + ((it * 3) % SCREEN_WIDTH as usize);
+                b.push(a);
+                println!("it {} val {} ", it, a);
+
                 pixel[0] =
-                    self.area[(self.scroll_dist + (self.screen_len * ((it * 3) / SCREEN_WIDTH as usize) as u16) + ((it * 3) as u16 % SCREEN_WIDTH)) as usize];
+                    self.area[self.scroll_dist as usize + (self.screen_len * ((it * 3) / SCREEN_WIDTH as usize)) + ((it * 3) % SCREEN_WIDTH as usize)];
                 pixel[1] =
-                    self.area[(self.scroll_dist + (self.screen_len * ((it * 3 + 1) / SCREEN_WIDTH as usize) as u32) + ((it * 3 + 1) as u16 % SCREEN_WIDTH)) as usize];
+                    self.area[self.scroll_dist as usize + (self.screen_len * ((it * 3 + 1) / SCREEN_WIDTH as usize)) + ((it * 3 + 1) % SCREEN_WIDTH as usize)];
                 pixel[2] =
-                    self.area[(self.scroll_dist + (self.screen_len * ((it * 3 + 2) / SCREEN_WIDTH as usize) as u32) + ((it * 3 + 2) as u16 % SCREEN_WIDTH)) as usize];
+                    self.area[self.scroll_dist as usize + (self.screen_len * ((it * 3 + 2) / SCREEN_WIDTH as usize)) + ((it * 3 + 2) % SCREEN_WIDTH as usize)];
                 // pixel[3] = 255;
             }
         }
