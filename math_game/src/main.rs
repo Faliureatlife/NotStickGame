@@ -331,7 +331,7 @@ impl Screen {
         //TODO: Update in chunks
         //TODO: Use premade transparency values
         let mut it2: usize = 0;
-        let mut b:Vec<usize> = vec![];
+        let mut b:Vec<&str> = vec![];
         for (it, pixel) in pix.chunks_exact_mut(4).enumerate() {
             /*Four checks:
             it % 720 > x_pos
@@ -371,11 +371,10 @@ impl Screen {
                 it2 += 1;
             } else {
                 // println!("b {}",it);
-                let _ = (self.screen_len * ((it * 3) / SCREEN_WIDTH as usize));
-                let a = self.scroll_dist as usize + (self.screen_len * ((it * 3) / SCREEN_WIDTH as usize)) + ((it * 3) % SCREEN_WIDTH as usize);
-                b.push(a);
-                println!("it {} val {} ", it, a);
-
+                let a = format!("{:?}",self.scroll_dist as usize + (self.screen_len * ((it * 3) / SCREEN_WIDTH as usize)) + ((it * 3) % SCREEN_WIDTH as usize));
+                b.push(&*a);
+                std::fs::write("vals.txt",&b).unwrap();
+                // println!("it {} val {} ", it, a);
                 pixel[0] =
                     self.area[self.scroll_dist as usize + (self.screen_len * ((it * 3) / SCREEN_WIDTH as usize)) + ((it * 3) % SCREEN_WIDTH as usize)];
                 pixel[1] =
