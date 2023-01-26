@@ -41,7 +41,7 @@ fn main() -> Result<(), pixels::Error> {
 
     //set env variable to give simple backtrace of broken runtime code
     let var = "RUST_BACKTRACE";
-    env::set_var(var, "1");
+    env::set_var(var, "0");
 
     //Create window and give it Physical Size of 720 4:3
     let window = Window::new(&event_loop).unwrap();
@@ -331,7 +331,9 @@ impl Screen {
         //TODO: Update in chunks
         //TODO: Use premade transparency values
         let mut it2: usize = 0;
-        let mut b:Vec<&str> = vec![];
+        let mut zero;
+        let mut one;
+        let mut two;
         for (it, pixel) in pix.chunks_exact_mut(4).enumerate() {
             /*Four checks:
             it % 720 > x_pos
@@ -370,11 +372,10 @@ impl Screen {
                 }
                 it2 += 1;
             } else {
-                // println!("b {}",it);
-                let a = format!("{:?}",self.scroll_dist as usize + (self.screen_len * ((it * 3) / SCREEN_WIDTH as usize)) + ((it * 3) % SCREEN_WIDTH as usize));
-                b.push(&*a);
-                std::fs::write("vals.txt",&b).unwrap();
-                // println!("it {} val {} ", it, a);
+                zero = (self.screen_len * ((it * 3) / SCREEN_WIDTH as usize)) + ((it * 3) % SCREEN_WIDTH as usize);
+                one = (self.screen_len * ((it * 3 + 1) / SCREEN_WIDTH as usize)) + ((it * 3 + 1) % SCREEN_WIDTH as usize);
+                two =(self.screen_len * ((it * 3 + 2) / SCREEN_WIDTH as usize)) + ((it * 3 + 2) % SCREEN_WIDTH as usize);
+                println!("it {} zero {} one {} two {}",it,zero,one,two);
                 pixel[0] =
                     self.area[self.scroll_dist as usize + (self.screen_len * ((it * 3) / SCREEN_WIDTH as usize)) + ((it * 3) % SCREEN_WIDTH as usize)];
                 pixel[1] =
