@@ -61,6 +61,10 @@ fn main() -> Result<(), pixels::Error> {
     screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
     //loop that runs program
     //todo: multithreading to have game thinking and rendering at same time
+    let mut up:bool = false;
+    let mut left:bool = false;
+    let mut down:bool = false;
+    let mut right:bool = false;
     event_loop.run(move |event, _, control_flow| {
         //When it wants to redraw do this
         if let Event::RedrawRequested(_) = event {
@@ -87,22 +91,31 @@ fn main() -> Result<(), pixels::Error> {
                 return;
             }
             //Todo: Diagonal movement
-            if input.key_pressed_os(VirtualKeyCode::W) || input.key_pressed_os(VirtualKeyCode::Up) {
+            if input.key_released(VirtualKeyCode::W) || input.key_pressed(VirtualKeyCode::W) || input.key_released(VirtualKeyCode::Up) || input.key_pressed(VirtualKeyCode::Up){
+                up = !up;
+            }
+            if input.key_released(VirtualKeyCode::A) || input.key_pressed(VirtualKeyCode::A) || input.key_released(VirtualKeyCode::Left) || input.key_pressed(VirtualKeyCode::Left){
+                left = !left;
+            }
+            if input.key_released(VirtualKeyCode::S) || input.key_pressed(VirtualKeyCode::S) || input.key_released(VirtualKeyCode::Down) || input.key_pressed(VirtualKeyCode::Down){
+                down = !down;
+            }
+            if input.key_released(VirtualKeyCode::D) || input.key_pressed(VirtualKeyCode::D) || input.key_released(VirtualKeyCode::Right) || input.key_pressed(VirtualKeyCode::Right){
+                right = !right;
+            }
+            if up{
                 screen.player.mov(1);
-                return;
             }
-            if input.key_pressed_os(VirtualKeyCode::A) || input.key_pressed_os(VirtualKeyCode::Left){
+            if left{
                 screen.player.mov(2);
-                return;
             }
-            if input.key_pressed_os(VirtualKeyCode::S) || input.key_pressed_os(VirtualKeyCode::Down){
+            if down{
                 screen.player.mov(3);
-                return;
             }
-            if input.key_pressed_os(VirtualKeyCode::D) || input.key_pressed_os(VirtualKeyCode::Right){
+            if right{
                 screen.player.mov(4);
-                return;
             }
+
             if input.key_released(VirtualKeyCode::W)
                 || input.key_released(VirtualKeyCode::A)
                 || input.key_released(VirtualKeyCode::S)
