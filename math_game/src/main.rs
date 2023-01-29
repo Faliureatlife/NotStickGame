@@ -58,7 +58,7 @@ fn main() -> Result<(), pixels::Error> {
     }
     //screen object that has the text.txt source file
     let mut screen = Screen::new("dots");
-    screen.screen_len = screen.area.len() / SCREEN_HEIGHT as usize;
+    screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
     //loop that runs program
     //todo: multithreading to have game thinking and rendering at same time
     event_loop.run(move |event, _, control_flow| {
@@ -332,8 +332,7 @@ impl Screen {
         //TODO: Use premade transparency values
         let mut it2: usize = 0;
         let mut zero;
-        let mut one;
-        let mut two;
+
         for (it, pixel) in pix.chunks_exact_mut(4).enumerate() {
             /*Four checks:
             it % 720 > x_pos
@@ -373,9 +372,8 @@ impl Screen {
                 it2 += 1;
             } else {
                 zero = (self.screen_len * ((it * 3) / SCREEN_WIDTH as usize)) + ((it * 3) % SCREEN_WIDTH as usize);
-                one = (self.screen_len * ((it * 3 + 1) / SCREEN_WIDTH as usize)) + ((it * 3 + 1) % SCREEN_WIDTH as usize);
-                two =(self.screen_len * ((it * 3 + 2) / SCREEN_WIDTH as usize)) + ((it * 3 + 2) % SCREEN_WIDTH as usize);
-                println!("it {} zero {} one {} two {}",it,zero,one,two);
+                // one = (self.screen_len * ((it * 3 + 1) / SCREEN_WIDTH as usize)) + ((it * 3 + 1) % SCREEN_WIDTH as usize);
+                // two =(self.screen_len * ((it * 3 + 2) / SCREEN_WIDTH as usize)) + ((it * 3 + 2) % SCREEN_WIDTH as usize);
                 pixel[0] =
                     self.area[self.scroll_dist as usize + (self.screen_len * ((it * 3) / SCREEN_WIDTH as usize)) + ((it * 3) % SCREEN_WIDTH as usize)];
                 pixel[1] =
