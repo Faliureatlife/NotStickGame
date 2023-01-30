@@ -31,7 +31,7 @@ const WORLD:&str = "WorldData/";
 const SCREEN_WIDTH:u16 = 720;
 const SCREEN_HEIGHT:u16 = 540;
 const SCROLL_OFFSET:u16 = 10;
-
+const MVMT_DIST:u16 = 2;
 fn main() -> Result<(), pixels::Error> {
     //where event loop is created for the future event_loop.run
     let event_loop = EventLoop::new();
@@ -107,13 +107,21 @@ fn main() -> Result<(), pixels::Error> {
                 screen.player.mov(1);
             }
             if left{
-                screen.player.mov(2);
+                if screen.player.x_pos - 2 < 21 && screen.scroll_dist > 0 {
+                    screen.scroll_dist -= 5
+                } else {
+                    screen.player.mov(2);
+                }
             }
             if down{
                 screen.player.mov(3);
             }
             if right{
-                screen.player.mov(4);
+                if screen.player.x_pos + 2 > 680 && screen.scroll_dist < (screen.screen_len - 720) as u16 {
+                    screen.scroll_dist += 5
+                } else {
+                    screen.player.mov(4);
+                }
             }
 
             if input.key_pressed(VirtualKeyCode::Equals) {
@@ -217,36 +225,35 @@ impl Player {
         data
     }
     fn mov(&mut self, dir: u8) {
-        const MVMT_D:u16 = 2;
         let mut bad:bool = false;
         match dir {
             //TODO: make the movement flush with edges
             //TODO: use different sprites for movement
             //Move up W
-            1 if self.y_pos > 1 => {
+            1 if self.y_pos - 2 > 0 => {
                 for colliders in self.collision.chunks_exact(2) {
-                    if colliders[0] > self.x_pos && colliders[0] < self.x_pos+18 && colliders[1] > (self.y_pos - MVMT_D) && colliders[1] < (self.y_pos - MVMT_D + 27) {
+                    if colliders[0] > self.x_pos && colliders[0] < self.x_pos+18 && colliders[1] > (self.y_pos - MVMT_DIST) && colliders[1] < (self.y_pos - MVMT_DIST + 27) {
                         bad = !bad;
                         break
                     }
                 }
                 if !bad {
-                    self.y_pos -= 2;
+                    self.y_pos -= MVMT_DIST;
                 }
                 self.move_delay += 1;
                 self.direction = 1;
             }
             1 => {}
             //Move left A
-            2 if self.x_pos > 1 => {
+            2 if self.x_pos - 2 > 0 => {
                 for colliders in self.collision.chunks_exact(2) {
-                    if colliders[0] > self.x_pos - MVMT_D && colliders[0] < self.x_pos + 18 - MVMT_D && colliders[1] > self.y_pos && colliders[1] < self.y_pos + 27 {
+                    if colliders[0] > self.x_pos - MVMT_DIST && colliders[0] < self.x_pos + 18 - MVMT_DIST && colliders[1] > self.y_pos && colliders[1] < self.y_pos + 27 {
                         bad = !bad;
                         break
                     }
                 }
                 if !bad {
-                    self.x_pos -=2;
+                    self.x_pos -=  MVMT_DIST;
                 }
                 self.move_delay += 1;
                 self.direction = 2;
@@ -255,13 +262,13 @@ impl Player {
             //Move down S
             3 if self.y_pos < 511 => {
                 for colliders in self.collision.chunks_exact(2) {
-                    if colliders[0] > self.x_pos && colliders[0] < self.x_pos+18 && colliders[1] > (self.y_pos + MVMT_D) && colliders[1] < (self.y_pos + MVMT_D + 27) {
+                    if colliders[0] > self.x_pos && colliders[0] < self.x_pos+18 && colliders[1] > (self.y_pos + MVMT_DIST) && colliders[1] < (self.y_pos + MVMT_DIST + 27) {
                         bad = !bad;
                         break
                     }
                 }
                 if !bad {
-                    self.y_pos += 2;
+                    self.y_pos += MVMT_DIST;
                 }
 
                 self.move_delay += 1;
@@ -271,13 +278,13 @@ impl Player {
             //Move right D
             4 if self.x_pos < 700 => {
                 for colliders in self.collision.chunks_exact(2) {
-                    if colliders[0] > self.x_pos + MVMT_D && colliders[0] < self.x_pos+18+MVMT_D && colliders[1] > self.y_pos && colliders[1] < self.y_pos + 27 {
+                    if colliders[0] > self.x_pos + MVMT_DIST && colliders[0] < self.x_pos+18+MVMT_DIST && colliders[1] > self.y_pos && colliders[1] < self.y_pos + 27 {
                         bad = !bad;
                         break
                     }
                 }
                 if !bad {
-                    self.x_pos += 2;
+                    self.x_pos += MVMT_DIST;
                 }
                 self.move_delay += 1;
                 self.direction = 3;
