@@ -388,17 +388,17 @@ impl Screen {
                 }
                 it2 += 1;
             } else {
-                let a = (self.screen_len * ((it * 3) / (SCREEN_WIDTH * 3) as usize)) + ((it * 3) % SCREEN_WIDTH as usize);
-                println!("it {} val {} ", it, a);
+                // let a = (3 * self.screen_len * ((it * 3) / (3 * SCREEN_WIDTH) as usize)) + ((it * 3) % (3 * SCREEN_WIDTH as usize));
+                // println!("it {} val {} ", it, a);
                 // zero = (self.screen_len * ((it * 3) / SCREEN_WIDTH as usize)) + ((it * 3) % SCREEN_WIDTH as usize);
                 // one = (self.screen_len * ((it * 3 + 1) / SCREEN_WIDTH as usize)) + ((it * 3 + 1) % SCREEN_WIDTH as usize);
                 // two =(self.screen_len * ((it * 3 + 2) / SCREEN_WIDTH as usize)) + ((it * 3 + 2) % SCREEN_WIDTH as usize);
                 pixel[0] =
-                    self.area[self.scroll_dist as usize * 3 + (self.screen_len * ((it * 3) / (SCREEN_WIDTH * 3) as usize)) + ((it * 3) % SCREEN_WIDTH as usize)];
+                    self.area[3 * self.scroll_dist as usize + (3 * self.screen_len * ((3 * it) / (3 * SCREEN_WIDTH) as usize)) + ((it * 3) % (3 * SCREEN_WIDTH as usize))];
                 pixel[1] =
-                    self.area[self.scroll_dist as usize * 3 + (self.screen_len * ((it * 3 + 1) / (SCREEN_WIDTH * 3) as usize)) + ((it * 3 + 1) % SCREEN_WIDTH as usize)];
+                    self.area[3 * self.scroll_dist as usize + (3 * self.screen_len * ((3 * it + 1) / (3 * SCREEN_WIDTH) as usize)) + ((it * 3 + 1) % (3 * SCREEN_WIDTH as usize))];
                 pixel[2] =
-                    self.area[self.scroll_dist as usize * 3 + (self.screen_len * ((it * 3 + 2) / (SCREEN_WIDTH * 3) as usize)) + ((it * 3 + 2) % SCREEN_WIDTH as usize)];
+                    self.area[3 * self.scroll_dist as usize + (3 * self.screen_len * ((3 * it + 2) / (3 * SCREEN_WIDTH) as usize)) + ((it * 3 + 2) % (3 * SCREEN_WIDTH as usize))];
                 // pixel[3] = 255;
             }
         }
