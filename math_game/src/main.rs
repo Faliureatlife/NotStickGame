@@ -107,8 +107,10 @@ fn main() -> Result<(), pixels::Error> {
                 screen.player.mov(1);
             }
             if left{
-                if screen.player.x_pos - 2 < 21 && screen.scroll_dist > 0 {
-                    screen.scroll_dist -= 5
+                if screen.player.x_pos - MVMT_DIST < 300 && screen.scroll_dist > 0 {
+                    screen.scroll_dist -= 5;
+                    screen.player.move_delay += 1;
+                    screen.player.direction = 2;
                 } else {
                     screen.player.mov(2);
                 }
@@ -117,18 +119,20 @@ fn main() -> Result<(), pixels::Error> {
                 screen.player.mov(3);
             }
             if right{
-                if screen.player.x_pos + 2 > 680 && screen.scroll_dist < (screen.screen_len - 720) as u16 {
-                    screen.scroll_dist += 5
+                if screen.player.x_pos + MVMT_DIST > 400 && screen.scroll_dist < (screen.screen_len - 720) as u16 {
+                    screen.scroll_dist += 5;
+                    screen.player.move_delay += 1;
+                    screen.player.direction = 3;
                 } else {
                     screen.player.mov(4);
                 }
             }
-
-            if input.key_pressed(VirtualKeyCode::Equals) {
-                screen.scroll_dist += 5;
+            if screen.player.move_delay == 3 {
+                screen.player.move_delay -= 3;
+                screen.player.move_state += 1;
             }
-            if input.key_pressed(VirtualKeyCode::Underline) {
-                screen.scroll_dist -= 5;
+            if screen.player.move_state == 4 {
+                screen.player.move_state -= 4;
             }
             if input.key_released(VirtualKeyCode::W)
                 || input.key_released(VirtualKeyCode::A)
@@ -291,13 +295,6 @@ impl Player {
             }
             4 => {}
             _ => panic!("Invalid movement"),
-        }
-        if self.move_delay == 3 {
-            self.move_delay -= 3;
-            self.move_state += 1;
-        }
-        if self.move_state == 4 {
-            self.move_state -= 4;
         }
     }
 }
