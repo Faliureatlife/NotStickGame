@@ -5,12 +5,12 @@ edition = "2021"
 
 #compile harder
 [profile.release]
-lto = 'thin'
+lto = 'fat'
 codegen-units = 1
 
-[profile.bench]
+[profile.dev]
 lto = 'thin'
-codegen-units = 1
+codegen-units = 256
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
@@ -20,3 +20,4 @@ winit = "0.27.3"
 hex = "0.4"
 rayon = "1.6.0"
 winit_input_helper = "0.13.0"
+serde_json = "1.0.89"

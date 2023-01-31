@@ -9,7 +9,7 @@ use std::{
     // time::SystemTime,
     // mem,
     // io::Write,
-    // fs::*,
+     fs::*,
     //     time::Duration,
     //     thread::sleep,
     // u8,
@@ -23,6 +23,7 @@ use winit::{
 };
 // use rayon::prelude::*;
 use winit_input_helper::WinitInputHelper;
+use serde::Deserialize;
 
 //starting position of player
 const START_Y: u16 = 10;
@@ -184,10 +185,12 @@ impl Player {
         spr13: &str,
         spr14: &str,
         spr15: &str,
+        x:u16,
+        y:u16,
     ) -> Self {
         Self {
-            x_pos: START_X,
-            y_pos: START_Y,
+            x_pos: x,
+            y_pos: y,
             move_state: 0,
             sprite: [
                 [
@@ -307,6 +310,7 @@ struct Screen {
     area: Vec<u8>,
     scroll_dist: u16,
     screen_len: usize,
+    data: File,
 }
 
 
@@ -330,6 +334,8 @@ impl Screen {
             "SpriteData/Nav/right/1.txt",
             "SpriteData/Nav/right/2.txt",
             "SpriteData/Nav/right/3.txt",
+                12,
+                    11,
             ),
             // collision: vec![],
             entities: vec![],
@@ -337,6 +343,7 @@ impl Screen {
             // i hate myself
             scroll_dist: 0,
             screen_len: 0,
+            data: File::open(format!("{}{}{}",WORLD,place,"/data.txt")).unwrap(),
         }
     }
 
