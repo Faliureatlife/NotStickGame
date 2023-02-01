@@ -187,6 +187,7 @@ impl Player {
         spr15: &str,
         x:u16,
         y:u16,
+        collision_pts:Vec<u16>,
     ) -> Self {
         Self {
             x_pos: x,
@@ -220,7 +221,7 @@ impl Player {
             ],
             direction: 0,
             move_delay: 0,
-            collision: vec![60,60,100,100],
+            collision: collision_pts,
         }
     }
 
@@ -334,8 +335,9 @@ impl Screen {
             "SpriteData/Nav/right/1.txt",
             "SpriteData/Nav/right/2.txt",
             "SpriteData/Nav/right/3.txt",
-                12,
-                    11,
+            serde_json::from_reader(std::fs::File::open(format!("{}{}{}",WORLD,place,"/data.txt")).unwrap()).expect("Not proper JSON").get("start_x"),
+            serde_json::from_reader(std::fs::File::open(format!("{}{}{}",WORLD,place,"/data.txt")).unwrap()).expect("Not proper JSON").get("start_y"),
+            serde_json::from_reader(File::open(format!("{}{}{}",WORLD,place,"/data.txt")).unwrap()).expect("Not proper JSON").get("collision"),
             ),
             // collision: vec![],
             entities: vec![],
@@ -343,7 +345,7 @@ impl Screen {
             // i hate myself
             scroll_dist: 0,
             screen_len: 0,
-            data: File::open(format!("{}{}{}",WORLD,place,"/data.txt")).unwrap(),
+            data: serde_json::from_reader(::open(format!("{}{}{}",WORLD,place,"/data.txt")).unwrap()).expect("Not proper JSON"),
         }
     }
 
