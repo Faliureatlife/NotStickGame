@@ -23,7 +23,7 @@ use winit::{
 };
 // use rayon::prelude::*;
 use winit_input_helper::WinitInputHelper;
-use serde::Deserialize;
+use serde_json::Deserializer;
 
 //starting position of player
 const START_Y: u16 = 10;
@@ -335,9 +335,9 @@ impl Screen {
             "SpriteData/Nav/right/1.txt",
             "SpriteData/Nav/right/2.txt",
             "SpriteData/Nav/right/3.txt",
-            serde_json::from_reader(std::fs::File::open(format!("{}{}{}",WORLD,place,"/data.txt")).unwrap()).expect("Not proper JSON").get("start_x"),
-            serde_json::from_reader(std::fs::File::open(format!("{}{}{}",WORLD,place,"/data.txt")).unwrap()).expect("Not proper JSON").get("start_y"),
-            serde_json::from_reader(File::open(format!("{}{}{}",WORLD,place,"/data.txt")).unwrap()).expect("Not proper JSON").get("collision"),
+            serde_json::from_reader(std::io::BufReader::new(File::open(format!("{}{}{}",WORLD,place,"/data.txt")).unwrap())).expect("Not proper JSON").get("start_x"),
+            serde_json::from_reader(std::io::BufReader::new(File::open(format!("{}{}{}",WORLD,place,"/data.txt")).unwrap())).expect("Not proper JSON").get("start_y"),
+            serde_json::from_reader(std::io::BufReader::new(File::open(format!("{}{}{}",WORLD,place,"/data.txt")).unwrap())).expect("Not proper JSON").get("collision"),
             ),
             // collision: vec![],
             entities: vec![],
@@ -345,7 +345,7 @@ impl Screen {
             // i hate myself
             scroll_dist: 0,
             screen_len: 0,
-            data: serde_json::from_reader(::open(format!("{}{}{}",WORLD,place,"/data.txt")).unwrap()).expect("Not proper JSON"),
+            data: serde_json::from_reader(std::io::BufReader::new(File::open(format!("{}{}{}",WORLD,place,"/data.txt")).unwrap())).expect("Not proper JSON"),
         }
     }
 
