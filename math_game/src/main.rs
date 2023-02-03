@@ -14,6 +14,7 @@ use std::{
     //     thread::sleep,
     // u8,
 };
+use std::error::Error;
 use winit::{
     dpi::PhysicalSize,
     //dpi::PhysicalSize,
@@ -335,7 +336,7 @@ impl Screen {
             "SpriteData/Nav/right/1.txt",
             "SpriteData/Nav/right/2.txt",
             "SpriteData/Nav/right/3.txt",
-            serde_json::from_reader(std::io::BufReader::new(File::open(format!("{}{}{}",WORLD,place,"/data.txt")).unwrap())).expect("Not proper JSON").get("start_x"),
+            Screen::read_from_file(format!("{}{}{}",WORLD,place,"/data.txt")).unwrap(),
             serde_json::from_reader(std::io::BufReader::new(File::open(format!("{}{}{}",WORLD,place,"/data.txt")).unwrap())).expect("Not proper JSON").get("start_y"),
             serde_json::from_reader(std::io::BufReader::new(File::open(format!("{}{}{}",WORLD,place,"/data.txt")).unwrap())).expect("Not proper JSON").get("collision"),
             ),
@@ -347,6 +348,12 @@ impl Screen {
             screen_len: 0,
             data: serde_json::from_reader(std::io::BufReader::new(File::open(format!("{}{}{}",WORLD,place,"/data.txt")).unwrap())).expect("Not proper JSON"),
         }
+    }
+    fn read_from_file(path: String) -> Result<u16, std::io::Error>{
+        let a = File::open(path).unwrap();
+        let b = std::io::BufReader::new(a);
+        let c:u16 = serde_json::from_reader(b).unwrap();
+        Ok(c)
     }
 
     fn new_screen(place: String) -> Vec<u8> {
