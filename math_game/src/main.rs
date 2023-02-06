@@ -336,9 +336,9 @@ impl Screen {
             "SpriteData/Nav/right/1.txt",
             "SpriteData/Nav/right/2.txt",
             "SpriteData/Nav/right/3.txt",
-            Screen::read_from_file(format!("{}{}{}",WORLD,place,"/data.txt")).unwrap().get("start_x").unwrap(),
-            Screen::read_from_file(format!("{}{}{}",WORLD,place,"/data.txt")).unwrap(),
-            serde_json::from_reader(std::io::BufReader::new(File::open(format!("{}{}{}",WORLD,place,"/data.txt")).unwrap())).expect("Not proper JSON").get("collision"),
+            Screen::read_from_file_u16(format!("{}{}{}",WORLD,place,"/data.json"),"start_x").unwrap(),
+            Screen::read_from_file_u16(format!("{}{}{}",WORLD,place,"/data.json"), "start_y").unwrap(),
+            Screen::read_from_file_vec(format!("{}{}{}",WORLD,place,"/data.json")).unwrap()),
             ),
             // collision: vec![],
             entities: vec![],
@@ -349,11 +349,19 @@ impl Screen {
             data: serde_json::from_reader(std::io::BufReader::new(File::open(format!("{}{}{}",WORLD,place,"/data.txt")).unwrap())).expect("Not proper JSON"),
         }
     }
-    fn read_from_file(path: String,get: String) -> Result<serde_json::Value, std::io::Error>{
+    fn read_from_file_u16(path: String, get: &str) -> Result<u16, std::io::Error>{
         let a = File::open(path)?;
         let b = std::io::BufReader::new(a);
         let c:serde_json::Value = serde_json::from_reader(b).unwrap();
-        Ok(c)
+        let d:u16 = c.get(get);
+        Ok(d)
+    }
+    fn read_from_file_vec(path: String) -> Result<Vec<u16>, std::io::Error>{
+        let a = File::open(path)?;
+        let b = std::io::BufReader::new(a);
+        let c:serde_json::Value = serde_json::from_reader(b).unwrap();
+        let d:vec<u16> = c.get(get);
+        Ok(d)
     }
 
     fn new_screen(place: String) -> Vec<u8> {
