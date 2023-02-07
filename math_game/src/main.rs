@@ -14,7 +14,7 @@ use std::{
     //     thread::sleep,
     // u8,
 };
-use std::error::Error;
+// use std::error::Error;
 use winit::{
     dpi::PhysicalSize,
     //dpi::PhysicalSize,
@@ -24,15 +24,15 @@ use winit::{
 };
 // use rayon::prelude::*;
 use winit_input_helper::WinitInputHelper;
-use serde_json::Deserializer;
+// use serde_json::Deserializer;
 
-//starting position of player
-const START_Y: u16 = 10;
-const START_X: u16 = 0;
+// unused constants
+// const START_Y: u16 = 10;
+// const START_X: u16 = 0;
+// const SCROLL_OFFSET:u16 = 10;
 const WORLD:&str = "WorldData/";
 const SCREEN_WIDTH:u16 = 720;
 const SCREEN_HEIGHT:u16 = 540;
-const SCROLL_OFFSET:u16 = 10;
 const MVMT_DIST:u16 = 2;
 fn main() -> Result<(), pixels::Error> {
     //where event loop is created for the future event_loop.run
@@ -312,7 +312,6 @@ struct Screen {
     area: Vec<u8>,
     scroll_dist: u16,
     screen_len: usize,
-    data: File,
 }
 
 
@@ -338,30 +337,33 @@ impl Screen {
             "SpriteData/Nav/right/3.txt",
             Screen::read_from_file_u16(format!("{}{}{}",WORLD,place,"/data.json"),"start_x").unwrap(),
             Screen::read_from_file_u16(format!("{}{}{}",WORLD,place,"/data.json"), "start_y").unwrap(),
-            Screen::read_from_file_vec(format!("{}{}{}",WORLD,place,"/data.json")).unwrap()),
-            ),
+            Screen::read_from_file_vec(format!("{}{}{}",WORLD,place,"/data.json"),"collision").unwrap()),
+
             // collision: vec![],
             entities: vec![],
             area: Screen::new_screen(format!("{}{}{}", WORLD, place,"/picture.txt")),
             // i hate myself
             scroll_dist: 0,
             screen_len: 0,
-            data: serde_json::from_reader(std::io::BufReader::new(File::open(format!("{}{}{}",WORLD,place,"/data.txt")).unwrap())).expect("Not proper JSON"),
         }
     }
     fn read_from_file_u16(path: String, get: &str) -> Result<u16, std::io::Error>{
         let a = File::open(path)?;
         let b = std::io::BufReader::new(a);
         let c:serde_json::Value = serde_json::from_reader(b).unwrap();
-        let d:u16 = c.get(get);
+        let d = c.get(get).expect("read_from_file_u16 failed to get value").as_u64().expect("read_from_file_u16 failed to convert to u64") as u16;
         Ok(d)
     }
-    fn read_from_file_vec(path: String) -> Result<Vec<u16>, std::io::Error>{
+    fn read_from_file_vec(path: String, get: &str) -> Result<Vec<u16>, std::io::Error>{
         let a = File::open(path)?;
         let b = std::io::BufReader::new(a);
         let c:serde_json::Value = serde_json::from_reader(b).unwrap();
-        let d:vec<u16> = c.get(get);
-        Ok(d)
+        let d = c.get(get).expect("read_from_file_vec failed to get value").as_array().expect("read_from_file_vec failed to convert to array");
+        let mut e = vec![];
+        for i in d {
+            e.push(i.as_u64().expect("read_from_file_vec failed to move Vec<value> to Vec<u16>") as u16)
+        }
+        Ok(e)
     }
 
     fn new_screen(place: String) -> Vec<u8> {
