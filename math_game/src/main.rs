@@ -3,37 +3,37 @@ mod render;
 
 use pixels::Pixels;
 //Dont just import all of pixels at some point
-// use pixels::wgpu::Color;
 use std::{
     env,
+    fs::*,
     // time::SystemTime,
     // mem,
     // io::Write,
-     fs::*,
-    //     time::Duration,
-    //     thread::sleep,
+    // time::Duration,
+    // thread::sleep,
     // u8,
+    // error::Error;
 };
-// use std::error::Error;
 use winit::{
     dpi::PhysicalSize,
-    //dpi::PhysicalSize,
     event::*,
     event_loop::*,
     window::Window,
+    //dpi::PhysicalSize,
 };
-// use rayon::prelude::*;
 use winit_input_helper::WinitInputHelper;
+// use pixels::wgpu::Color;
+// use rayon::prelude::*;
 // use serde_json::Deserializer;
 
 // unused constants
 // const START_Y: u16 = 10;
 // const START_X: u16 = 0;
 // const SCROLL_OFFSET:u16 = 10;
-const WORLD:&str = "WorldData/";
-const SCREEN_WIDTH:u16 = 720;
-const SCREEN_HEIGHT:u16 = 540;
-const MVMT_DIST:u16 = 2;
+const WORLD: &str = "WorldData/";
+const SCREEN_WIDTH: u16 = 720;
+const SCREEN_HEIGHT: u16 = 540;
+const MVMT_DIST: u16 = 2;
 fn main() -> Result<(), pixels::Error> {
     //where event loop is created for the future event_loop.run
     let event_loop = EventLoop::new();
@@ -51,22 +51,28 @@ fn main() -> Result<(), pixels::Error> {
     //let size = window.inner_size();
 
     //Create surface texture of given width and height with deref window
-    let surface_texture = pixels::SurfaceTexture::new(SCREEN_WIDTH as u32, SCREEN_HEIGHT as u32, &window);
+    let surface_texture =
+        pixels::SurfaceTexture::new(SCREEN_WIDTH as u32, SCREEN_HEIGHT as u32, &window);
 
     //frame buffer "pixels"
     let mut pixels = Pixels::new(720, 540, surface_texture)?;
     for pixel in pixels.get_frame().chunks_exact_mut(4) {
         pixel[3] = 255;
     }
-    //screen object that has the text.txt source file
+    //screen object made from the house page
     let mut screen = Screen::new("houses");
+
+    //setting the distance to be the correct value (add in to new() function later)
     screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
-    //loop that runs program
+
+    //declaring the direction moved values with initial value of false
+    let mut up: bool = false;
+    let mut left: bool = false;
+    let mut down: bool = false;
+    let mut right: bool = false;
+
     //todo: multithreading to have game thinking and rendering at same time
-    let mut up:bool = false;
-    let mut left:bool = false;
-    let mut down:bool = false;
-    let mut right:bool = false;
+    //loop that runs program
     event_loop.run(move |event, _, control_flow| {
         //When it wants to redraw do this
         if let Event::RedrawRequested(_) = event {
@@ -92,23 +98,44 @@ fn main() -> Result<(), pixels::Error> {
                 *control_flow = ControlFlow::Exit;
                 return;
             }
-            //Todo: Diagonal movement
-            if input.key_released(VirtualKeyCode::W) || input.key_pressed(VirtualKeyCode::W) || input.key_released(VirtualKeyCode::Up) || input.key_pressed(VirtualKeyCode::Up){
+            //When w or up arrow pressed flip value of upwards movement
+            if input.key_released(VirtualKeyCode::W)
+                || input.key_pressed(VirtualKeyCode::W)
+                || input.key_released(VirtualKeyCode::Up)
+                || input.key_pressed(VirtualKeyCode::Up)
+            {
                 up = !up;
             }
-            if input.key_released(VirtualKeyCode::A) || input.key_pressed(VirtualKeyCode::A) || input.key_released(VirtualKeyCode::Left) || input.key_pressed(VirtualKeyCode::Left){
+            //When A or Left arrow pressed flip value of leftwards movement
+            if input.key_released(VirtualKeyCode::A)
+                || input.key_pressed(VirtualKeyCode::A)
+                || input.key_released(VirtualKeyCode::Left)
+                || input.key_pressed(VirtualKeyCode::Left)
+            {
                 left = !left;
             }
-            if input.key_released(VirtualKeyCode::S) || input.key_pressed(VirtualKeyCode::S) || input.key_released(VirtualKeyCode::Down) || input.key_pressed(VirtualKeyCode::Down){
+            //When S or Down arrow pressed flip value of downwards movement
+            if input.key_released(VirtualKeyCode::S)
+                || input.key_pressed(VirtualKeyCode::S)
+                || input.key_released(VirtualKeyCode::Down)
+                || input.key_pressed(VirtualKeyCode::Down)
+            {
                 down = !down;
             }
-            if input.key_released(VirtualKeyCode::D) || input.key_pressed(VirtualKeyCode::D) || input.key_released(VirtualKeyCode::Right) || input.key_pressed(VirtualKeyCode::Right){
+            //when D or Right arrow pressed flip value of rightwards movement
+            if input.key_released(VirtualKeyCode::D)
+                || input.key_pressed(VirtualKeyCode::D)
+                || input.key_released(VirtualKeyCode::Right)
+                || input.key_pressed(VirtualKeyCode::Right)
+            {
                 right = !right;
             }
-            if up{
+            //move up if up using the mov function
+            if up {
                 screen.player.mov(1);
             }
-            if left{
+            //move left or scroll if the updated position will be past the bounds
+            if left {
                 if screen.player.x_pos - MVMT_DIST < 300 && screen.scroll_dist > 0 {
                     screen.scroll_dist -= 5;
                     screen.player.move_delay += 1;
@@ -117,11 +144,15 @@ fn main() -> Result<(), pixels::Error> {
                     screen.player.mov(2);
                 }
             }
-            if down{
+            //move down if down using the mov function
+            if down {
                 screen.player.mov(3);
             }
-            if right{
-                if screen.player.x_pos + MVMT_DIST > 400 && screen.scroll_dist < (screen.screen_len - 720) as u16 {
+            //move right or scroll right if moved pos would be past the bounds
+            if right {
+                if screen.player.x_pos + MVMT_DIST > 400
+                    && screen.scroll_dist < (screen.screen_len - 720) as u16
+                {
                     screen.scroll_dist += 5;
                     screen.player.move_delay += 1;
                     screen.player.direction = 3;
@@ -129,13 +160,16 @@ fn main() -> Result<(), pixels::Error> {
                     screen.player.mov(4);
                 }
             }
+            //delay the player movement to every three ticks
             if screen.player.move_delay == 3 {
                 screen.player.move_delay -= 3;
                 screen.player.move_state += 1;
             }
+            //reset player movement state if at max
             if screen.player.move_state == 4 {
                 screen.player.move_state -= 4;
             }
+            //upon stopping movement reset the delay and move state to return to neutral
             if input.key_released(VirtualKeyCode::W)
                 || input.key_released(VirtualKeyCode::A)
                 || input.key_released(VirtualKeyCode::S)
@@ -143,7 +177,8 @@ fn main() -> Result<(), pixels::Error> {
                 || input.key_released(VirtualKeyCode::Up)
                 || input.key_released(VirtualKeyCode::Left)
                 || input.key_released(VirtualKeyCode::Down)
-                || input.key_released(VirtualKeyCode::Right){
+                || input.key_released(VirtualKeyCode::Right)
+            {
                 screen.player.move_state = 0;
                 screen.player.move_delay = 0;
             }
@@ -157,18 +192,23 @@ fn main() -> Result<(), pixels::Error> {
 }
 
 struct Player {
-    //top right of player
+    //horizontal position from right of screen to left of player
     x_pos: u16,
+    //vertical position from top of screen to top of player
     y_pos: u16,
+    //1-4 animation frames
     move_state: u8,
-    // data:
+    //4 different arrays for direction with 4 sub-arrays for each frame
     sprite: [[Vec<u8>; 4]; 4],
+    //direction the player is facing
     direction: u8,
+    //state of movement delay in ticks
     move_delay: u8,
+    //vector of pairs that determine the points at which the player will collide
     collision: Vec<u16>,
 }
 impl Player {
-    //make &string into directory not file
+    //horrific number of params i dont feel like mutilating into looking pretty
     fn new(
         spr0: &str,
         spr1: &str,
@@ -186,10 +226,11 @@ impl Player {
         spr13: &str,
         spr14: &str,
         spr15: &str,
-        x:u16,
-        y:u16,
-        collision_pts:Vec<u16>,
+        x: u16,
+        y: u16,
+        collision_pts: Vec<u16>,
     ) -> Self {
+        // giving all variables the default values
         Self {
             x_pos: x,
             y_pos: y,
@@ -222,79 +263,120 @@ impl Player {
             ],
             direction: 0,
             move_delay: 0,
+            //set the collision points from the file
             collision: collision_pts,
         }
     }
 
+    //used for turning single animation frame into readable bytes
     fn gen_sprite(spr: &str) -> Vec<u8> {
+        //vector containing the sprite data to be returned
         let mut data = vec![];
+        //loop through the file in by byte
         for pix in std::fs::read(spr).unwrap().chunks_exact(2) {
+            //append each value taken from hex byte to single u8 value
             data.push(u8::from_str_radix(std::str::from_utf8(pix).unwrap(), 16).unwrap());
         }
+        //return the vector with the info
         data
     }
     fn mov(&mut self, dir: u8) {
-        let mut bad:bool = false;
+        //variable for whether or not collision is taking place
+        let mut colliding: bool = false;
         match dir {
             //TODO: make the movement flush with edges
-            //TODO: use different sprites for movement
             //Move up W
             1 if self.y_pos - 2 > 0 => {
+                //loop through all possible collision points
                 for colliders in self.collision.chunks_exact(2) {
-                    if colliders[0] > self.x_pos && colliders[0] < self.x_pos+18 && colliders[1] > (self.y_pos - MVMT_DIST) && colliders[1] < (self.y_pos - MVMT_DIST + 27) {
-                        bad = !bad;
-                        break
+                    //check to see if character is or will be within any of the bounds
+                    if colliders[0] > self.x_pos
+                        && colliders[0] < self.x_pos + 18
+                        && colliders[1] > (self.y_pos - MVMT_DIST)
+                        && colliders[1] < (self.y_pos - MVMT_DIST + 27)
+                    {
+                        //flips collision to true and break from for loop
+                        colliding = !colliding;
+                        break;
                     }
                 }
-                if !bad {
+                //if collision is not taking place then move by amound MVMT_DIST
+                if !colliding {
                     self.y_pos -= MVMT_DIST;
                 }
+                //increase delay and set direction
                 self.move_delay += 1;
                 self.direction = 1;
             }
             1 => {}
             //Move left A
             2 if self.x_pos - 2 > 0 => {
+                //loop through all possible collision points
                 for colliders in self.collision.chunks_exact(2) {
-                    if colliders[0] > self.x_pos - MVMT_DIST && colliders[0] < self.x_pos + 18 - MVMT_DIST && colliders[1] > self.y_pos && colliders[1] < self.y_pos + 27 {
-                        bad = !bad;
-                        break
+                    //check to see if character is or will be within any of the bounds
+                    if colliders[0] > self.x_pos - MVMT_DIST
+                        && colliders[0] < self.x_pos + 18 - MVMT_DIST
+                        && colliders[1] > self.y_pos
+                        && colliders[1] < self.y_pos + 27
+                    {
+                        //flips collision to true and break from for loop
+                        colliding = !colliding;
+                        break;
                     }
                 }
-                if !bad {
-                    self.x_pos -=  MVMT_DIST;
+                //if collision is not taking place then move by amount MVMT_DIST
+                if !colliding {
+                    self.x_pos -= MVMT_DIST;
                 }
+                //increase delay and set direction
                 self.move_delay += 1;
                 self.direction = 2;
             }
             2 => {}
             //Move down S
             3 if self.y_pos < 511 => {
+                //loop through all possible collision points
                 for colliders in self.collision.chunks_exact(2) {
-                    if colliders[0] > self.x_pos && colliders[0] < self.x_pos+18 && colliders[1] > (self.y_pos + MVMT_DIST) && colliders[1] < (self.y_pos + MVMT_DIST + 27) {
-                        bad = !bad;
-                        break
+                    //check to see if character is or will be within any of the bounds
+                    if colliders[0] > self.x_pos
+                        && colliders[0] < self.x_pos + 18
+                        && colliders[1] > (self.y_pos + MVMT_DIST)
+                        && colliders[1] < (self.y_pos + MVMT_DIST + 27)
+                    {
+                        //flips collision to true and break from for loop
+                        colliding = !colliding;
+                        break;
                     }
                 }
-                if !bad {
+                //if collision is not taking place then move by amount MVMT_DIST
+                if !colliding {
                     self.y_pos += MVMT_DIST;
                 }
-
+                //increase delay and set direction
                 self.move_delay += 1;
                 self.direction = 0;
             }
             3 => {}
             //Move right D
             4 if self.x_pos < 700 => {
+                //loop through all possible collision points
                 for colliders in self.collision.chunks_exact(2) {
-                    if colliders[0] > self.x_pos + MVMT_DIST && colliders[0] < self.x_pos+18+MVMT_DIST && colliders[1] > self.y_pos && colliders[1] < self.y_pos + 27 {
-                        bad = !bad;
-                        break
+                    //check to see if character is or will be within any of the bounds
+                    if colliders[0] > self.x_pos + MVMT_DIST
+                        && colliders[0] < self.x_pos + 18 + MVMT_DIST
+                        && colliders[1] > self.y_pos
+                        && colliders[1] < self.y_pos + 27
+                    {
+                        //flips collision to true and break from for loop
+                        colliding = !colliding;
+                        break;
                     }
                 }
-                if !bad {
+                //if collision is not taking place then move by amount MVMT_DIST
+                if !colliding {
                     self.x_pos += MVMT_DIST;
                 }
+                //increase delay and set direction
                 self.move_delay += 1;
                 self.direction = 3;
             }
@@ -314,54 +396,78 @@ struct Screen {
     screen_len: usize,
 }
 
-
 impl Screen {
     fn new(place: &str) -> Self {
         Self {
             player: Player::new(
-            "SpriteData/Nav/down/0.txt",
-            "SpriteData/Nav/down/1.txt",
-            "SpriteData/Nav/down/2.txt",
-            "SpriteData/Nav/down/3.txt",
-            "SpriteData/Nav/up/0.txt",
-            "SpriteData/Nav/up/1.txt",
-            "SpriteData/Nav/up/2.txt",
-            "SpriteData/Nav/up/3.txt",
-            "SpriteData/Nav/left/0.txt",
-            "SpriteData/Nav/left/1.txt",
-            "SpriteData/Nav/left/2.txt",
-            "SpriteData/Nav/left/3.txt",
-            "SpriteData/Nav/right/0.txt",
-            "SpriteData/Nav/right/1.txt",
-            "SpriteData/Nav/right/2.txt",
-            "SpriteData/Nav/right/3.txt",
-            Screen::read_from_file_u16(format!("{}{}{}",WORLD,place,"/data.json"),"start_x").unwrap(),
-            Screen::read_from_file_u16(format!("{}{}{}",WORLD,place,"/data.json"), "start_y").unwrap(),
-            Screen::read_from_file_vec(format!("{}{}{}",WORLD,place,"/data.json"),"collision").unwrap()),
+                "SpriteData/Nav/down/0.txt",
+                "SpriteData/Nav/down/1.txt",
+                "SpriteData/Nav/down/2.txt",
+                "SpriteData/Nav/down/3.txt",
+                "SpriteData/Nav/up/0.txt",
+                "SpriteData/Nav/up/1.txt",
+                "SpriteData/Nav/up/2.txt",
+                "SpriteData/Nav/up/3.txt",
+                "SpriteData/Nav/left/0.txt",
+                "SpriteData/Nav/left/1.txt",
+                "SpriteData/Nav/left/2.txt",
+                "SpriteData/Nav/left/3.txt",
+                "SpriteData/Nav/right/0.txt",
+                "SpriteData/Nav/right/1.txt",
+                "SpriteData/Nav/right/2.txt",
+                "SpriteData/Nav/right/3.txt",
+                Screen::read_from_file_u16(
+                    format!("{}{}{}", WORLD, place, "/data.json"),
+                    "start_x",
+                )
+                .unwrap(),
+                Screen::read_from_file_u16(
+                    format!("{}{}{}", WORLD, place, "/data.json"),
+                    "start_y",
+                )
+                .unwrap(),
+                Screen::read_from_file_vec(
+                    format!("{}{}{}", WORLD, place, "/data.json"),
+                    "collision",
+                )
+                .unwrap(),
+            ),
 
             // collision: vec![],
             entities: vec![],
-            area: Screen::new_screen(format!("{}{}{}", WORLD, place,"/picture.txt")),
+            area: Screen::new_screen(format!("{}{}{}", WORLD, place, "/picture.txt")),
             // i hate myself
             scroll_dist: 0,
             screen_len: 0,
         }
     }
-    fn read_from_file_u16(path: String, get: &str) -> Result<u16, std::io::Error>{
+    fn read_from_file_u16(path: String, get: &str) -> Result<u16, std::io::Error> {
         let a = File::open(path)?;
         let b = std::io::BufReader::new(a);
-        let c:serde_json::Value = serde_json::from_reader(b).unwrap();
-        let d = c.get(get).expect("read_from_file_u16 failed to get value").as_u64().expect("read_from_file_u16 failed to convert to u64") as u16;
+        let c: serde_json::Value = serde_json::from_reader(b).unwrap();
+        let d = c
+            .get(get)
+            .expect("read_from_file_u16 failed to get value")
+            .as_u64()
+            .expect("read_from_file_u16 failed to convert to u64") as u16;
         Ok(d)
     }
-    fn read_from_file_vec(path: String, get: &str) -> Result<Vec<u16>, std::io::Error>{
+    fn read_from_file_vec(path: String, get: &str) -> Result<Vec<u16>, std::io::Error> {
         let a = File::open(path)?;
         let b = std::io::BufReader::new(a);
-        let c:serde_json::Value = serde_json::from_reader(b).unwrap();
-        let d = c.get(get).expect("read_from_file_vec failed to get value").as_array().expect("read_from_file_vec failed to convert to array");
+        let c: serde_json::Value = serde_json::from_reader(b).unwrap();
+        let d = c
+            .get(get)
+            .expect("read_from_file_vec failed to get value")
+            .as_array()
+            .expect("read_from_file_vec failed to convert to array");
         let mut e = vec![];
         for i in d {
-            e.push(i.as_u64().expect("read_from_file_vec failed to move Vec<value> to Vec<u16>") as u16)
+            e.push(
+                i.as_u64()
+                    .expect("read_from_file_vec failed to move Vec<value> to Vec<u16>")
+                    as u16,
+            )
         }
         Ok(e)
     }
@@ -423,12 +529,15 @@ impl Screen {
                 // zero = (self.screen_len * ((it * 3) / SCREEN_WIDTH as usize)) + ((it * 3) % SCREEN_WIDTH as usize);
                 // one = (self.screen_len * ((it * 3 + 1) / SCREEN_WIDTH as usize)) + ((it * 3 + 1) % SCREEN_WIDTH as usize);
                 // two =(self.screen_len * ((it * 3 + 2) / SCREEN_WIDTH as usize)) + ((it * 3 + 2) % SCREEN_WIDTH as usize);
-                pixel[0] =
-                    self.area[3 * self.scroll_dist as usize + (3 * self.screen_len * ((3 * it) / (3 * SCREEN_WIDTH) as usize)) + ((it * 3) % (3 * SCREEN_WIDTH as usize))];
-                pixel[1] =
-                    self.area[3 * self.scroll_dist as usize + (3 * self.screen_len * ((3 * it + 1) / (3 * SCREEN_WIDTH) as usize)) + ((it * 3 + 1) % (3 * SCREEN_WIDTH as usize))];
-                pixel[2] =
-                    self.area[3 * self.scroll_dist as usize + (3 * self.screen_len * ((3 * it + 2) / (3 * SCREEN_WIDTH) as usize)) + ((it * 3 + 2) % (3 * SCREEN_WIDTH as usize))];
+                pixel[0] = self.area[3 * self.scroll_dist as usize
+                    + (3 * self.screen_len * ((3 * it) / (3 * SCREEN_WIDTH) as usize))
+                    + ((it * 3) % (3 * SCREEN_WIDTH as usize))];
+                pixel[1] = self.area[3 * self.scroll_dist as usize
+                    + (3 * self.screen_len * ((3 * it + 1) / (3 * SCREEN_WIDTH) as usize))
+                    + ((it * 3 + 1) % (3 * SCREEN_WIDTH as usize))];
+                pixel[2] = self.area[3 * self.scroll_dist as usize
+                    + (3 * self.screen_len * ((3 * it + 2) / (3 * SCREEN_WIDTH) as usize))
+                    + ((it * 3 + 2) % (3 * SCREEN_WIDTH as usize))];
                 // pixel[3] = 255;
             }
         }
