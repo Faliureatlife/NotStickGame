@@ -56,9 +56,12 @@ fn main() -> Result<(), pixels::Error> {
 
     //frame buffer "pixels"
     let mut pixels = Pixels::new(720, 540, surface_texture)?;
+
+    //sets every fourth transparency pixel to 255
     for pixel in pixels.get_frame().chunks_exact_mut(4) {
         pixel[3] = 255;
     }
+
     //screen object made from the house page
     let mut screen = Screen::new("houses");
 
@@ -387,18 +390,23 @@ impl Player {
 }
 
 struct Screen {
+    //the player object
     player: Player,
-    // collision:Vec<u16>,
-    //triggers: idk
+    //the list of entities that will be used
+    //unused
     entities: Vec<Vec<u8>>,
+    //the data for the background screen
     area: Vec<u8>,
+    //the distance that the screen has scrolled
     scroll_dist: u16,
+    //the length of the screen
     screen_len: usize,
 }
 
 impl Screen {
     fn new(place: &str) -> Self {
         Self {
+            //creating the new player objects
             player: Player::new(
                 "SpriteData/Nav/down/0.txt",
                 "SpriteData/Nav/down/1.txt",
@@ -432,36 +440,49 @@ impl Screen {
                 )
                 .unwrap(),
             ),
-
-            // collision: vec![],
+            //vec of entities
+            //currently unused
             entities: vec![],
+            //getting the data for a new screen
             area: Screen::new_screen(format!("{}{}{}", WORLD, place, "/picture.txt")),
-            // i hate myself
-            scroll_dist: 0,
+            //default scroll dist is read from file
+            scroll_dist: Screen::read_from_file_u16(format!("{}{}{}", WORLD, place, "/data.json"),"default_scroll").unwrap(),
+            //default scroll len is 0
             screen_len: 0,
         }
     }
     fn read_from_file_u16(path: String, get: &str) -> Result<u16, std::io::Error> {
+        //opens the file
         let a = File::open(path)?;
+        //opens the file in a buffered reader
         let b = std::io::BufReader::new(a);
+        //reads from the file into Value enum
         let c: serde_json::Value = serde_json::from_reader(b).unwrap();
+        //gets the desired u16 as a u64, then converts to u16
         let d = c
             .get(get)
             .expect("read_from_file_u16 failed to get value")
             .as_u64()
             .expect("read_from_file_u16 failed to convert to u64") as u16;
+        //returns as Result
         Ok(d)
     }
     fn read_from_file_vec(path: String, get: &str) -> Result<Vec<u16>, std::io::Error> {
+        //opens the json file
         let a = File::open(path)?;
+        //makes the file a buffered reader
         let b = std::io::BufReader::new(a);
+        //reads from file into Value enum
         let c: serde_json::Value = serde_json::from_reader(b).unwrap();
+        //gets the list from the overall value
         let d = c
             .get(get)
             .expect("read_from_file_vec failed to get value")
             .as_array()
             .expect("read_from_file_vec failed to convert to array");
+        //vector for conversion
         let mut e = vec![];
+        //take out each value in array to u16
         for i in d {
             e.push(
                 i.as_u64()
@@ -469,23 +490,27 @@ impl Screen {
                     as u16,
             )
         }
+        //returns as result
         Ok(e)
     }
 
     fn new_screen(place: String) -> Vec<u8> {
+        //makes vec to be returned
         let mut data = vec![];
+        //goes through the whole file by byte
         for pix in std::fs::read(place).unwrap().chunks_exact(2) {
-            //std::str::from_utf8(&g).unwrap()
-            //u8::from_str_radix(blu2, 16).unwrap()
             //gives a vec<u8> of all "valid" bits for the fb without the added opacity bits
             data.push(u8::from_str_radix(std::str::from_utf8(pix).unwrap(), 16).unwrap());
         }
+        //returns vector
         data
     }
+    //not getting comments because it works
     fn draw(&self, pix: &mut [u8]) {
         //TODO: Update in chunks
-        //TODO: Use premade transparency values
+        //character iterator
         let mut it2: usize = 0;
+        //for all pixels
         for (it, pixel) in pix.chunks_exact_mut(4).enumerate() {
             /*Four checks:
             it % 720 > x_pos
@@ -508,14 +533,18 @@ impl Screen {
                         as u16)
                     == 0
                 {
-                    pixel[0] = self.area[it * 3];
-                    pixel[1] = self.area[it * 3 + 1];
-                    pixel[2] = self.area[it * 3 + 2];
+                    pixel[0] = self.area[3 * self.scroll_dist as usize
+                        + (3 * self.screen_len * ((3 * it) / (3 * SCREEN_WIDTH) as usize))
+                        + ((it * 3) % (3 * SCREEN_WIDTH as usize))];
+                    pixel[1] = self.area[3 * self.scroll_dist as usize
+                        + (3 * self.screen_len * ((3 * it + 1) / (3 * SCREEN_WIDTH) as usize))
+                        + ((it * 3 + 1) % (3 * SCREEN_WIDTH as usize))];
+                    pixel[2] = self.area[3 * self.scroll_dist as usize
+                        + (3 * self.screen_len * ((3 * it + 2) / (3 * SCREEN_WIDTH) as usize))
+                        + ((it * 3 + 2) % (3 * SCREEN_WIDTH as usize))];
                 } else {
-                    // println!("char {}",it);
                     pixel[0] = self.player.sprite[self.player.direction as usize]
                         [self.player.move_state as usize][(it2) * 3];
-                    //do the expect thing tomorrow
                     pixel[1] = self.player.sprite[self.player.direction as usize]
                         [self.player.move_state as usize][(it2) * 3 + 1];
                     pixel[2] = self.player.sprite[self.player.direction as usize]
@@ -524,11 +553,6 @@ impl Screen {
                 }
                 it2 += 1;
             } else {
-                // let a = (3 * self.screen_len * ((it * 3) / (3 * SCREEN_WIDTH) as usize)) + ((it * 3) % (3 * SCREEN_WIDTH as usize));
-                // println!("it {} val {} ", it, a);
-                // zero = (self.screen_len * ((it * 3) / SCREEN_WIDTH as usize)) + ((it * 3) % SCREEN_WIDTH as usize);
-                // one = (self.screen_len * ((it * 3 + 1) / SCREEN_WIDTH as usize)) + ((it * 3 + 1) % SCREEN_WIDTH as usize);
-                // two =(self.screen_len * ((it * 3 + 2) / SCREEN_WIDTH as usize)) + ((it * 3 + 2) % SCREEN_WIDTH as usize);
                 pixel[0] = self.area[3 * self.scroll_dist as usize
                     + (3 * self.screen_len * ((3 * it) / (3 * SCREEN_WIDTH) as usize))
                     + ((it * 3) % (3 * SCREEN_WIDTH as usize))];
