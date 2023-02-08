@@ -103,7 +103,7 @@ for y in range(height):
         allColors = allColors + rgb_to_hex(r, g, b)
 
 # open text file
-text_file = open("math_game/SpriteData/Nav/down/2.png", "w+")
+text_file = open("math_game/SpriteData/Nav/down/2.txt", "w+")
 # write string to file
 text_file.write(allColors)
 # close file

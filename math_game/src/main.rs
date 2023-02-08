@@ -276,9 +276,9 @@ impl Player {
         //vector containing the sprite data to be returned
         let mut data = vec![];
         //loop through the file in by byte
-        for pix in std::fs::read(spr).unwrap().chunks_exact(2) {
+        for pix in std::fs::read(spr).expect("Failed to read from file").chunks_exact(2) {
             //append each value taken from hex byte to single u8 value
-            data.push(u8::from_str_radix(std::str::from_utf8(pix).unwrap(), 16).unwrap());
+            data.push(u8::from_str_radix(std::str::from_utf8(pix).expect("Failed to convert to utf8"), 16).expect("Failed to convert to hex value"));
         }
         //return the vector with the info
         data
@@ -428,17 +428,17 @@ impl Screen {
                     format!("{}{}{}", WORLD, place, "/data.json"),
                     "start_x",
                 )
-                .unwrap(),
+                .expect("Failed to read x value from file"),
                 Screen::read_from_file_u16(
                     format!("{}{}{}", WORLD, place, "/data.json"),
                     "start_y",
                 )
-                .unwrap(),
+                .expect("Failed to read y value from file"),
                 Screen::read_from_file_vec(
                     format!("{}{}{}", WORLD, place, "/data.json"),
                     "collision",
                 )
-                .unwrap(),
+                .expect("Failed to read collision from file"),
             ),
             //vec of entities
             //currently unused
@@ -446,7 +446,7 @@ impl Screen {
             //getting the data for a new screen
             area: Screen::new_screen(format!("{}{}{}", WORLD, place, "/picture.txt")),
             //default scroll dist is read from file
-            scroll_dist: Screen::read_from_file_u16(format!("{}{}{}", WORLD, place, "/data.json"),"default_scroll").unwrap(),
+            scroll_dist: Screen::read_from_file_u16(format!("{}{}{}", WORLD, place, "/data.json"),"default_scroll").expect("Failed to read the default scroll distance of the screen from file"),
             //default scroll len is 0
             screen_len: 0,
         }
@@ -457,7 +457,7 @@ impl Screen {
         //opens the file in a buffered reader
         let b = std::io::BufReader::new(a);
         //reads from the file into Value enum
-        let c: serde_json::Value = serde_json::from_reader(b).unwrap();
+        let c: serde_json::Value = serde_json::from_reader(b).expect("File not a valid .json");
         //gets the desired u16 as a u64, then converts to u16
         let d = c
             .get(get)
@@ -473,7 +473,7 @@ impl Screen {
         //makes the file a buffered reader
         let b = std::io::BufReader::new(a);
         //reads from file into Value enum
-        let c: serde_json::Value = serde_json::from_reader(b).unwrap();
+        let c: serde_json::Value = serde_json::from_reader(b).expect("File not a valid .json");
         //gets the list from the overall value
         let d = c
             .get(get)
@@ -498,9 +498,9 @@ impl Screen {
         //makes vec to be returned
         let mut data = vec![];
         //goes through the whole file by byte
-        for pix in std::fs::read(place).unwrap().chunks_exact(2) {
+        for pix in std::fs::read(place).expect("Unable to read from file").chunks_exact(2) {
             //gives a vec<u8> of all "valid" bits for the fb without the added opacity bits
-            data.push(u8::from_str_radix(std::str::from_utf8(pix).unwrap(), 16).unwrap());
+            data.push(u8::from_str_radix(std::str::from_utf8(pix).expect("Unable to convert to utf-6"), 16).expect("Unable to convert to to hex value"));
         }
         //returns vector
         data
