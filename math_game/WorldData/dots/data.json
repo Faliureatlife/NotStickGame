@@ -1,6 +1,7 @@
 {
 	"start_x": 0,
 	"start_y": 0,
-	"collision": [60,60,100,100]
+	"collision": [60,60,100,100],
+	"left": "houses"
 }
 	

@@ -133,6 +133,10 @@ fn main() -> Result<(), pixels::Error> {
             {
                 right = !right;
             }
+            if input.key_pressed(VirtualKeyCode::P)
+            {
+                Screen::new("dots");
+            }
             //move up if up using the mov function
             if up {
                 screen.player.mov(1);
@@ -311,6 +315,7 @@ impl Player {
                 self.move_delay += 1;
                 self.direction = 1;
             }
+            1 if self.y_pos - MVMT_DIST < 0 => {}
             1 => {}
             //Move left A
             2 if self.x_pos - 2 > 0 => {
@@ -464,6 +469,38 @@ impl Screen {
             .expect("read_from_file_u16 failed to get value")
             .as_u64()
             .expect("read_from_file_u16 failed to convert to u64") as u16;
+        //returns as Result
+        Ok(d)
+    }
+    fn read_from_file_str(path: String, get: &str) -> Result<&str, std::io::Error> {
+        //opens the file
+        let a = File::open(path)?;
+        //opens the file in a buffered reader
+        let b = std::io::BufReader::new(a);
+        //reads from the file into Value enum
+        let c: serde_json::Value = serde_json::from_reader(b).expect("File not a valid .json");
+        //gets the desired u16 as a u64, then converts to u16
+        let d = c
+            .get(get)
+            .expect("read_from_file_u16 failed to get value")
+            .as_str()
+            .expect("read_from_file_u16 failed to convert to str");
+        //returns as Result
+        Ok(d)
+    }
+    fn read_from_file_null(path: String, get: &str) -> Result<null, std::io::Error> {
+        //opens the file
+        let a = File::open(path)?;
+        //opens the file in a buffered reader
+        let b = std::io::BufReader::new(a);
+        //reads from the file into Value enum
+        let c: serde_json::Value = serde_json::from_reader(b).expect("File not a valid .json");
+        //gets the desired u16 as a u64, then converts to u16
+        let d = c
+            .get(get)
+            .expect("read_from_file_u16 failed to get value")
+            .as_null()
+            .expect("read_from_file_u16 failed to convert to null");
         //returns as Result
         Ok(d)
     }
