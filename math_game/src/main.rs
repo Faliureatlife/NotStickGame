@@ -134,28 +134,34 @@ fn main() -> Result<(), pixels::Error> {
                 right = !right;
             }
             match screen.player.change_screen {
-                1 => {screen = Screen::new(&screen.player.mvmt_destinations[0]);
+                1 => {
+                    screen = Screen::new(&screen.player.mvmt_destinations[0]);
                     screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
-                    println!("1");}
-                2 => {screen = Screen::new(&screen.player.mvmt_destinations[1]);
+                    println!("1");
+                }
+                2 => {
+                    screen = Screen::new(&screen.player.mvmt_destinations[1]);
                     screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
-                    println!("2");}
-                3 => {screen = Screen::new(&screen.player.mvmt_destinations[2]);
+                    println!("2");
+                }
+                3 => {
+                    screen = Screen::new(&screen.player.mvmt_destinations[2]);
                     screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
-                    println!("3");}
-                4 => {screen = Screen::new(&screen.player.mvmt_destinations[3]);
+                    println!("3");
+                }
+                4 => {
+                    screen = Screen::new(&screen.player.mvmt_destinations[3]);
                     screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
-                    println!("4");}
-                _ => {return}
+                    println!("4");
+                }
+                _ => return,
             }
 
-            if input.key_pressed(VirtualKeyCode::P)
-            {
+            if input.key_pressed(VirtualKeyCode::P) {
                 screen = Screen::new("dots");
                 screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
             }
-            if input.key_pressed(VirtualKeyCode::H)
-            {
+            if input.key_pressed(VirtualKeyCode::H) {
                 screen = Screen::new("houses");
                 screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
             }
@@ -260,7 +266,7 @@ impl Player {
         x: u16,
         y: u16,
         collision_pts: Vec<u16>,
-        mvmt_destinations: Vec<String>
+        mvmt_destinations: Vec<String>,
     ) -> Self {
         // giving all variables the default values
         Self {
@@ -298,7 +304,7 @@ impl Player {
             //set the collision points from the file
             collision: collision_pts,
             mvmt_destinations,
-            change_screen: 4
+            change_screen: 4,
         }
     }
 
@@ -307,9 +313,18 @@ impl Player {
         //vector containing the sprite data to be returned
         let mut data = vec![];
         //loop through the file in by byte
-        for pix in std::fs::read(spr).expect("Failed to read from file").chunks_exact(2) {
+        for pix in std::fs::read(spr)
+            .expect("Failed to read from file")
+            .chunks_exact(2)
+        {
             //append each value taken from hex byte to single u8 value
-            data.push(u8::from_str_radix(std::str::from_utf8(pix).expect("Failed to convert to utf8"), 16).expect("Failed to convert to hex value"));
+            data.push(
+                u8::from_str_radix(
+                    std::str::from_utf8(pix).expect("Failed to convert to utf8"),
+                    16,
+                )
+                .expect("Failed to convert to hex value"),
+            );
         }
         //return the vector with the info
         data
@@ -320,7 +335,7 @@ impl Player {
         match dir {
             //TODO: make the movement flush with edges
             //Move up W
-            1 if self.y_pos - MVMT_DIST > 0 => {
+            1 if self.y_pos - MVMT_DIST > 1 + MVMT_DIST => {
                 //loop through all possible collision points
                 for colliders in self.collision.chunks_exact(2) {
                     //check to see if character is or will be within any of the bounds
@@ -342,12 +357,12 @@ impl Player {
                 self.move_delay += 1;
                 self.direction = 1;
             }
-            1 if self.mvmt_destinations[0] != "null" => {
+            1 if self.mvmt_destinations[0] != "null" && self.y_pos - MVMT_DIST <= MVMT_DIST => {
                 self.change_screen = 1;
             }
             1 => {}
             //Move left A
-            2 if self.x_pos - MVMT_DIST > 0 => {
+            2 if self.x_pos - MVMT_DIST > 1 + MVMT_DIST => {
                 //loop through all possible collision points
                 for colliders in self.collision.chunks_exact(2) {
                     //check to see if character is or will be within any of the bounds
@@ -369,12 +384,12 @@ impl Player {
                 self.move_delay += 1;
                 self.direction = 2;
             }
-            2 if self.mvmt_destinations[1] != "null" => {
+            2 if self.mvmt_destinations[1] != "null" && self.x_pos - MVMT_DIST <= MVMT_DIST => {
                 self.change_screen = 2;
             }
             2 => {}
             //Move down S
-            3 if self.y_pos + MVMT_DIST < 511 => {
+            3 if self.y_pos + MVMT_DIST < 513 - MVMT_DIST => {
                 //loop through all possible collision points
                 for colliders in self.collision.chunks_exact(2) {
                     //check to see if character is or will be within any of the bounds
@@ -396,12 +411,14 @@ impl Player {
                 self.move_delay += 1;
                 self.direction = 0;
             }
-            3 if self.mvmt_destinations[0] != "null" => {
+            3 if self.mvmt_destinations[0] != "null"
+                && self.y_pos + MVMT_DIST >= 513 - MVMT_DIST =>
+            {
                 self.change_screen = 3;
             }
             3 => {}
             //Move right D
-            4 if self.x_pos + MVMT_DIST< 700 => {
+            4 if self.x_pos + MVMT_DIST < 700 => {
                 //loop through all possible collision points
                 for colliders in self.collision.chunks_exact(2) {
                     //check to see if character is or will be within any of the bounds
@@ -486,7 +503,7 @@ impl Screen {
                     format!("{}{}{}", WORLD, place, "/data.json"),
                     "mvmt_dest",
                 )
-                    .expect("failed to read values")
+                .expect("failed to read values"),
             ),
             //vec of entities
             //currently unused
@@ -494,7 +511,11 @@ impl Screen {
             //getting the data for a new screen
             area: Screen::new_screen(format!("{}{}{}", WORLD, place, "/picture.txt")),
             //default scroll dist is read from file
-            scroll_dist: Screen::read_from_file_u16(format!("{}{}{}", WORLD, place, "/data.json"),"default_scroll").expect("Failed to read the default scroll distance of the screen from file"),
+            scroll_dist: Screen::read_from_file_u16(
+                format!("{}{}{}", WORLD, place, "/data.json"),
+                "default_scroll",
+            )
+            .expect("Failed to read the default scroll distance of the screen from file"),
             //default scroll len is 0
             screen_len: 0,
         }
@@ -578,8 +599,7 @@ impl Screen {
             e.push(
                 i.as_str()
                     .expect("read_from_file_vec failed to move Vec<value> to Vec<u16>")
-                    .to_string()
-                    ,
+                    .to_string(),
             )
         }
         //returns as result
@@ -590,9 +610,18 @@ impl Screen {
         //makes vec to be returned
         let mut data = vec![];
         //goes through the whole file by byte
-        for pix in std::fs::read(place).expect("Unable to read from file").chunks_exact(2) {
+        for pix in std::fs::read(place)
+            .expect("Unable to read from file")
+            .chunks_exact(2)
+        {
             //gives a vec<u8> of all "valid" bits for the fb without the added opacity bits
-            data.push(u8::from_str_radix(std::str::from_utf8(pix).expect("Unable to convert to utf-6"), 16).expect("Unable to convert to to hex value"));
+            data.push(
+                u8::from_str_radix(
+                    std::str::from_utf8(pix).expect("Unable to convert to utf-6"),
+                    16,
+                )
+                .expect("Unable to convert to to hex value"),
+            );
         }
         //returns vector
         data
