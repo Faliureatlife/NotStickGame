@@ -73,7 +73,7 @@ fn main() -> Result<(), pixels::Error> {
     let mut left: bool = false;
     let mut down: bool = false;
     let mut right: bool = false;
-
+    println!("{:?}",screen.player.mvmt_destinations);
     //todo: multithreading to have game thinking and rendering at same time
     //loop that runs program
     event_loop.run(move |event, _, control_flow| {
@@ -418,7 +418,7 @@ impl Player {
             }
             3 => {}
             //Move right D
-            4 if self.x_pos + MVMT_DIST < 700 => {
+            4 if self.x_pos + MVMT_DIST < 702 => {
                 //loop through all possible collision points
                 for colliders in self.collision.chunks_exact(2) {
                     //check to see if character is or will be within any of the bounds
@@ -440,7 +440,7 @@ impl Player {
                 self.move_delay += 1;
                 self.direction = 3;
             }
-            4 if self.mvmt_destinations[0] != "null" => {
+            4 if self.mvmt_destinations[0] != "null" && self.x_pos + MVMT_DIST >= 702 => {
                 self.change_screen = 4;
             }
             4 => {}
@@ -488,7 +488,7 @@ impl Screen {
                     format!("{}{}{}", WORLD, place, "/data.json"),
                     "start_x",
                 )
-                .expect("Failed to read x value from file"),
+                .expect("Failed to read x value from file: {}"),
                 Screen::read_from_file_u16(
                     format!("{}{}{}", WORLD, place, "/data.json"),
                     "start_y",
