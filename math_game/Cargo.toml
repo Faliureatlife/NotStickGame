@@ -4,13 +4,13 @@ version = "0.1.0"
 edition = "2021"
 
 #compile harder
-[profile.release]
-lto = 'thin'
-codegen-units = 256
-
-[profile.dev]
-lto = 'thin'
-codegen-units = 256
+#[profile.release]
+#lto = 'thin'
+#codegen-units = 256
+#
+#[profile.dev]
+#lto = 'thin'
+#codegen-units = 256
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 

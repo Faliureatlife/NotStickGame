@@ -33,7 +33,7 @@ use winit_input_helper::WinitInputHelper;
 const WORLD: &str = "WorldData/";
 const SCREEN_WIDTH: u16 = 720;
 const SCREEN_HEIGHT: u16 = 540;
-const MVMT_DIST: u16 = 2;
+const MVMT_DIST: u16 = 3;
 fn main() -> Result<(), pixels::Error> {
     //where event loop is created for the future event_loop.run
     let event_loop = EventLoop::new();
@@ -136,18 +136,17 @@ fn main() -> Result<(), pixels::Error> {
             match screen.player.change_screen {
                 1 => {screen = Screen::new(&screen.player.mvmt_destinations[0]);
                     screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
-                    println!("1");}
+                    }
                 2 => {screen = Screen::new(&screen.player.mvmt_destinations[1]);
                     screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
-                    println!("2");}
+                    }
                 3 => {screen = Screen::new(&screen.player.mvmt_destinations[2]);
                     screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
-                    println!("3");}
+                    }
                 4 => {screen = Screen::new(&screen.player.mvmt_destinations[3]);
                     screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
-                    println!("4");
-                }
-                _ => return,
+                    }
+                _ => {},
             }
 
             if input.key_pressed(VirtualKeyCode::P)
@@ -191,8 +190,8 @@ fn main() -> Result<(), pixels::Error> {
                 }
             }
             //delay the player movement to every three ticks
-            if screen.player.move_delay == 3 {
-                screen.player.move_delay -= 3;
+            if screen.player.move_delay >= 2 {
+                screen.player.move_delay -= 2;
                 screen.player.move_state += 1;
             }
             //reset player movement state if at max
