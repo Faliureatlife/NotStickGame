@@ -1,0 +1,265 @@
+May 26 big day -- MUST COMPLETE BY NOW
+May 1st "due" :(
+spring break april 3-10
+March 1st """working program"""
+December 16 last day of sem
+December 13 check-in
+November 15
+November 7 CS Con
+November 3 Conference
+September 28 SWoT Analysis
+September 28 Demographic research and team swap
+
+What do?
+What work?
+What workn't?
+What learn?
+What next?
+
+15/2
+Change movement speed
+using constants
+Not using constants
+i need to add in player size constants to stop having to do math
+add in said constants
+
+14/2
+Debugging movement of screens
+not being dumb
+the original implementation
+idk
+continue working
+
+9/2
+Work on adding functionality for moving screens
+changing json files to have values to find where to
+reading the values from inside move functions
+types are hard
+adding in values to struct containing the places that can be moved to
+S
+8/2
+change .unwrap to .expect
+copy and pasting it all
+nothing
+this was probably a waste of time
+implement moving screens
+
+7/2
+Fix read from json
+use a function that handles the value returned when extracting json
+trying to return a Value
+reading the documentation is helpful
+changing unwrap to expect
+
+1/3
+add in function to get
+using function instead of single line
+using as value 
+have to change value for return/param
+implementing that maybe
+
+1/2
+add in serde support to json data files
+adding in to parameters
+nothing yet
+json is annoying
+fix bugs
+
+31/1
+
+30/1
+Add in animations while it scrolls
+Moving the movement animation check to runner function
+Failing to copy the data properly
+This was easier than I thought it would be
+
+25/1
+Work on saving data to check function
+Not anything this time
+writing to file
+Need to read some more into Vec type
+Finding out how to make a vector implement ref[u8]
+
+10/1
+Made fixed point-based collision
+using a vector chunked into two to represent x and y
+using the wrong < and > signs
+this was a lot easier than i thought it would be
+rendering multiple entities
+
+13/12
+Fixed the dumps
+formatting the text to be readable 
+
+12/12
+add in data dump file
+writing to file as .txt
+writing it as normal text file
+Doesnt play nice sometimes
+figure out whats happening
+
+8/12
+marked where render rwdoing will happen
+think about what i'll need to do
+nothing to really break
+im doing this really poorly
+actually put the code in
+
+7/12
+I fixed the movement
+using key_pressed_os
+using key_held or key_pressed
+read the docs more if things dont work
+movement animation?
+
+6/12
+
+5/12
+30/11 
+Added functionality for parrallel iterators
+replacing for with each in iter
+into_iter()
+rayon seems to be useful
+replace the continue to next_iter
+
+10/11
+listen to presentation
+take notes of what she said
+//
+man opportunities in the esports area for students
+tomorrows presentation
+
+4/11
+Got rid of parseinterror for out of bounds error
+
+2/11
+I fixed some of the errors
+reading errors and tracking what causes them via clippy
+My code
+I need to do a lot of error chasing at home
+fix more errors
+
+1/11
+Added implementations for screen
+taking inspiration from others code
+trying to make hardcoded stuff
+break up the program 
+bugfix
+
+31/10
+clean up render function
+checking the types of data
+telling the program what to do
+More work with control flow has to be done to finish implementation
+Making the picture draw properly 
+
+25/10
+try to use slices for adding things in
+
+
+21/10
+Add comments to code
+Splitting things into sections to remember
+not having comments
+Good coding processes are good
+Add more things 
+19/10
+Work on rendering 
+reading more docs
+functions
+Its going to be really hard to have a working demo done on time
+implement some form of rendering to screen
+
+17/10
+try to fix compiler error
+nothing so far
+restarting and closing programs and deleting conflicting files
+there is probably something open causing problems
+hope that thing isnt open
+
+12/10
+Learn to use .run
+looking at documentation for control flow
+my own solutions
+the internet is good and use the dcumentation as a starting point
+implementing more than closing the window
+
+11/10
+trying to use .run
+trial and error
+
+7/10
+Fixed imports and expiremented with windows
+Loop statement around renderer
+Also loop statement around render (no inputs)
+Must use event loops to find and handle events
+Implement event loops into code with basic UI
+
+5-6/10
+Fix Compiler errors
+Reading the error correctly
+Understanding the difference in which function it talks about
+cant call ? in(not on) a function that doesnt return other thing
+
+4/10
+Adding the pixels crate to the project
+looking at ways to call the functions with proper parameters
+not checking other crates
+cargo is confusing
+draw the frame buffer
+
+30/9
+I succeeded in compiling my project for the first time in like a week
+Abusing the error system to find out how to pass an array as arg
+google
+Use the errors to help you 
+more of the same
+
+29/9
+Work on conways still
+passing args instead of using heap memory
+actually doing what i meant to
+functions are hard 
+
+15/9
+Started the swot thingy
+Just doing it
+Sitting around and talking
+Its important to stay on top of it
+Thinking about the things that we have done and how they can be applicable
+
+19/9
+SWOT analysis & demo research
+Discussion what we can do
+idk 
+Discussion helps 
+Smooth over rest of documents
+
+20/9
+Look at school budget and determine pricing
+Going through normal yearly costs and seeing what would be left
+There wasnt very easily available info
+$99 is the average cost for a school year of student breakfast
+Work on prototypes and SWOT
+
+21/9
+Finished Demographic research and looked at code practice again
+Idea crafting
+Line 9
+Windows and linux compile differently
+Keep working on SWOT and rust programming
+
+22/9
+
+23/9
+Finished SWOT analysis
+Talking about potential answers with the groupo
+
+Cargo clippy is useful ig
+
+28/9
+I try code more and talk about survey
+Looking online at documentation
+Reading the errors
+The errors dont help
+Box<T>
