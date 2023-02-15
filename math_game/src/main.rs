@@ -73,7 +73,6 @@ fn main() -> Result<(), pixels::Error> {
     let mut left: bool = false;
     let mut down: bool = false;
     let mut right: bool = false;
-
     //todo: multithreading to have game thinking and rendering at same time
     //loop that runs program
     event_loop.run(move |event, _, control_flow| {
@@ -145,8 +144,9 @@ fn main() -> Result<(), pixels::Error> {
                     println!("3");}
                 4 => {screen = Screen::new(&screen.player.mvmt_destinations[3]);
                     screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
+                    println!("{}",&screen.player.mvmt_destinations[3]);
                     println!("4");}
-                _ => {return}
+                _ => {}
             }
 
             if input.key_pressed(VirtualKeyCode::P)
@@ -298,7 +298,7 @@ impl Player {
             //set the collision points from the file
             collision: collision_pts,
             mvmt_destinations,
-            change_screen: 4
+            change_screen: 0
         }
     }
 
@@ -488,6 +488,7 @@ impl Screen {
                 )
                     .expect("failed to read values")
             ),
+           
             //vec of entities
             //currently unused
             entities: vec![],
