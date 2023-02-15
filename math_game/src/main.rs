@@ -73,7 +73,7 @@ fn main() -> Result<(), pixels::Error> {
     let mut left: bool = false;
     let mut down: bool = false;
     let mut right: bool = false;
-    println!("{:?}",screen.player.mvmt_destinations);
+
     //todo: multithreading to have game thinking and rendering at same time
     //loop that runs program
     event_loop.run(move |event, _, control_flow| {
@@ -134,34 +134,29 @@ fn main() -> Result<(), pixels::Error> {
                 right = !right;
             }
             match screen.player.change_screen {
-                1 => {
-                    screen = Screen::new(&screen.player.mvmt_destinations[0]);
+                1 => {screen = Screen::new(&screen.player.mvmt_destinations[0]);
                     screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
-                    println!("1");
-                }
-                2 => {
-                    screen = Screen::new(&screen.player.mvmt_destinations[1]);
+                    println!("1");}
+                2 => {screen = Screen::new(&screen.player.mvmt_destinations[1]);
                     screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
-                    println!("2");
-                }
-                3 => {
-                    screen = Screen::new(&screen.player.mvmt_destinations[2]);
+                    println!("2");}
+                3 => {screen = Screen::new(&screen.player.mvmt_destinations[2]);
                     screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
-                    println!("3");
-                }
-                4 => {
-                    screen = Screen::new(&screen.player.mvmt_destinations[3]);
+                    println!("3");}
+                4 => {screen = Screen::new(&screen.player.mvmt_destinations[3]);
                     screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
                     println!("4");
                 }
                 _ => return,
             }
 
-            if input.key_pressed(VirtualKeyCode::P) {
+            if input.key_pressed(VirtualKeyCode::P)
+            {
                 screen = Screen::new("dots");
                 screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
             }
-            if input.key_pressed(VirtualKeyCode::H) {
+            if input.key_pressed(VirtualKeyCode::H)
+            {
                 screen = Screen::new("houses");
                 screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
             }
@@ -304,7 +299,7 @@ impl Player {
             //set the collision points from the file
             collision: collision_pts,
             mvmt_destinations,
-            change_screen: 4,
+            change_screen: 0
         }
     }
 
@@ -488,7 +483,7 @@ impl Screen {
                     format!("{}{}{}", WORLD, place, "/data.json"),
                     "start_x",
                 )
-                .expect("Failed to read x value from file: {}"),
+                .expect("Failed to read x value from file"),
                 Screen::read_from_file_u16(
                     format!("{}{}{}", WORLD, place, "/data.json"),
                     "start_y",
@@ -505,6 +500,7 @@ impl Screen {
                 )
                 .expect("failed to read values"),
             ),
+
             //vec of entities
             //currently unused
             entities: vec![],
@@ -599,7 +595,8 @@ impl Screen {
             e.push(
                 i.as_str()
                     .expect("read_from_file_vec failed to move Vec<value> to Vec<u16>")
-                    .to_string(),
+                    .to_string()
+                    ,
             )
         }
         //returns as result
