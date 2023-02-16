@@ -44,6 +44,8 @@ const WORLD: &str = "WorldData/";
 const SCREEN_WIDTH: u16 = 720;
 const SCREEN_HEIGHT: u16 = 540;
 const MVMT_DIST: u16 = 5;
+const CHAR_WIDTH:u8 = 19;
+const CHAR_HEIGHT: u8 = 28;
 fn main() -> Result<(), pixels::Error> {
     //where event loop is created for the future event_loop.run
     let event_loop = EventLoop::new();
@@ -669,9 +671,9 @@ impl Screen {
             it / 720 < y_pos + 28
             */
             if it % 720 > self.player.x_pos as usize
-                && it % 720 < (self.player.x_pos + 19) as usize
+                && it % 720 < (self.player.x_pos + CHAR_WIDTH as u16) as usize
                 && it / 720 > self.player.y_pos as usize
-                && it / 720 < (self.player.y_pos + 28) as usize
+                && it / 720 < (self.player.y_pos + CHAR_HEIGHT as u16) as usize
             {
                 if (self.player.sprite[self.player.direction as usize]
                     [self.player.move_state as usize][(it2) * 3] as u16)
