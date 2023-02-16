@@ -2,7 +2,7 @@ use std::{env};
 use std::fs::*;
 
 fn main() {
-    let binding = read_to_string("0.txt").unwrap();
+    let binding = read_to_string("../math_game/SpriteData/Nav/up/0.txt").unwrap();
     let a = binding.as_str();
     let mut d:Vec<&str> = vec![];
     for pix in 0..486{
@@ -24,5 +24,5 @@ fn main() {
     }
     let mut h = format!("{:?}", g);
     h = h.replace(&[' ', '\'',',','"','[',']','\\'][..],"");
-    write("done", &h).unwrap();
+    write("../math_game/SpriteData/Nav/up/0.txt", &h).unwrap();
 }

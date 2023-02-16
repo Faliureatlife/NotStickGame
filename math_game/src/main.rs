@@ -1,5 +1,4 @@
 //extra functions for idiomatic code or wtv
-mod render;
 //todo: change size of nav
 //todo: make moving work
 //todo: replace serde with miniserde (maybe)
@@ -181,7 +180,7 @@ fn main() -> Result<(), pixels::Error> {
                     screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
                     screen.player.y_pos = y;
                     screen.player.x_pos = 0 + (MVMT_DIST + 1);
-                    screen.scroll_dist = (screen.screen_len - 720) as u16;
+                    screen.scroll_dist = 0;
                 }
                 _ => {}
 
@@ -394,7 +393,7 @@ impl Player {
             }
             1 => {}
             //Move left A
-            2 if self.x_pos - MVMT_DIST > 1 + MVMT_DIST => {
+            2 if self.x_pos - MVMT_DIST > 1 => {
                 //loop through all possible collision points
                 for colliders in self.collision.chunks_exact(2) {
                     //check to see if character is or will be within any of the bounds
@@ -443,7 +442,7 @@ impl Player {
                 self.move_delay += 1;
                 self.direction = 0;
             }
-            3 if self.mvmt_destinations[0] != "null"
+            3 if self.mvmt_destinations[2] != "null"
                 && self.y_pos + MVMT_DIST >= 513 - MVMT_DIST =>
             {
                 self.change_screen = 3;
@@ -472,7 +471,7 @@ impl Player {
                 self.move_delay += 1;
                 self.direction = 3;
             }
-            4 if self.mvmt_destinations[0] != "null" && self.x_pos + MVMT_DIST >= 702 => {
+            4 if self.mvmt_destinations[3] != "null" && self.x_pos + MVMT_DIST >= SCREEN_WIDTH - CHAR_WIDTH as u16 - MVMT_DIST => {
                 self.change_screen = 4;
             }
             4 => {}

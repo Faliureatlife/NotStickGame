@@ -15,6 +15,14 @@ What work?
 What workn't?
 What learn?
 What next?
+To be Continued.....                                                                                                Jojo
+
+16/2
+Finish moving across screens
+trial and error
+the earlier trials and the errors
+serde took a really long time to compile, also edge cases are important
+changing size of character
 
 15/2
 Change movement speed
