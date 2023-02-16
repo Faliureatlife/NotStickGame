@@ -1,8 +1,18 @@
 //extra functions for idiomatic code or wtv
 mod render;
-
+//todo: change size of nav
+//todo: make moving work
+//todo: replace serde with miniserde (maybe)
+//todo: multithreading
+//todo: fix sprites
+//todo: make character size a constant/store in json
+//todo: pause when move off tab
 use pixels::Pixels;
 //Dont just import all of pixels at some point
+use serde_json::{
+    value::Value,
+    de,
+};
 use std::{
     env,
     fs::*,
@@ -21,10 +31,10 @@ use winit::{
     window::Window,
     //dpi::PhysicalSize,
 };
+use winit::event::VirtualKeyCode;
 use winit_input_helper::WinitInputHelper;
 // use pixels::wgpu::Color;
 // use rayon::prelude::*;
-// use serde_json::Deserializer;
 
 // unused constants
 // const START_Y: u16 = 10;
@@ -33,7 +43,9 @@ use winit_input_helper::WinitInputHelper;
 const WORLD: &str = "WorldData/";
 const SCREEN_WIDTH: u16 = 720;
 const SCREEN_HEIGHT: u16 = 540;
-const MVMT_DIST: u16 = 2;
+const MVMT_DIST: u16 = 5;
+const CHAR_WIDTH:u8 = 19;
+const CHAR_HEIGHT: u8 = 28;
 fn main() -> Result<(), pixels::Error> {
     //where event loop is created for the future event_loop.run
     let event_loop = EventLoop::new();
@@ -43,7 +55,7 @@ fn main() -> Result<(), pixels::Error> {
 
     //set env variable to give simple backtrace of broken runtime code
     let var = "RUST_BACKTRACE";
-    env::set_var(var, "0");
+    env::set_var(var, "1");
 
     //Create window and give it Physical Size of 720 4:3
     let window = Window::new(&event_loop).unwrap();
@@ -133,14 +145,66 @@ fn main() -> Result<(), pixels::Error> {
             {
                 right = !right;
             }
+
+            match screen.player.change_screen {
+                1 => {
+                    let x = screen.player.x_pos;
+                    let scroll = screen.scroll_dist;
+                    screen = Screen::new(&screen.player.mvmt_destinations[0]);
+                    screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
+                    screen.player.x_pos = x;
+                    screen.scroll_dist = scroll;
+                    //bottom of screen offset by player height + mvmt distance
+                    screen.player.y_pos = 540-(27 + MVMT_DIST + 1);
+                }
+                2 => {
+                    let y = screen.player.y_pos;
+                    screen = Screen::new(&screen.player.mvmt_destinations[1]);
+                    screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
+                    screen.player.y_pos = y;
+                    //left side of screen offset by player height + mvmt distance
+                    screen.player.x_pos = 720 - (18 + MVMT_DIST + 1);
+                    screen.scroll_dist = (screen.screen_len - 720) as u16;
+                }
+                3 => {
+                    let x = screen.player.x_pos;
+                    let scroll = screen.scroll_dist;
+                    screen = Screen::new(&screen.player.mvmt_destinations[2]);
+                    screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
+                    screen.player.x_pos = x;
+                    screen.scroll_dist = scroll;
+                    screen.player.y_pos = 0 + (MVMT_DIST + 1);
+                }
+                4 => {
+                    let y = screen.player.y_pos;
+                    screen = Screen::new(&screen.player.mvmt_destinations[3]);
+                    screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
+                    screen.player.y_pos = y;
+                    screen.player.x_pos = 0 + (MVMT_DIST + 1);
+                    screen.scroll_dist = (screen.screen_len - 720) as u16;
+                }
+                _ => {}
+
+            }
+
+            // if input.key_pressed(VirtualKeyCode::P)
+            // {
+            //     screen = Screen::new("dots");
+            //     screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
+            // }
+            // if input.key_pressed(VirtualKeyCode::H)
+            // {
+            //     screen = Screen::new("houses");
+            //     screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
+            // }
             //move up if up using the mov function
             if up {
                 screen.player.mov(1);
             }
             //move left or scroll if the updated position will be past the bounds
             if left {
-                if screen.player.x_pos - MVMT_DIST < 300 && screen.scroll_dist > 0 {
-                    screen.scroll_dist -= 5;
+                if screen.player.x_pos - MVMT_DIST < 300 && screen.scroll_dist > 0 + MVMT_DIST + 1 {
+                    screen.scroll_dist -= MVMT_DIST;
                     screen.player.move_delay += 1;
                     screen.player.direction = 2;
                 } else {
@@ -154,9 +218,9 @@ fn main() -> Result<(), pixels::Error> {
             //move right or scroll right if moved pos would be past the bounds
             if right {
                 if screen.player.x_pos + MVMT_DIST > 400
-                    && screen.scroll_dist < (screen.screen_len - 720) as u16
+                    && screen.scroll_dist + MVMT_DIST < (screen.screen_len - 720 ) as u16
                 {
-                    screen.scroll_dist += 5;
+                    screen.scroll_dist += MVMT_DIST;
                     screen.player.move_delay += 1;
                     screen.player.direction = 3;
                 } else {
@@ -164,8 +228,8 @@ fn main() -> Result<(), pixels::Error> {
                 }
             }
             //delay the player movement to every three ticks
-            if screen.player.move_delay == 3 {
-                screen.player.move_delay -= 3;
+            if screen.player.move_delay >= 2 {
+                screen.player.move_delay -= 2;
                 screen.player.move_state += 1;
             }
             //reset player movement state if at max
@@ -209,6 +273,8 @@ struct Player {
     move_delay: u8,
     //vector of pairs that determine the points at which the player will collide
     collision: Vec<u16>,
+    mvmt_destinations: Vec<String>,
+    change_screen: u8,
 }
 impl Player {
     //horrific number of params i dont feel like mutilating into looking pretty
@@ -232,6 +298,7 @@ impl Player {
         x: u16,
         y: u16,
         collision_pts: Vec<u16>,
+        mvmt_destinations: Vec<String>,
     ) -> Self {
         // giving all variables the default values
         Self {
@@ -268,6 +335,8 @@ impl Player {
             move_delay: 0,
             //set the collision points from the file
             collision: collision_pts,
+            mvmt_destinations,
+            change_screen: 0,
         }
     }
 
@@ -276,9 +345,18 @@ impl Player {
         //vector containing the sprite data to be returned
         let mut data = vec![];
         //loop through the file in by byte
-        for pix in std::fs::read(spr).expect("Failed to read from file").chunks_exact(2) {
+        for pix in std::fs::read(spr)
+            .expect("Failed to read from file")
+            .chunks_exact(2)
+        {
             //append each value taken from hex byte to single u8 value
-            data.push(u8::from_str_radix(std::str::from_utf8(pix).expect("Failed to convert to utf8"), 16).expect("Failed to convert to hex value"));
+            data.push(
+                u8::from_str_radix(
+                    std::str::from_utf8(pix).expect("Failed to convert to utf8"),
+                    16,
+                )
+                .expect("Failed to convert to hex value"),
+            );
         }
         //return the vector with the info
         data
@@ -289,7 +367,7 @@ impl Player {
         match dir {
             //TODO: make the movement flush with edges
             //Move up W
-            1 if self.y_pos - 2 > 0 => {
+            1 if self.y_pos - MVMT_DIST > 1 + MVMT_DIST => {
                 //loop through all possible collision points
                 for colliders in self.collision.chunks_exact(2) {
                     //check to see if character is or will be within any of the bounds
@@ -303,7 +381,7 @@ impl Player {
                         break;
                     }
                 }
-                //if collision is not taking place then move by amound MVMT_DIST
+                //if collision is not taking place then move by amount MVMT_DIST
                 if !colliding {
                     self.y_pos -= MVMT_DIST;
                 }
@@ -311,9 +389,12 @@ impl Player {
                 self.move_delay += 1;
                 self.direction = 1;
             }
+            1 if self.mvmt_destinations[0] != "null" && self.y_pos - MVMT_DIST <= MVMT_DIST => {
+                self.change_screen = 1;
+            }
             1 => {}
             //Move left A
-            2 if self.x_pos - 2 > 0 => {
+            2 if self.x_pos - MVMT_DIST > 1 + MVMT_DIST => {
                 //loop through all possible collision points
                 for colliders in self.collision.chunks_exact(2) {
                     //check to see if character is or will be within any of the bounds
@@ -335,9 +416,12 @@ impl Player {
                 self.move_delay += 1;
                 self.direction = 2;
             }
+            2 if self.mvmt_destinations[1] != "null" && self.x_pos - MVMT_DIST <= MVMT_DIST => {
+                self.change_screen = 2;
+            }
             2 => {}
             //Move down S
-            3 if self.y_pos < 511 => {
+            3 if self.y_pos + MVMT_DIST < 513 - MVMT_DIST => {
                 //loop through all possible collision points
                 for colliders in self.collision.chunks_exact(2) {
                     //check to see if character is or will be within any of the bounds
@@ -359,9 +443,14 @@ impl Player {
                 self.move_delay += 1;
                 self.direction = 0;
             }
+            3 if self.mvmt_destinations[0] != "null"
+                && self.y_pos + MVMT_DIST >= 513 - MVMT_DIST =>
+            {
+                self.change_screen = 3;
+            }
             3 => {}
             //Move right D
-            4 if self.x_pos < 700 => {
+            4 if self.x_pos + MVMT_DIST < 702 => {
                 //loop through all possible collision points
                 for colliders in self.collision.chunks_exact(2) {
                     //check to see if character is or will be within any of the bounds
@@ -382,6 +471,9 @@ impl Player {
                 //increase delay and set direction
                 self.move_delay += 1;
                 self.direction = 3;
+            }
+            4 if self.mvmt_destinations[0] != "null" && self.x_pos + MVMT_DIST >= 702 => {
+                self.change_screen = 4;
             }
             4 => {}
             _ => panic!("Invalid movement"),
@@ -434,19 +526,29 @@ impl Screen {
                     "start_y",
                 )
                 .expect("Failed to read y value from file"),
-                Screen::read_from_file_vec(
+                Screen::read_from_file_vecu16(
                     format!("{}{}{}", WORLD, place, "/data.json"),
                     "collision",
                 )
                 .expect("Failed to read collision from file"),
+                Screen::read_from_file_vecstr(
+                    format!("{}{}{}", WORLD, place, "/data.json"),
+                    "mvmt_dest",
+                )
+                .expect("failed to read values"),
             ),
+
             //vec of entities
             //currently unused
             entities: vec![],
             //getting the data for a new screen
             area: Screen::new_screen(format!("{}{}{}", WORLD, place, "/picture.txt")),
             //default scroll dist is read from file
-            scroll_dist: Screen::read_from_file_u16(format!("{}{}{}", WORLD, place, "/data.json"),"default_scroll").expect("Failed to read the default scroll distance of the screen from file"),
+            scroll_dist: Screen::read_from_file_u16(
+                format!("{}{}{}", WORLD, place, "/data.json"),
+                "default_scroll",
+            )
+            .expect("Failed to read the default scroll distance of the screen from file"),
             //default scroll len is 0
             screen_len: 0,
         }
@@ -457,7 +559,7 @@ impl Screen {
         //opens the file in a buffered reader
         let b = std::io::BufReader::new(a);
         //reads from the file into Value enum
-        let c: serde_json::Value = serde_json::from_reader(b).expect("File not a valid .json");
+        let c: Value = de::from_reader(b).expect("File not a valid .json");
         //gets the desired u16 as a u64, then converts to u16
         let d = c
             .get(get)
@@ -467,13 +569,55 @@ impl Screen {
         //returns as Result
         Ok(d)
     }
-    fn read_from_file_vec(path: String, get: &str) -> Result<Vec<u16>, std::io::Error> {
+    fn read_from_file_vecstr(path: String, get: &str) -> Result<Vec<String>, std::io::Error> {
         //opens the json file
         let a = File::open(path)?;
         //makes the file a buffered reader
         let b = std::io::BufReader::new(a);
         //reads from file into Value enum
         let c: serde_json::Value = serde_json::from_reader(b).expect("File not a valid .json");
+        //gets the list from the overall value
+        let d = c
+            .get(get)
+            .expect("read_from_file_vec failed to get value")
+            .as_array()
+            .expect("read_from_file_vec failed to convert to array");
+        //vector for conversion
+        let mut e = vec![];
+        //take out each value in array to u16
+        for i in d {
+            e.push(
+                i.as_str()
+                    .expect("read_from_file_vec failed to move Vec<value> to Vec<u16>")
+                    .to_string(),
+            )
+        }
+        //returns as result
+        Ok(e)
+    }
+    // fn read_from_file_str(path: String, get: &str) -> Result<String, std::io::Error> {
+    //     //opens the file
+    //     let a = File::open(path)?;
+    //     //opens the file in a buffered reader
+    //     let b = std::io::BufReader::new(a);
+    //     //reads from the file into Value enum
+    //     let c: Value = de::from_reader(b).expect("File not a valid .json");
+    //     //gets the desired u16 as a u64, then converts to u16
+    //     let d = c
+    //         .get(get)
+    //         .expect("read_from_file_u16 failed to get value")
+    //         .as_str()
+    //         .expect("read_from_file_u16 failed to convert to str");
+    //     //returns as Result
+    //     Ok(d.to_string())
+    // }
+    fn read_from_file_vecu16(path: String, get: &str) -> Result<Vec<u16>, std::io::Error> {
+        //opens the json file
+        let a = File::open(path)?;
+        //makes the file a buffered reader
+        let b = std::io::BufReader::new(a);
+        //reads from file into Value enum
+        let c: Value = de::from_reader(b).expect("File not a valid .json");
         //gets the list from the overall value
         let d = c
             .get(get)
@@ -493,14 +637,22 @@ impl Screen {
         //returns as result
         Ok(e)
     }
-
     fn new_screen(place: String) -> Vec<u8> {
         //makes vec to be returned
         let mut data = vec![];
         //goes through the whole file by byte
-        for pix in std::fs::read(place).expect("Unable to read from file").chunks_exact(2) {
+        for pix in std::fs::read(place)
+            .expect("Unable to read from file")
+            .chunks_exact(2)
+        {
             //gives a vec<u8> of all "valid" bits for the fb without the added opacity bits
-            data.push(u8::from_str_radix(std::str::from_utf8(pix).expect("Unable to convert to utf-6"), 16).expect("Unable to convert to to hex value"));
+            data.push(
+                u8::from_str_radix(
+                    std::str::from_utf8(pix).expect("Unable to convert to utf-6"),
+                    16,
+                )
+                .expect("Unable to convert to to hex value"),
+            );
         }
         //returns vector
         data
@@ -519,9 +671,9 @@ impl Screen {
             it / 720 < y_pos + 28
             */
             if it % 720 > self.player.x_pos as usize
-                && it % 720 < (self.player.x_pos + 19) as usize
+                && it % 720 < (self.player.x_pos + CHAR_WIDTH as u16) as usize
                 && it / 720 > self.player.y_pos as usize
-                && it / 720 < (self.player.y_pos + 28) as usize
+                && it / 720 < (self.player.y_pos + CHAR_HEIGHT as u16) as usize
             {
                 if (self.player.sprite[self.player.direction as usize]
                     [self.player.move_state as usize][(it2) * 3] as u16)

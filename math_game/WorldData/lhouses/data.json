@@ -1,0 +1,8 @@
+{
+	"start_x": 360,
+	"start_y": 220,
+	"default_scroll": 0,
+	"collision": [60,60,100,100],
+	"mvmt_dest": ["null","null","null","houses"]
+}
+	
