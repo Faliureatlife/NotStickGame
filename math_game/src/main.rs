@@ -43,8 +43,8 @@ const WORLD: &str = "WorldData/";
 const SCREEN_WIDTH: u16 = 720;
 const SCREEN_HEIGHT: u16 = 540;
 const MVMT_DIST: u16 = 5;
-const CHAR_WIDTH:u8 = 19;
-const CHAR_HEIGHT: u8 = 28;
+const CHAR_WIDTH:u8 = 36;
+const CHAR_HEIGHT: u8 = 54;
 fn main() -> Result<(), pixels::Error> {
     //where event loop is created for the future event_loop.run
     let event_loop = EventLoop::new();
