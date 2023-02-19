@@ -198,11 +198,11 @@ fn main() -> Result<(), pixels::Error> {
             // }
             //move up if up using the mov function
             if up {
-                screen.player.mov(1);
+                screen.player.mov(1,screen.scroll_dist);
             }
             //move down if down using the mov function
             if down {
-                screen.player.mov(3);
+                screen.player.mov(3,screen.scroll_dist);
             }
             //move left or scroll if the updated position will be past the bounds
             if left {
@@ -211,7 +211,7 @@ fn main() -> Result<(), pixels::Error> {
                     screen.player.move_delay += 1;
                     screen.player.direction = 2;
                 } else {
-                    screen.player.mov(2);
+                    screen.player.mov(2,screen.scroll_dist);
                 }
             }
             //move right or scroll right if moved pos would be past the bounds
@@ -223,7 +223,7 @@ fn main() -> Result<(), pixels::Error> {
                     screen.player.move_delay += 1;
                     screen.player.direction = 3;
                 } else {
-                    screen.player.mov(4);
+                    screen.player.mov(4,screen.scroll_dist);
                 }
             }
             //delay the player movement to every three ticks
@@ -272,7 +272,9 @@ struct Player {
     move_delay: u8,
     //vector of pairs that determine the points at which the player will collide
     collision: Vec<u16>,
+    //list of valid locations for the player to move
     mvmt_destinations: Vec<String>,
+    //1 - W, 2 - A, 3 - S, 4 - D
     change_screen: u8,
 }
 impl Player {
@@ -360,7 +362,7 @@ impl Player {
         //return the vector with the info
         data
     }
-    fn mov(&mut self, dir: u8) {
+    fn mov(&mut self, dir: u8, scrolled: u16) {
         //variable for whether or not collision is taking place
         let mut colliding: bool = false;
         match dir {
@@ -370,10 +372,10 @@ impl Player {
                 //loop through all possible collision points
                 for colliders in self.collision.chunks_exact(2) {
                     //check to see if character is or will be within any of the bounds
-                    if colliders[0] > self.x_pos
-                        && colliders[0] < self.x_pos + CHAR_WIDTH
-                        && colliders[1] > (self.y_pos - MVMT_DIST)
-                        && colliders[1] < (self.y_pos - MVMT_DIST + CHAR_HEIGHT)
+                    if colliders[0] - scrolled > self.x_pos
+                        && colliders[0] - scrolled < self.x_pos + CHAR_WIDTH
+                        && colliders[1] - scrolled > (self.y_pos - MVMT_DIST)
+                        && colliders[1] - scrolled < (self.y_pos - MVMT_DIST + CHAR_HEIGHT)
                     {
                         //flips collision to true and break from for loop
                         colliding = !colliding;
@@ -397,10 +399,10 @@ impl Player {
                 //loop through all possible collision points
                 for colliders in self.collision.chunks_exact(2) {
                     //check to see if character is or will be within any of the bounds
-                    if colliders[0] > self.x_pos - MVMT_DIST
-                        && colliders[0] < self.x_pos + CHAR_WIDTH - MVMT_DIST
-                        && colliders[1] > self.y_pos
-                        && colliders[1] < self.y_pos + CHAR_HEIGHT
+                    if colliders[0] - scrolled > self.x_pos - MVMT_DIST
+                        && colliders[0] - scrolled < self.x_pos + CHAR_WIDTH - MVMT_DIST
+                        && colliders[1] - scrolled > self.y_pos
+                        && colliders[1] - scrolled < self.y_pos + CHAR_HEIGHT
                     {
                         //flips collision to true and break from for loop
                         colliding = !colliding;
@@ -424,10 +426,10 @@ impl Player {
                 //loop through all possible collision points
                 for colliders in self.collision.chunks_exact(2) {
                     //check to see if character is or will be within any of the bounds
-                    if colliders[0] > self.x_pos
-                        && colliders[0] < self.x_pos + CHAR_WIDTH
-                        && colliders[1] > (self.y_pos + MVMT_DIST)
-                        && colliders[1] < (self.y_pos + MVMT_DIST + CHAR_HEIGHT)
+                    if colliders[0] - scrolled > self.x_pos
+                        && colliders[0] - scrolled < self.x_pos + CHAR_WIDTH
+                        && colliders[1] - scrolled > (self.y_pos + MVMT_DIST)
+                        && colliders[1] - scrolled < (self.y_pos + MVMT_DIST + CHAR_HEIGHT)
                     {
                         //flips collision to true and break from for loop
                         colliding = !colliding;
@@ -453,10 +455,10 @@ impl Player {
                 //loop through all possible collision points
                 for colliders in self.collision.chunks_exact(2) {
                     //check to see if character is or will be within any of the bounds
-                    if colliders[0] > self.x_pos + MVMT_DIST
-                        && colliders[0] < self.x_pos + CHAR_WIDTH + MVMT_DIST
-                        && colliders[1] > self.y_pos
-                        && colliders[1] < self.y_pos + CHAR_HEIGHT
+                    if colliders[0] - scrolled > self.x_pos + MVMT_DIST
+                        && colliders[0] - scrolled < self.x_pos + CHAR_WIDTH + MVMT_DIST
+                        && colliders[1] - scrolled > self.y_pos
+                        && colliders[1] - scrolled < self.y_pos + CHAR_HEIGHT
                     {
                         //flips collision to true and break from for loop
                         colliding = !colliding;
