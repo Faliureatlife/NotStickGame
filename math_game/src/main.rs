@@ -43,8 +43,8 @@ const WORLD: &str = "WorldData/";
 const SCREEN_WIDTH: u16 = 720;
 const SCREEN_HEIGHT: u16 = 540;
 const MVMT_DIST: u16 = 5;
-const CHAR_WIDTH:u8 = 36;
-const CHAR_HEIGHT: u8 = 54;
+const CHAR_WIDTH:u16 = 37;
+const CHAR_HEIGHT: u16 = 54;
 fn main() -> Result<(), pixels::Error> {
     //where event loop is created for the future event_loop.run
     let event_loop = EventLoop::new();
@@ -154,7 +154,7 @@ fn main() -> Result<(), pixels::Error> {
                     screen.player.x_pos = x;
                     screen.scroll_dist = scroll;
                     //bottom of screen offset by player height + mvmt distance
-                    screen.player.y_pos = 540-(27 + MVMT_DIST + 1);
+                    screen.player.y_pos = 540-(CHAR_HEIGHT as u16 + MVMT_DIST + 1);
                 }
                 2 => {
                     let y = screen.player.y_pos;
@@ -162,7 +162,7 @@ fn main() -> Result<(), pixels::Error> {
                     screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
                     screen.player.y_pos = y;
                     //left side of screen offset by player height + mvmt distance
-                    screen.player.x_pos = 720 - (18 + MVMT_DIST + 1);
+                    screen.player.x_pos = 720 - (CHAR_WIDTH + MVMT_DIST + 1);
                     screen.scroll_dist = (screen.screen_len - 720) as u16;
                 }
                 3 => {
@@ -200,9 +200,13 @@ fn main() -> Result<(), pixels::Error> {
             if up {
                 screen.player.mov(1);
             }
+            //move down if down using the mov function
+            if down {
+                screen.player.mov(3);
+            }
             //move left or scroll if the updated position will be past the bounds
             if left {
-                if screen.player.x_pos - MVMT_DIST < 300 && screen.scroll_dist > 0 + MVMT_DIST + 1 {
+                if screen.player.x_pos < 360 && screen.scroll_dist > 0 + MVMT_DIST + 1 {
                     screen.scroll_dist -= MVMT_DIST;
                     screen.player.move_delay += 1;
                     screen.player.direction = 2;
@@ -210,13 +214,9 @@ fn main() -> Result<(), pixels::Error> {
                     screen.player.mov(2);
                 }
             }
-            //move down if down using the mov function
-            if down {
-                screen.player.mov(3);
-            }
             //move right or scroll right if moved pos would be past the bounds
             if right {
-                if screen.player.x_pos + MVMT_DIST > 400
+                if screen.player.x_pos + MVMT_DIST > 360
                     && screen.scroll_dist + MVMT_DIST < (screen.screen_len - 720 ) as u16
                 {
                     screen.scroll_dist += MVMT_DIST;
@@ -366,14 +366,14 @@ impl Player {
         match dir {
             //TODO: make the movement flush with edges
             //Move up W
-            1 if self.y_pos - MVMT_DIST > 1 + MVMT_DIST => {
+            1 if self.y_pos - MVMT_DIST >= 2 => {
                 //loop through all possible collision points
                 for colliders in self.collision.chunks_exact(2) {
                     //check to see if character is or will be within any of the bounds
                     if colliders[0] > self.x_pos
-                        && colliders[0] < self.x_pos + 18
+                        && colliders[0] < self.x_pos + CHAR_WIDTH
                         && colliders[1] > (self.y_pos - MVMT_DIST)
-                        && colliders[1] < (self.y_pos - MVMT_DIST + 27)
+                        && colliders[1] < (self.y_pos - MVMT_DIST + CHAR_HEIGHT)
                     {
                         //flips collision to true and break from for loop
                         colliding = !colliding;
@@ -393,14 +393,14 @@ impl Player {
             }
             1 => {}
             //Move left A
-            2 if self.x_pos - MVMT_DIST > 1 => {
+            2 if self.x_pos - MVMT_DIST > MVMT_DIST => {
                 //loop through all possible collision points
                 for colliders in self.collision.chunks_exact(2) {
                     //check to see if character is or will be within any of the bounds
                     if colliders[0] > self.x_pos - MVMT_DIST
-                        && colliders[0] < self.x_pos + 18 - MVMT_DIST
+                        && colliders[0] < self.x_pos + CHAR_WIDTH - MVMT_DIST
                         && colliders[1] > self.y_pos
-                        && colliders[1] < self.y_pos + 27
+                        && colliders[1] < self.y_pos + CHAR_HEIGHT
                     {
                         //flips collision to true and break from for loop
                         colliding = !colliding;
@@ -420,14 +420,14 @@ impl Player {
             }
             2 => {}
             //Move down S
-            3 if self.y_pos + MVMT_DIST < 513 - MVMT_DIST => {
+            3 if self.y_pos + MVMT_DIST < 540 - CHAR_HEIGHT - MVMT_DIST => {
                 //loop through all possible collision points
                 for colliders in self.collision.chunks_exact(2) {
                     //check to see if character is or will be within any of the bounds
                     if colliders[0] > self.x_pos
-                        && colliders[0] < self.x_pos + 18
+                        && colliders[0] < self.x_pos + CHAR_WIDTH
                         && colliders[1] > (self.y_pos + MVMT_DIST)
-                        && colliders[1] < (self.y_pos + MVMT_DIST + 27)
+                        && colliders[1] < (self.y_pos + MVMT_DIST + CHAR_HEIGHT)
                     {
                         //flips collision to true and break from for loop
                         colliding = !colliding;
@@ -449,14 +449,14 @@ impl Player {
             }
             3 => {}
             //Move right D
-            4 if self.x_pos + MVMT_DIST < 702 => {
+            4 if self.x_pos + MVMT_DIST < 720 - CHAR_WIDTH => {
                 //loop through all possible collision points
                 for colliders in self.collision.chunks_exact(2) {
                     //check to see if character is or will be within any of the bounds
                     if colliders[0] > self.x_pos + MVMT_DIST
-                        && colliders[0] < self.x_pos + 18 + MVMT_DIST
+                        && colliders[0] < self.x_pos + CHAR_WIDTH + MVMT_DIST
                         && colliders[1] > self.y_pos
-                        && colliders[1] < self.y_pos + 27
+                        && colliders[1] < self.y_pos + CHAR_HEIGHT
                     {
                         //flips collision to true and break from for loop
                         colliding = !colliding;
@@ -471,7 +471,7 @@ impl Player {
                 self.move_delay += 1;
                 self.direction = 3;
             }
-            4 if self.mvmt_destinations[3] != "null" && self.x_pos + MVMT_DIST >= SCREEN_WIDTH - CHAR_WIDTH as u16 - MVMT_DIST => {
+            4 if self.mvmt_destinations[3] != "null" && self.x_pos + MVMT_DIST >= SCREEN_WIDTH - CHAR_WIDTH - MVMT_DIST => {
                 self.change_screen = 4;
             }
             4 => {}
@@ -670,7 +670,7 @@ impl Screen {
             it / 720 < y_pos + 28
             */
             if it % 720 > self.player.x_pos as usize
-                && it % 720 < (self.player.x_pos + CHAR_WIDTH as u16) as usize
+                && it % 720 < (self.player.x_pos + CHAR_WIDTH) as usize
                 && it / 720 > self.player.y_pos as usize
                 && it / 720 < (self.player.y_pos + CHAR_HEIGHT as u16) as usize
             {

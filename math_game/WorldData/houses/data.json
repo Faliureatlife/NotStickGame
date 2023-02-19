@@ -1,8 +1,8 @@
 {
 	"start_x": 360,
-	"start_y": 220,
+	"start_y": 221,
 	"default_scroll": 0,
-	"collision": [60,60,100,100],
+	"collision": [380,201,344,201,308,201,272,201,236,201,200,201,164,201,128,201,92,201,56,201,20,201],
 	"mvmt_dest": ["null","lhouses","null","dots"]
 }
 	
