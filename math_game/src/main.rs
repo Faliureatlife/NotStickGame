@@ -346,7 +346,7 @@ impl Player {
         //vector containing the sprite data to be returned
         let mut data = vec![];
         //loop through the file in by byte
-        for pix in std::fs::read(spr)
+        for pix in read(spr)
             .expect("Failed to read from file")
             .chunks_exact(2)
         {
@@ -596,7 +596,7 @@ impl Screen {
         //makes the file a buffered reader
         let b = std::io::BufReader::new(a);
         //reads from file into Value enum
-        let c: serde_json::Value = serde_json::from_reader(b).expect("File not a valid .json");
+        let c: Value = serde_json::from_reader(b).expect("File not a valid .json");
         //gets the list from the overall value
         let d = c
             .get(get)
@@ -662,7 +662,7 @@ impl Screen {
         //makes vec to be returned
         let mut data = vec![];
         //goes through the whole file by byte
-        for pix in std::fs::read(place)
+        for pix in read(place)
             .expect("Unable to read from file")
             .chunks_exact(2)
         {
