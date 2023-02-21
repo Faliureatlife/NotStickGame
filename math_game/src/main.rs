@@ -1,12 +1,12 @@
 //extra functions for idiomatic code or wtv
-//todo: change size of nav
 //todo: make moving work
 //todo: replace serde with miniserde (maybe)
 //todo: multithreading
-//todo: fix sprites
-//todo: make character size a constant/store in json
 //todo: pause when move off tab
-use pixels::Pixels;
+use pixels::{Pixels, PixelsBuilder, wgpu::{
+    PowerPreference,
+    RequestAdapterOptions
+}};
 //Dont just import all of pixels at some point
 use serde_json::{
     value::Value,
@@ -66,7 +66,13 @@ fn main() -> Result<(), pixels::Error> {
         pixels::SurfaceTexture::new(SCREEN_WIDTH as u32, SCREEN_HEIGHT as u32, &window);
 
     //frame buffer "pixels"
-    let mut pixels = Pixels::new(720, 540, surface_texture)?;
+    let mut pixels = PixelsBuilder::new(720, 540, surface_texture).request_adapter_options(RequestAdapterOptions {
+        power_preference: PowerPreference::HighPerformance,
+        force_fallback_adapter: false,
+        compatible_surface: None,
+    })
+        .enable_vsync(true)
+        .build()?;;
 
     //sets every fourth transparency pixel to 255
     for pixel in pixels.get_frame().chunks_exact_mut(4) {
@@ -675,6 +681,7 @@ impl Screen {
                 .expect("Unable to convert to to hex value"),
             );
         }
+        data.shrink_to_fit();
         //returns vector
         data
     }
