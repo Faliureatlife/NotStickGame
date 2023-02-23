@@ -377,17 +377,19 @@ impl Player {
             1 if self.y_pos - MVMT_DIST >= 2 => {
                 //loop through all possible collision points
                 for colliders in self.collision.chunks_exact(2) {
-                    println!("{} {:?}",scrolled, colliders[0].checked_sub(scrolled));
-                    println!();
+                    // println!("{} {:?}",scrolled, colliders[0].checked_sub(scrolled));
+                    // println!();
                     //check to see if character is or will be within any of the bounds
                     if colliders[0].checked_sub(scrolled) != None &&
                         colliders[1].checked_sub(scrolled) != None {
-                        if colliders[0].checked_sub(scrolled)? > self.x_pos
-                            && colliders[0].checked_sub(scrolled)? < self.x_pos + CHAR_WIDTH
-                            && colliders[1].checked_sub(scrolled)? > (self.y_pos - MVMT_DIST)
-                            && colliders[1].checked_sub(scrolled)? < (self.y_pos - MVMT_DIST + CHAR_HEIGHT)
+                        if colliders[0].checked_sub(scrolled)? >= self.x_pos
+                            && colliders[0].checked_sub(scrolled)? <= self.x_pos + CHAR_WIDTH
+                            && colliders[1].checked_sub(scrolled)? >= (self.y_pos - MVMT_DIST)
+                            && colliders[1].checked_sub(scrolled)? <= (self.y_pos - MVMT_DIST + CHAR_HEIGHT)
                         {
                             //flips collision to true and break from for loop
+                            println!("{:?} ",colliders);
+                            println!("x:{},y:{}",self.x_pos,self.y_pos);
                             colliding = !colliding;
                             break;
                         }
@@ -409,17 +411,18 @@ impl Player {
             2 if self.x_pos - MVMT_DIST > MVMT_DIST => {
                 //loop through all possible collision points
                 for colliders in self.collision.chunks_exact(2) {
-                    println!("{} {:?}",scrolled, colliders[0].checked_sub(scrolled));
-                    println!();
+                    // println!("{} {:?}",scrolled, colliders[0].checked_sub(scrolled));
+                    // println!();
                     //check to see if character is or will be within any of the bounds
                     if colliders[0].checked_sub(scrolled) != None &&
                         colliders[1].checked_sub(scrolled) != None {
-                        if colliders[0].checked_sub(scrolled)? > self.x_pos
-                            && colliders[0].checked_sub(scrolled)? < self.x_pos + CHAR_WIDTH
-                            && colliders[1].checked_sub(scrolled)? > (self.y_pos - MVMT_DIST)
-                            && colliders[1].checked_sub(scrolled)? < (self.y_pos - MVMT_DIST + CHAR_HEIGHT)
+                        if colliders[0].checked_sub(scrolled)? >= self.x_pos
+                            && colliders[0].checked_sub(scrolled)? <= self.x_pos + CHAR_WIDTH
+                            && colliders[1].checked_sub(scrolled)? >= (self.y_pos - MVMT_DIST)
+                            && colliders[1].checked_sub(scrolled)? <= (self.y_pos - MVMT_DIST + CHAR_HEIGHT)
                         {
                             //flips collision to true and break from for loop
+                            println!("{:?} ",colliders);
                             colliding = !colliding;
                             break;
                         }
@@ -441,17 +444,18 @@ impl Player {
             3 if self.y_pos + MVMT_DIST < 540 - CHAR_HEIGHT - MVMT_DIST => {
                 //loop through all possible collision points
                 for colliders in self.collision.chunks_exact(2) {
-                    println!("{} {:?}",scrolled, colliders[0].checked_sub(scrolled));
-                    println!();
+                    // println!("{} {:?}",scrolled, colliders[0].checked_sub(scrolled));
+                    // println!();
                     //check to see if character is or will be within any of the bounds
                     if colliders[0].checked_sub(scrolled) != None &&
                         colliders[1].checked_sub(scrolled) != None {
-                        if colliders[0].checked_sub(scrolled)? > self.x_pos
-                            && colliders[0].checked_sub(scrolled)? < self.x_pos + CHAR_WIDTH
-                            && colliders[1].checked_sub(scrolled)? > (self.y_pos - MVMT_DIST)
-                            && colliders[1].checked_sub(scrolled)? < (self.y_pos - MVMT_DIST + CHAR_HEIGHT)
+                        if colliders[0].checked_sub(scrolled)? >= self.x_pos
+                            && colliders[0].checked_sub(scrolled)? <= self.x_pos + CHAR_WIDTH
+                            && colliders[1].checked_sub(scrolled)? >= (self.y_pos - MVMT_DIST)
+                            && colliders[1].checked_sub(scrolled)? <= (self.y_pos - MVMT_DIST + CHAR_HEIGHT)
                         {
                             //flips collision to true and break from for loop
+                            println!("{:?} ",colliders);
                             colliding = !colliding;
                             break;
                         }
@@ -475,17 +479,18 @@ impl Player {
             4 if self.x_pos + MVMT_DIST < 720 - CHAR_WIDTH => {
                 //loop through all possible collision points
                 for colliders in self.collision.chunks_exact(2) {
-                    println!("{} {:?}",scrolled, colliders[0].checked_sub(scrolled));
-                    println!();
+                    // println!("{} {:?}",scrolled, colliders[0].checked_sub(scrolled));
+                    // println!();
                     //check to see if character is or will be within any of the bounds
                     if colliders[0].checked_sub(scrolled) != None &&
                         colliders[1].checked_sub(scrolled) != None {
-                        if colliders[0].checked_sub(scrolled)? > self.x_pos
-                            && colliders[0].checked_sub(scrolled)? < self.x_pos + CHAR_WIDTH
-                            && colliders[1].checked_sub(scrolled)? > (self.y_pos - MVMT_DIST)
-                            && colliders[1].checked_sub(scrolled)? < (self.y_pos - MVMT_DIST + CHAR_HEIGHT)
+                        if colliders[0].checked_sub(scrolled)? >= self.x_pos
+                            && colliders[0].checked_sub(scrolled)? <= self.x_pos + CHAR_WIDTH
+                            && colliders[1].checked_sub(scrolled)? >= (self.y_pos - MVMT_DIST)
+                            && colliders[1].checked_sub(scrolled)? <= (self.y_pos - MVMT_DIST + CHAR_HEIGHT)
                         {
                             //flips collision to true and break from for loop
+                            println!("{:?} ",colliders);
                             colliding = !colliding;
                             break;
                         }
