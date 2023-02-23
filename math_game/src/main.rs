@@ -3,7 +3,7 @@
 //todo: replace serde with miniserde (maybe)
 //todo: multithreading
 //todo: pause when move off tab
-use pixels::{Pixels, PixelsBuilder, wgpu::{
+use pixels::{PixelsBuilder, wgpu::{
     PowerPreference,
     RequestAdapterOptions
 }};
@@ -72,7 +72,7 @@ fn main() -> Result<(), pixels::Error> {
         compatible_surface: None,
     })
         .enable_vsync(true)
-        .build()?;;
+        .build()?;
 
     //sets every fourth transparency pixel to 255
     for pixel in pixels.get_frame().chunks_exact_mut(4) {
@@ -416,10 +416,10 @@ impl Player {
                     //check to see if character is or will be within any of the bounds
                     if colliders[0].checked_sub(scrolled) != None &&
                         colliders[1].checked_sub(scrolled) != None {
-                        if colliders[0].checked_sub(scrolled)? >= self.x_pos
-                            && colliders[0].checked_sub(scrolled)? <= self.x_pos + CHAR_WIDTH
-                            && colliders[1].checked_sub(scrolled)? >= (self.y_pos - MVMT_DIST)
-                            && colliders[1].checked_sub(scrolled)? <= (self.y_pos - MVMT_DIST + CHAR_HEIGHT)
+                        if colliders[0].checked_sub(scrolled)? >= self.x_pos - MVMT_DIST
+                            && colliders[0].checked_sub(scrolled)? <= self.x_pos + CHAR_WIDTH - MVMT_DIST
+                            && colliders[1].checked_sub(scrolled)? >= (self.y_pos)
+                            && colliders[1].checked_sub(scrolled)? <= (self.y_pos + CHAR_HEIGHT)
                         {
                             //flips collision to true and break from for loop
                             println!("{:?} ",colliders);
@@ -451,8 +451,8 @@ impl Player {
                         colliders[1].checked_sub(scrolled) != None {
                         if colliders[0].checked_sub(scrolled)? >= self.x_pos
                             && colliders[0].checked_sub(scrolled)? <= self.x_pos + CHAR_WIDTH
-                            && colliders[1].checked_sub(scrolled)? >= (self.y_pos - MVMT_DIST)
-                            && colliders[1].checked_sub(scrolled)? <= (self.y_pos - MVMT_DIST + CHAR_HEIGHT)
+                            && colliders[1].checked_sub(scrolled)? >= (self.y_pos + MVMT_DIST)
+                            && colliders[1].checked_sub(scrolled)? <= (self.y_pos + MVMT_DIST + CHAR_HEIGHT)
                         {
                             //flips collision to true and break from for loop
                             println!("{:?} ",colliders);
@@ -484,10 +484,10 @@ impl Player {
                     //check to see if character is or will be within any of the bounds
                     if colliders[0].checked_sub(scrolled) != None &&
                         colliders[1].checked_sub(scrolled) != None {
-                        if colliders[0].checked_sub(scrolled)? >= self.x_pos
-                            && colliders[0].checked_sub(scrolled)? <= self.x_pos + CHAR_WIDTH
-                            && colliders[1].checked_sub(scrolled)? >= (self.y_pos - MVMT_DIST)
-                            && colliders[1].checked_sub(scrolled)? <= (self.y_pos - MVMT_DIST + CHAR_HEIGHT)
+                        if colliders[0].checked_sub(scrolled)? >= self.x_pos + MVMT_DIST
+                            && colliders[0].checked_sub(scrolled)? <= self.x_pos + CHAR_WIDTH + MVMT_DIST
+                            && colliders[1].checked_sub(scrolled)? >= (self.y_pos)
+                            && colliders[1].checked_sub(scrolled)? <= (self.y_pos + CHAR_HEIGHT)
                         {
                             //flips collision to true and break from for loop
                             println!("{:?} ",colliders);
