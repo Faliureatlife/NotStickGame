@@ -380,16 +380,15 @@ impl Player {
                     // println!("{} {:?}",scrolled, colliders[0].checked_sub(scrolled));
                     // println!();
                     //check to see if character is or will be within any of the bounds
-                    if colliders[0].checked_sub(scrolled) != None &&
-                        colliders[1].checked_sub(scrolled) != None {
-                        if colliders[0].checked_sub(scrolled)? >= self.x_pos
-                            && colliders[0].checked_sub(scrolled)? <= self.x_pos + CHAR_WIDTH
-                            && colliders[1].checked_sub(scrolled)? >= (self.y_pos - MVMT_DIST)
-                            && colliders[1].checked_sub(scrolled)? <= (self.y_pos - MVMT_DIST + CHAR_HEIGHT)
+                    if colliders[0] >= self.x_pos + scrolled {
+                        if colliders[0] >= scrolled + self.x_pos
+                            && colliders[0] <= scrolled + self.x_pos + CHAR_WIDTH
+                            && colliders[1] >= (self.y_pos - MVMT_DIST)
+                            && colliders[1] <= (self.y_pos - MVMT_DIST + CHAR_HEIGHT)
                         {
                             //flips collision to true and break from for loop
-                            println!("{:?} ",colliders);
-                            println!("x:{},y:{}",self.x_pos,self.y_pos);
+                            // println!("{:?} ",colliders);
+                            // println!("x:{},y:{}",self.x_pos,self.y_pos);
                             colliding = !colliding;
                             break;
                         }
@@ -414,15 +413,15 @@ impl Player {
                     // println!("{} {:?}",scrolled, colliders[0].checked_sub(scrolled));
                     // println!();
                     //check to see if character is or will be within any of the bounds
-                    if colliders[0].checked_sub(scrolled) != None &&
-                        colliders[1].checked_sub(scrolled) != None {
-                        if colliders[0].checked_sub(scrolled)? >= self.x_pos - MVMT_DIST
-                            && colliders[0].checked_sub(scrolled)? <= self.x_pos + CHAR_WIDTH - MVMT_DIST
-                            && colliders[1].checked_sub(scrolled)? >= (self.y_pos)
-                            && colliders[1].checked_sub(scrolled)? <= (self.y_pos + CHAR_HEIGHT)
+                    if colliders[0] >= self.x_pos + scrolled {
+                        if colliders[0] >= scrolled + self.x_pos - MVMT_DIST
+                            && colliders[0] <= scrolled + self.x_pos + CHAR_WIDTH - MVMT_DIST
+                            && colliders[1] >= (self.y_pos)
+                            && colliders[1] <= (self.y_pos + CHAR_HEIGHT)
                         {
                             //flips collision to true and break from for loop
-                            println!("{:?} ",colliders);
+                            // println!("{:?} ",colliders);
+                            // println!("x:{},y:{}",self.x_pos,self.y_pos);
                             colliding = !colliding;
                             break;
                         }
@@ -447,15 +446,15 @@ impl Player {
                     // println!("{} {:?}",scrolled, colliders[0].checked_sub(scrolled));
                     // println!();
                     //check to see if character is or will be within any of the bounds
-                    if colliders[0].checked_sub(scrolled) != None &&
-                        colliders[1].checked_sub(scrolled) != None {
-                        if colliders[0].checked_sub(scrolled)? >= self.x_pos
-                            && colliders[0].checked_sub(scrolled)? <= self.x_pos + CHAR_WIDTH
-                            && colliders[1].checked_sub(scrolled)? >= (self.y_pos + MVMT_DIST)
-                            && colliders[1].checked_sub(scrolled)? <= (self.y_pos + MVMT_DIST + CHAR_HEIGHT)
+                    if colliders[0] >= self.x_pos + scrolled {
+                        if colliders[0] >= scrolled + self.x_pos
+                            && colliders[0] <= scrolled + self.x_pos + CHAR_WIDTH
+                            && colliders[1] >= (self.y_pos + MVMT_DIST)
+                            && colliders[1] <= (self.y_pos + MVMT_DIST + CHAR_HEIGHT)
                         {
                             //flips collision to true and break from for loop
-                            println!("{:?} ",colliders);
+                            // println!("{:?} ",colliders);
+                            // println!("x:{},y:{}",self.x_pos,self.y_pos);
                             colliding = !colliding;
                             break;
                         }
@@ -482,15 +481,16 @@ impl Player {
                     // println!("{} {:?}",scrolled, colliders[0].checked_sub(scrolled));
                     // println!();
                     //check to see if character is or will be within any of the bounds
-                    if colliders[0].checked_sub(scrolled) != None &&
-                        colliders[1].checked_sub(scrolled) != None {
-                        if colliders[0].checked_sub(scrolled)? >= self.x_pos + MVMT_DIST
-                            && colliders[0].checked_sub(scrolled)? <= self.x_pos + CHAR_WIDTH + MVMT_DIST
-                            && colliders[1].checked_sub(scrolled)? >= (self.y_pos)
-                            && colliders[1].checked_sub(scrolled)? <= (self.y_pos + CHAR_HEIGHT)
+                    if colliders[0] >= self.x_pos + scrolled {
+                        if colliders[0] >= scrolled + self.x_pos + MVMT_DIST
+                            && colliders[0] <= scrolled + self.x_pos + CHAR_WIDTH + MVMT_DIST
+                            && colliders[1] >= (self.y_pos)
+                            && colliders[1] <= (self.y_pos + CHAR_HEIGHT)
                         {
                             //flips collision to true and break from for loop
-                            println!("{:?} ",colliders);
+                            // println!("{:?} ",colliders);
+                            // println!("x:{},y:{}",self.x_pos,self.y_pos);
+                            // println!("1{} 2{} 3{} 4{}",colliders[0] >= scrolled + self.x_pos + MVMT_DIST,colliders[0] <= scrolled + self.x_pos + CHAR_WIDTH + MVMT_DIST,colliders[1] >= scrolled + (self.y_pos),colliders[1] <= scrolled + (self.y_pos + CHAR_HEIGHT));
                             colliding = !colliding;
                             break;
                         }
