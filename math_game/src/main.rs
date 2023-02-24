@@ -102,7 +102,7 @@ fn main() -> Result<(), pixels::Error> {
             //render the frame buffer and panic if it has something passed to it
             if pixels
                 .render()
-                .map_err(|e| panic!("pixels.render() failed: {}", e))
+                .map_err(|e| panic!("pixels.render() failed: {:?}", e))
                 .is_err()
             {
                 //after the panic close the process
@@ -756,6 +756,63 @@ impl Screen {
         // let a = format!("{:?}",&pix);
         // std::fs::write("framebuffer.txt", a).unwrap();
         // println!("File created");
+    }
+}
+struct Entity {
+    //horizontal position from right of screen to left of player
+    x_pos: u16,
+    //vertical position from top of screen to top of player
+    y_pos: u16,
+    //1-4 animation frames
+    sprite: [Vec<u8>; 5],
+    //direction the player is facing
+    direction: u8,
+    //vector of pairs that determine the points at which the player will collide
+}
+impl Entity {
+    fn new(
+        spr0: &str,
+        spr1: &str,
+        spr2: &str,
+        spr3: &str,
+        x: u16,
+        y: u16,
+    ) -> Self {
+        // giving all variables the default values
+        Self {
+            x_pos: x,
+            y_pos: y,
+            sprite: [
+                    Player::gen_sprite(spr0),
+                    Player::gen_sprite(spr1),
+                    Player::gen_sprite(spr2),
+                    Player::gen_sprite(spr3),
+                    Player::gen_sprite(spr4),
+                ],
+            direction: 0,
+        }
+    }
+
+    //used for turning single animation frame into readable bytes
+    fn gen_sprite(spr: &str) -> Vec<u8> {
+        //vector containing the sprite data to be returned
+        let mut data = vec![];
+        //loop through the file in by byte
+        for pix in read(spr)
+            .expect("Failed to read from file")
+            .chunks_exact(2)
+        {
+            //append each value taken from hex byte to single u8 value
+            data.push(
+                u8::from_str_radix(
+                    std::str::from_utf8(pix).expect("Failed to convert to utf8"),
+                    16,
+                )
+                    .expect("Failed to convert to hex value"),
+            );
+        }
+        //return the vector with the info
+        data
     }
 }
 // fn _update(&mut self, sc) -> std::io::Result <()> {
