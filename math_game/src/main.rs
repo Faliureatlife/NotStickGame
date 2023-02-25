@@ -3,15 +3,12 @@
 //todo: replace serde with miniserde (maybe)
 //todo: multithreading
 //todo: pause when move off tab
-use pixels::{PixelsBuilder, wgpu::{
-    PowerPreference,
-    RequestAdapterOptions
-}};
-//Dont just import all of pixels at some point
-use serde_json::{
-    value::Value,
-    de,
+use pixels::{
+    wgpu::{PowerPreference, RequestAdapterOptions},
+    PixelsBuilder,
 };
+//Dont just import all of pixels at some point
+use serde_json::{de, value::Value};
 use std::{
     env,
     fs::*,
@@ -23,6 +20,7 @@ use std::{
     // u8,
     // error::Error;
 };
+use winit::event::VirtualKeyCode;
 use winit::{
     dpi::PhysicalSize,
     event::*,
@@ -30,7 +28,6 @@ use winit::{
     window::Window,
     //dpi::PhysicalSize,
 };
-use winit::event::VirtualKeyCode;
 use winit_input_helper::WinitInputHelper;
 // use pixels::wgpu::Color;
 // use rayon::prelude::*;
@@ -43,7 +40,7 @@ const WORLD: &str = "WorldData/";
 const SCREEN_WIDTH: u16 = 720;
 const SCREEN_HEIGHT: u16 = 540;
 const MVMT_DIST: u16 = 5;
-const CHAR_WIDTH:u16 = 37;
+const CHAR_WIDTH: u16 = 37;
 const CHAR_HEIGHT: u16 = 54;
 fn main() -> Result<(), pixels::Error> {
     //where event loop is created for the future event_loop.run
@@ -66,11 +63,12 @@ fn main() -> Result<(), pixels::Error> {
         pixels::SurfaceTexture::new(SCREEN_WIDTH as u32, SCREEN_HEIGHT as u32, &window);
 
     //frame buffer "pixels"
-    let mut pixels = PixelsBuilder::new(720, 540, surface_texture).request_adapter_options(RequestAdapterOptions {
-        power_preference: PowerPreference::HighPerformance,
-        force_fallback_adapter: false,
-        compatible_surface: None,
-    })
+    let mut pixels = PixelsBuilder::new(720, 540, surface_texture)
+        .request_adapter_options(RequestAdapterOptions {
+            power_preference: PowerPreference::HighPerformance,
+            force_fallback_adapter: false,
+            compatible_surface: None,
+        })
         .enable_vsync(true)
         .build()?;
 
@@ -160,7 +158,7 @@ fn main() -> Result<(), pixels::Error> {
                     screen.player.x_pos = x;
                     screen.scroll_dist = scroll;
                     //bottom of screen offset by player height + mvmt distance
-                    screen.player.y_pos = 540-(CHAR_HEIGHT as u16 + MVMT_DIST + 1);
+                    screen.player.y_pos = 540 - (CHAR_HEIGHT as u16 + MVMT_DIST + 1);
                 }
                 2 => {
                     let y = screen.player.y_pos;
@@ -189,7 +187,6 @@ fn main() -> Result<(), pixels::Error> {
                     screen.scroll_dist = 0;
                 }
                 _ => {}
-
             }
 
             // if input.key_pressed(VirtualKeyCode::P)
@@ -204,11 +201,11 @@ fn main() -> Result<(), pixels::Error> {
             // }
             //move up if up using the mov function
             if up {
-                screen.player.mov(1,screen.scroll_dist);
+                screen.player.mov(1, screen.scroll_dist);
             }
             //move down if down using the mov function
             if down {
-                screen.player.mov(3,screen.scroll_dist);
+                screen.player.mov(3, screen.scroll_dist);
             }
             //move left or scroll if the updated position will be past the bounds
             if left {
@@ -217,19 +214,19 @@ fn main() -> Result<(), pixels::Error> {
                     screen.player.move_delay += 1;
                     screen.player.direction = 2;
                 } else {
-                    screen.player.mov(2,screen.scroll_dist);
+                    screen.player.mov(2, screen.scroll_dist);
                 }
             }
             //move right or scroll right if moved pos would be past the bounds
             if right {
                 if screen.player.x_pos + MVMT_DIST > 360
-                    && screen.scroll_dist + MVMT_DIST < (screen.screen_len - 720 ) as u16
+                    && screen.scroll_dist + MVMT_DIST < (screen.screen_len - 720) as u16
                 {
                     screen.scroll_dist += MVMT_DIST;
                     screen.player.move_delay += 1;
                     screen.player.direction = 3;
                 } else {
-                    screen.player.mov(4,screen.scroll_dist);
+                    screen.player.mov(4, screen.scroll_dist);
                 }
             }
             //delay the player movement to every three ticks
@@ -352,10 +349,7 @@ impl Player {
         //vector containing the sprite data to be returned
         let mut data = vec![];
         //loop through the file in by byte
-        for pix in read(spr)
-            .expect("Failed to read from file")
-            .chunks_exact(2)
-        {
+        for pix in read(spr).expect("Failed to read from file").chunks_exact(2) {
             //append each value taken from hex byte to single u8 value
             data.push(
                 u8::from_str_radix(
@@ -368,11 +362,10 @@ impl Player {
         //return the vector with the info
         data
     }
-    fn mov(&mut self, dir: u8, scrolled: u16) -> Option<()>{
+    fn mov(&mut self, dir: u8, scrolled: u16) -> Option<()> {
         //variable for whether or not collision is taking place
         let mut colliding: bool = false;
         Option::from(match dir {
-            //TODO: make the movement flush with edges
             //Move up W
             1 if self.y_pos - MVMT_DIST >= 2 => {
                 //loop through all possible collision points
@@ -470,9 +463,9 @@ impl Player {
             }
             3 if self.mvmt_destinations[2] != "null"
                 && self.y_pos + MVMT_DIST >= 513 - MVMT_DIST =>
-                {
-                    self.change_screen = 3;
-                }
+            {
+                self.change_screen = 3;
+            }
             3 => {}
             //Move right D
             4 if self.x_pos + MVMT_DIST < 720 - CHAR_WIDTH => {
@@ -504,11 +497,13 @@ impl Player {
                 self.move_delay += 1;
                 self.direction = 3;
             }
-            4 if self.mvmt_destinations[3] != "null" && self.x_pos + MVMT_DIST >= SCREEN_WIDTH - CHAR_WIDTH - MVMT_DIST => {
+            4 if self.mvmt_destinations[3] != "null"
+                && self.x_pos + MVMT_DIST >= SCREEN_WIDTH - CHAR_WIDTH - MVMT_DIST =>
+            {
                 self.change_screen = 4;
             }
             4 => {}
-            _ => {},
+            _ => {}
         })
     }
 }
@@ -518,7 +513,7 @@ struct Screen {
     player: Player,
     //the list of entities that will be used
     //unused
-    entities: Vec<Vec<u8>>,
+    entities: Vec<Entity>,
     //the data for the background screen
     area: Vec<u8>,
     //the distance that the screen has scrolled
@@ -572,7 +567,35 @@ impl Screen {
 
             //vec of entities
             //currently unused
-            entities: vec![],
+            entities: {
+                let mut v: Vec<Entity> = vec![];
+                for ent in Screen::read_from_file_vecstr(
+                    format!("{}{}{}", WORLD, place, "/data.json"),
+                    "entities",
+                )
+                .unwrap()
+                {
+                    v.push(Entity::new(
+                        &format!("{}{}{}", "SpriteData", ent, "0.txt"),
+                        &format!("{}{}{}", "SpriteData", ent, "1.txt"),
+                        &format!("{}{}{}", "SpriteData", ent, "2.txt"),
+                        &format!("{}{}{}", "SpriteData", ent, "3.txt"),
+                        &format!("{}{}{}", "SpriteData", ent, "4.txt"),
+                        &ent,
+                        // Screen::read_from_file_u16(
+                        //     format!("{}{}{}", WORLD, place, "/data.json"),
+                        //     "start_x",
+                        // )
+                        //     .expect("Failed to read x value from file"),
+                        // Screen::read_from_file_u16(
+                        //     format!("{}{}{}", WORLD, place, "/data.json"),
+                        //     "start_y",
+                        // )
+                        //     .expect("Failed to read y value from file"),
+                    ));
+                }
+                v
+            },
             //getting the data for a new screen
             area: Screen::new_screen(format!("{}{}{}", WORLD, place, "/picture.txt")),
             //default scroll dist is read from file
@@ -627,22 +650,6 @@ impl Screen {
         //returns as result
         Ok(e)
     }
-    // fn read_from_file_str(path: String, get: &str) -> Result<String, std::io::Error> {
-    //     //opens the file
-    //     let a = File::open(path)?;
-    //     //opens the file in a buffered reader
-    //     let b = std::io::BufReader::new(a);
-    //     //reads from the file into Value enum
-    //     let c: Value = de::from_reader(b).expect("File not a valid .json");
-    //     //gets the desired u16 as a u64, then converts to u16
-    //     let d = c
-    //         .get(get)
-    //         .expect("read_from_file_u16 failed to get value")
-    //         .as_str()
-    //         .expect("read_from_file_u16 failed to convert to str");
-    //     //returns as Result
-    //     Ok(d.to_string())
-    // }
     fn read_from_file_vecu16(path: String, get: &str) -> Result<Vec<u16>, std::io::Error> {
         //opens the json file
         let a = File::open(path)?;
@@ -767,7 +774,8 @@ struct Entity {
     sprite: [Vec<u8>; 5],
     //direction the player is facing
     direction: u8,
-    //vector of pairs that determine the points at which the player will collide
+    height: u8,
+    width: u8,
 }
 impl Entity {
     fn new(
@@ -775,20 +783,32 @@ impl Entity {
         spr1: &str,
         spr2: &str,
         spr3: &str,
-        x: u16,
-        y: u16,
+        spr4: &str,
+        idd: &str,
+        // x: u16,
+        // y: u16,
     ) -> Self {
         // giving all variables the default values
         Self {
-            x_pos: x,
-            y_pos: y,
+            height: Entity::read_from_file_u8(
+                format!("{}{}{}", "SpriteData", idd, "/data.json"),
+                "height",
+            )
+            .unwrap(),
+            width: Entity::read_from_file_u8(
+                format!("{}{}{}", "SpriteData", idd, "/data.json"),
+                "width",
+            )
+            .unwrap(),
+            x_pos: 0,
+            y_pos: 0,
             sprite: [
-                    Player::gen_sprite(spr0),
-                    Player::gen_sprite(spr1),
-                    Player::gen_sprite(spr2),
-                    Player::gen_sprite(spr3),
-                    Player::gen_sprite(spr4),
-                ],
+                Player::gen_sprite(spr0),
+                Player::gen_sprite(spr1),
+                Player::gen_sprite(spr2),
+                Player::gen_sprite(spr3),
+                Player::gen_sprite(spr4),
+            ],
             direction: 0,
         }
     }
@@ -798,23 +818,37 @@ impl Entity {
         //vector containing the sprite data to be returned
         let mut data = vec![];
         //loop through the file in by byte
-        for pix in read(spr)
-            .expect("Failed to read from file")
-            .chunks_exact(2)
-        {
+        for pix in read(spr).expect("Failed to read from file").chunks_exact(2) {
             //append each value taken from hex byte to single u8 value
             data.push(
                 u8::from_str_radix(
                     std::str::from_utf8(pix).expect("Failed to convert to utf8"),
                     16,
                 )
-                    .expect("Failed to convert to hex value"),
+                .expect("Failed to convert to hex value"),
             );
         }
         //return the vector with the info
         data
     }
+    fn read_from_file_u8(path: String, get: &str) -> Result<u8, std::io::Error> {
+        //opens the file
+        let a = File::open(path)?;
+        //opens the file in a buffered reader
+        let b = std::io::BufReader::new(a);
+        //reads from the file into Value enum
+        let c: Value = de::from_reader(b).expect("File not a valid .json");
+        //gets the desired u16 as a u64, then converts to u16
+        let d = c
+            .get(get)
+            .expect("read_from_file_u16 failed to get value")
+            .as_u64()
+            .expect("read_from_file_u16 failed to convert to u64") as u8;
+        //returns as Result
+        Ok(d)
+    }
 }
+
 // fn _update(&mut self, sc) -> std::io::Result <()> {
 //     std::fs::copy(self.place,"screen.txt");
 //
