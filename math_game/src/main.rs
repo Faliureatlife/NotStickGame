@@ -575,12 +575,13 @@ impl Screen {
                 )
                 .unwrap()
                 {
+                    println!("{}", ent);
                     v.push(Entity::new(
-                        &format!("{}{}{}", "SpriteData", ent, "0.txt"),
-                        &format!("{}{}{}", "SpriteData", ent, "1.txt"),
-                        &format!("{}{}{}", "SpriteData", ent, "2.txt"),
-                        &format!("{}{}{}", "SpriteData", ent, "3.txt"),
-                        &format!("{}{}{}", "SpriteData", ent, "4.txt"),
+                        &format!("{}{}{}", "SpriteData/", ent, "/0.txt"),
+                        &format!("{}{}{}", "SpriteData/", ent, "/1.txt"),
+                        &format!("{}{}{}", "SpriteData/", ent, "/2.txt"),
+                        &format!("{}{}{}", "SpriteData/", ent, "/3.txt"),
+                        &format!("{}{}{}", "SpriteData/", ent, "/4.txt"),
                         &ent,
                         // Screen::read_from_file_u16(
                         //     format!("{}{}{}", WORLD, place, "/data.json"),
@@ -710,6 +711,7 @@ impl Screen {
             it / 720 > y_pos
             it / 720 < y_pos + 28
             */
+            // if things break due to borrow use copy trait
             if it % 720 > self.player.x_pos as usize
                 && it % 720 < (self.player.x_pos + CHAR_WIDTH) as usize
                 && it / 720 > self.player.y_pos as usize
@@ -725,6 +727,7 @@ impl Screen {
                         as u16)
                     == 0
                 {
+                    //if transparent draw screen
                     pixel[0] = self.area[3 * self.scroll_dist as usize
                         + (3 * self.screen_len * ((3 * it) / (3 * SCREEN_WIDTH) as usize))
                         + ((it * 3) % (3 * SCREEN_WIDTH as usize))];
@@ -734,6 +737,7 @@ impl Screen {
                     pixel[2] = self.area[3 * self.scroll_dist as usize
                         + (3 * self.screen_len * ((3 * it + 2) / (3 * SCREEN_WIDTH) as usize))
                         + ((it * 3 + 2) % (3 * SCREEN_WIDTH as usize))];
+                    //draw player
                 } else {
                     pixel[0] = self.player.sprite[self.player.direction as usize]
                         [self.player.move_state as usize][(it2) * 3];
@@ -741,19 +745,84 @@ impl Screen {
                         [self.player.move_state as usize][(it2) * 3 + 1];
                     pixel[2] = self.player.sprite[self.player.direction as usize]
                         [self.player.move_state as usize][(it2) * 3 + 2];
+
                     // pixel[3] = 255;
                 }
                 it2 += 1;
+                continue
+                //if not in player draw screen
             } else {
-                pixel[0] = self.area[3 * self.scroll_dist as usize
-                    + (3 * self.screen_len * ((3 * it) / (3 * SCREEN_WIDTH) as usize))
-                    + ((it * 3) % (3 * SCREEN_WIDTH as usize))];
-                pixel[1] = self.area[3 * self.scroll_dist as usize
-                    + (3 * self.screen_len * ((3 * it + 1) / (3 * SCREEN_WIDTH) as usize))
-                    + ((it * 3 + 1) % (3 * SCREEN_WIDTH as usize))];
-                pixel[2] = self.area[3 * self.scroll_dist as usize
-                    + (3 * self.screen_len * ((3 * it + 2) / (3 * SCREEN_WIDTH) as usize))
-                    + ((it * 3 + 2) % (3 * SCREEN_WIDTH as usize))];
+                let mut used:bool = false;
+                for ent in &self.entities {
+                    if it % 720 > ent.x_pos as usize
+                        && it % 720 < (ent.x_pos + ent.width as u16) as usize
+                        && it / 720 > ent.y_pos as usize
+                        && it / 720 < (ent.y_pos + ent.height  as u16 - 1) as usize
+                    {
+                        used = true;
+                        if ent.sprite[ent.move_state as usize][((((it / 720)
+                            - ent.y_pos as usize)
+                            * ent.width as usize)
+                            + (it % 720))
+                            * 3] as usize
+                            + ent.sprite[ent.move_state as usize][((((it / 720)
+                                - ent.y_pos as usize)
+                                * ent.width as usize)
+                                + (it % 720))
+                                * 3
+                                + 1] as usize
+                            + ent.sprite[ent.move_state as usize][((((it / 720)
+                                - ent.y_pos as usize)
+                                * ent.width as usize)
+                                + (it % 720))
+                                * 3
+                                + 2] as usize
+                            == 0
+                        {
+                            //if transparent draw screen
+                            pixel[0] = self.area[3 * self.scroll_dist as usize
+                                + (3 * self.screen_len * ((3 * it) / (3 * SCREEN_WIDTH) as usize))
+                                + ((it * 3) % (3 * SCREEN_WIDTH as usize))];
+                            pixel[1] = self.area[3 * self.scroll_dist as usize
+                                + (3 * self.screen_len
+                                    * ((3 * it + 1) / (3 * SCREEN_WIDTH) as usize))
+                                + ((it * 3 + 1) % (3 * SCREEN_WIDTH as usize))];
+                            pixel[2] = self.area[3 * self.scroll_dist as usize
+                                + (3 * self.screen_len
+                                    * ((3 * it + 2) / (3 * SCREEN_WIDTH) as usize))
+                                + ((it * 3 + 2) % (3 * SCREEN_WIDTH as usize))];
+                        } else {
+                            pixel[0] = ent.sprite[ent.move_state as usize][((((it / 720)
+                                - ent.y_pos as usize)
+                                * ent.width as usize)
+                                + (it % 720))
+                                * 3];
+                            pixel[1] = ent.sprite[ent.move_state as usize][((((it / 720)
+                                - ent.y_pos as usize)
+                                * ent.width as usize)
+                                + (it % 720))
+                                * 3
+                                + 1];
+                            pixel[2] = ent.sprite[ent.move_state as usize][((((it / 720)
+                                - ent.y_pos as usize)
+                                * ent.width as usize)
+                                + (it % 720))
+                                * 3
+                                + 2];
+                        }
+                    }
+                }
+                if !used {
+                    pixel[0] = self.area[3 * self.scroll_dist as usize
+                        + (3 * self.screen_len * ((3 * it) / (3 * SCREEN_WIDTH) as usize))
+                        + ((it * 3) % (3 * SCREEN_WIDTH as usize))];
+                    pixel[1] = self.area[3 * self.scroll_dist as usize
+                        + (3 * self.screen_len * ((3 * it + 1) / (3 * SCREEN_WIDTH) as usize))
+                        + ((it * 3 + 1) % (3 * SCREEN_WIDTH as usize))];
+                    pixel[2] = self.area[3 * self.scroll_dist as usize
+                        + (3 * self.screen_len * ((3 * it + 2) / (3 * SCREEN_WIDTH) as usize))
+                        + ((it * 3 + 2) % (3 * SCREEN_WIDTH as usize))];
+                }
                 // pixel[3] = 255;
             }
         }
@@ -765,6 +834,7 @@ impl Screen {
         // println!("File created");
     }
 }
+
 struct Entity {
     //horizontal position from right of screen to left of player
     x_pos: u16,
@@ -776,6 +846,7 @@ struct Entity {
     direction: u8,
     height: u8,
     width: u8,
+    move_state: u8,
 }
 impl Entity {
     fn new(
@@ -791,23 +862,24 @@ impl Entity {
         // giving all variables the default values
         Self {
             height: Entity::read_from_file_u8(
-                format!("{}{}{}", "SpriteData", idd, "/data.json"),
+                format!("{}{}{}", "SpriteData/", idd, "/data.json"),
                 "height",
             )
-            .unwrap(),
+            .expect("failed to get height"),
             width: Entity::read_from_file_u8(
-                format!("{}{}{}", "SpriteData", idd, "/data.json"),
+                format!("{}{}{}", "SpriteData/", idd, "/data.json"),
                 "width",
             )
             .unwrap(),
-            x_pos: 0,
-            y_pos: 0,
+            x_pos: 20,
+            y_pos: 300,
+            move_state: 0,
             sprite: [
-                Player::gen_sprite(spr0),
-                Player::gen_sprite(spr1),
-                Player::gen_sprite(spr2),
-                Player::gen_sprite(spr3),
-                Player::gen_sprite(spr4),
+                Entity::gen_sprite(spr0),
+                Entity::gen_sprite(spr1),
+                Entity::gen_sprite(spr2),
+                Entity::gen_sprite(spr3),
+                Entity::gen_sprite(spr4),
             ],
             direction: 0,
         }
