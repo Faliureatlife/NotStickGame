@@ -699,7 +699,7 @@ impl Screen {
         data
     }
     //not getting comments because it works
-    fn draw(&self, pix: &mut [u8]) {
+    fn draw(&self, pix: &mut [u8], ) {
         //TODO: Update in chunks
         //character iterator
         let mut it2: usize = 0;
@@ -754,10 +754,10 @@ impl Screen {
             } else {
                 let mut used:bool = false;
                 for ent in &self.entities {
-                    if it % 720 > ent.x_pos as usize
-                        && it % 720 < (ent.x_pos + ent.width as u16) as usize
-                        && it / 720 > ent.y_pos as usize
-                        && it / 720 < (ent.y_pos + ent.height  as u16 - 1) as usize
+                    if  it % 720 > (self.scroll_dist + ent.x_pos as u16) as usize
+                        && (it / 720) > ent.y_pos as usize
+                        && (self.scroll_dist + ent.x_pos + ent.width as u16) as usize > (it % 720)
+                        && (it / 720) < (ent.y_pos + ent.height as u16) as usize
                     {
                         used = true;
                         if ent.sprite[ent.move_state as usize][((((it / 720)
