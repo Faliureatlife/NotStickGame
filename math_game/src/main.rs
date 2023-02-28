@@ -88,7 +88,7 @@ fn main() -> Result<(), pixels::Error> {
     let mut left: bool = false;
     let mut down: bool = false;
     let mut right: bool = false;
-
+    let mut last_scr: String = format!("houses");
     //todo: multithreading to have game thinking and rendering at same time
     //loop that runs program
     event_loop.run(move |event, _, control_flow| {
@@ -159,6 +159,7 @@ fn main() -> Result<(), pixels::Error> {
                     screen.scroll_dist = scroll;
                     //bottom of screen offset by player height + mvmt distance
                     screen.player.y_pos = 540 - (CHAR_HEIGHT as u16 + MVMT_DIST + 1);
+                    last_scr = screen.scr.clone();
                 }
                 2 => {
                     let y = screen.player.y_pos;
@@ -168,6 +169,7 @@ fn main() -> Result<(), pixels::Error> {
                     //left side of screen offset by player height + mvmt distance
                     screen.player.x_pos = 720 - (CHAR_WIDTH + MVMT_DIST + 1);
                     screen.scroll_dist = (screen.screen_len - 720) as u16;
+                    last_scr = screen.scr.clone();
                 }
                 3 => {
                     let x = screen.player.x_pos;
@@ -177,6 +179,7 @@ fn main() -> Result<(), pixels::Error> {
                     screen.player.x_pos = x;
                     screen.scroll_dist = scroll;
                     screen.player.y_pos = 0 + (MVMT_DIST + 1);
+                    last_scr = screen.scr.clone();
                 }
                 4 => {
                     let y = screen.player.y_pos;
@@ -185,6 +188,7 @@ fn main() -> Result<(), pixels::Error> {
                     screen.player.y_pos = y;
                     screen.player.x_pos = 0 + (MVMT_DIST + 1);
                     screen.scroll_dist = 0;
+                    last_scr = screen.scr.clone();
                 }
                 _ => {}
             }
@@ -608,7 +612,7 @@ impl Screen {
             .expect("Failed to read the default scroll distance of the screen from file"),
             //default scroll len is 0
             screen_len: 0,
-            scr: spr.to_owned(),
+            scr: place.to_owned(),
         }
     }
     fn read_from_file_u16(path: String, get: &str) -> Result<u16, std::io::Error> {
@@ -701,7 +705,7 @@ impl Screen {
         data
     }
     //not getting comments because it works
-    fn draw(&self, pix: &mut [u8], ) {
+    fn draw(&self, pix: &mut [u8]) {
         //TODO: Update in chunks
         //character iterator
         let mut it2: usize = 0;
@@ -714,10 +718,12 @@ impl Screen {
             it / 720 < y_pos + 28
             */
             // if things break due to borrow use copy trait
+            //IF PLAYER
             if it % 720 > self.player.x_pos as usize
                 && it % 720 < (self.player.x_pos + CHAR_WIDTH) as usize
                 && it / 720 > self.player.y_pos as usize
                 && it / 720 < (self.player.y_pos + CHAR_HEIGHT as u16) as usize
+                //if player && transparent
             {
                 if (self.player.sprite[self.player.direction as usize]
                     [self.player.move_state as usize][(it2) * 3] as u16)
@@ -845,7 +851,7 @@ struct Entity {
     //1-4 animation frames
     sprite: [Vec<u8>; 5],
     //direction the player is facing
-    direction: u8,
+    // direction: u8,
     height: u8,
     width: u8,
     move_state: u8,
@@ -873,8 +879,8 @@ impl Entity {
                 "width",
             )
             .unwrap(),
-            x_pos: 20,
-            y_pos: 300,
+            x_pos: 1,
+            y_pos: 1,
             move_state: 0,
             sprite: [
                 Entity::gen_sprite(spr0),
@@ -883,7 +889,7 @@ impl Entity {
                 Entity::gen_sprite(spr3),
                 Entity::gen_sprite(spr4),
             ],
-            direction: 0,
+            // direction: 0,
         }
     }
 
