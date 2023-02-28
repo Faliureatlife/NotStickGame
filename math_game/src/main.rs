@@ -520,6 +520,7 @@ struct Screen {
     scroll_dist: u16,
     //the length of the screen
     screen_len: usize,
+    scr: String,
 }
 
 impl Screen {
@@ -607,6 +608,7 @@ impl Screen {
             .expect("Failed to read the default scroll distance of the screen from file"),
             //default scroll len is 0
             screen_len: 0,
+            scr: spr.to_owned(),
         }
     }
     fn read_from_file_u16(path: String, get: &str) -> Result<u16, std::io::Error> {
