@@ -88,7 +88,7 @@ fn main() -> Result<(), pixels::Error> {
     let mut left: bool = false;
     let mut down: bool = false;
     let mut right: bool = false;
-
+    let mut last_scr: String = "houses";
     //todo: multithreading to have game thinking and rendering at same time
     //loop that runs program
     event_loop.run(move |event, _, control_flow| {
@@ -159,6 +159,7 @@ fn main() -> Result<(), pixels::Error> {
                     screen.scroll_dist = scroll;
                     //bottom of screen offset by player height + mvmt distance
                     screen.player.y_pos = 540 - (CHAR_HEIGHT as u16 + MVMT_DIST + 1);
+                    last_str = screen.scr;
                 }
                 2 => {
                     let y = screen.player.y_pos;
@@ -168,6 +169,7 @@ fn main() -> Result<(), pixels::Error> {
                     //left side of screen offset by player height + mvmt distance
                     screen.player.x_pos = 720 - (CHAR_WIDTH + MVMT_DIST + 1);
                     screen.scroll_dist = (screen.screen_len - 720) as u16;
+                    last_str = screen.scr;
                 }
                 3 => {
                     let x = screen.player.x_pos;
@@ -177,6 +179,7 @@ fn main() -> Result<(), pixels::Error> {
                     screen.player.x_pos = x;
                     screen.scroll_dist = scroll;
                     screen.player.y_pos = 0 + (MVMT_DIST + 1);
+                    last_str = screen.scr;
                 }
                 4 => {
                     let y = screen.player.y_pos;
@@ -185,6 +188,7 @@ fn main() -> Result<(), pixels::Error> {
                     screen.player.y_pos = y;
                     screen.player.x_pos = 0 + (MVMT_DIST + 1);
                     screen.scroll_dist = 0;
+                    last_str = screen.scr;
                 }
                 _ => {}
             }
