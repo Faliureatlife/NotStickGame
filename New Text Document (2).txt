@@ -17,6 +17,13 @@ What learn?
 What next?
 To be Continued.....                                                                                                Jojo
 
+28/2
+Work on rewriting entities
+comparing scroll + xpos wit entity xpos
+the way i did it on the player
+math
+making it not immediately error out 
+
 16/2
 Finish moving across screens
 trial and error
