@@ -17,6 +17,13 @@ What learn?
 What next?
 To be Continued.....                                                                                                Jojo
 
+1/3
+Add in paths for new screens
+downloading pngs
+colors.py
+its weird
+fix forreal
+
 28/2
 Work on rewriting entities
 comparing scroll + xpos wit entity xpos
