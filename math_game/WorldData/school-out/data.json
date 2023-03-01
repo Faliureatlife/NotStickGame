@@ -3,6 +3,6 @@
   "start_y": 0,
   "collision": [],
   "default_scroll": 0,
-  "mvmt_dest": ["","","",""],
+  "mvmt_dest": ["null","null","null","library"],
   "entities": []
 }
