@@ -90,6 +90,7 @@ fn main() -> Result<(), pixels::Error> {
     let mut right: bool = false;
 
     //variables for usage in menus
+    let tuple pause = (screen.player.x_pos,screen.player.y_pos,screen.player.direction,screen.scr,screen.scroll_dist);
     let mut x_save: u16 = screen.player.x_pos;
     let mut y_save: u16 = screen.player.y_pos;
     let mut paused:bool = false;
