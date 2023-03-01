@@ -1,4 +1,4 @@
-//extra functions for idiomatic code or wtv
+extra functions for idiomatic code or wtv
 //todo: make moving work
 //todo: replace serde with miniserde (maybe)
 //todo: multithreading
@@ -90,11 +90,13 @@ fn main() -> Result<(), pixels::Error> {
     let mut right: bool = false;
 
     //variables for usage in menus
-    let mut x_save = screen.player.x_pos;
-    let mut y_save = screen.player.y_pos;
+    let mut x_save: u16 = screen.player.x_pos;
+    let mut y_save: u16 = screen.player.y_pos;
     let mut paused:bool = false;
     let mut last_scr: String = format!("houses");
-    let mut track = 0;
+    let mut track: u8 = 0;
+    
+    let mut battle:bool = false;
 
     //todo: multithreading to have game thinking and rendering at same time
     //loop that runs program
@@ -116,7 +118,7 @@ fn main() -> Result<(), pixels::Error> {
             }
         }
         //update part of code that handles key-presses and simple window things
-        if input.update(&event) && !paused{
+        if input.update(&event) && !paused && !battle{
             //make into a match statement at some point maybe
             //close on pressing esc
             if input.key_pressed(VirtualKeyCode::Escape) || input.quit() {
@@ -275,16 +277,16 @@ fn main() -> Result<(), pixels::Error> {
             //after updates happen redraw the screen
             window.request_redraw();
         };
-        if paused {
+        if input.update(&event) && paused {
             if input.key_pressed(VirtualKeyCode::Escape) || input.quit() {
                 *control_flow = ControlFlow::Exit;
                 return;
             }
-            if input.key_pressed(VirtualKeyCode::A) {
+            if input.key_pressed(VirtualKeyCode::A) || input.key_pressed(VirtualKeyCode::Left){
                 track = track - 1;
                 println!("{}", track);
             }
-            if input.key_pressed(VirtualKeyCode::D) {
+            if input.key_pressed(VirtualKeyCode::D) || input.key_pressed(VirtualKeyCode::Right) {
                 track = track + 1;
                 println!("{}", track);
             }
@@ -301,6 +303,24 @@ fn main() -> Result<(), pixels::Error> {
                 }
             }
             window.request_redraw();
+        }
+
+        if battle {
+            /*
+            1. Have screen open
+            2. Await player input
+            3. Player do thing
+                if player do fight {
+                    fight
+                }
+                if player do run {
+                    run
+                }
+                this should be obvious
+                but yk that
+            4. Check enemy health OR lower the amount of needed correct answers
+            
+            */
         }
     });
     //Ok(())
