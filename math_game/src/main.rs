@@ -88,7 +88,14 @@ fn main() -> Result<(), pixels::Error> {
     let mut left: bool = false;
     let mut down: bool = false;
     let mut right: bool = false;
+
+    //variables for usage in menus
+    let mut x_save = screen.player.x_pos;
+    let mut y_save = screen.player.y_pos;
+    let mut paused:bool = false;
     let mut last_scr: String = format!("houses");
+    let mut track = 0;
+
     //todo: multithreading to have game thinking and rendering at same time
     //loop that runs program
     event_loop.run(move |event, _, control_flow| {
@@ -109,12 +116,22 @@ fn main() -> Result<(), pixels::Error> {
             }
         }
         //update part of code that handles key-presses and simple window things
-        if input.update(&event) {
+        if input.update(&event) && !paused{
             //make into a match statement at some point maybe
             //close on pressing esc
             if input.key_pressed(VirtualKeyCode::Escape) || input.quit() {
                 *control_flow = ControlFlow::Exit;
                 return;
+            }
+            // When tab pressed pause movement, save position + screen, and swap to pause menu
+            if input.key_pressed(VirtualKeyCode::Tab) {
+                track = 0;
+                last_scr = screen.scr.clone();
+                x_save = screen.player.x_pos;
+                y_save = screen.player.y_pos;
+                screen = Screen::new("stoor");
+                screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
+                paused = !paused;
             }
             //When w or up arrow pressed flip value of upwards movement
             if input.key_released(VirtualKeyCode::W)
@@ -258,6 +275,33 @@ fn main() -> Result<(), pixels::Error> {
             //after updates happen redraw the screen
             window.request_redraw();
         };
+        if paused {
+            if input.key_pressed(VirtualKeyCode::Escape) || input.quit() {
+                *control_flow = ControlFlow::Exit;
+                return;
+            }
+            if input.key_pressed(VirtualKeyCode::A) {
+                track = track - 1;
+                println!("{}", track);
+            }
+            if input.key_pressed(VirtualKeyCode::D) {
+                track = track + 1;
+                println!("{}", track);
+            }
+            if input.key_pressed(VirtualKeyCode::Return) {
+                match track % 5 {
+                    4 => {
+                        screen = Screen::new(&last_scr);
+                        screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
+                        screen.player.x_pos = x_save;
+                        screen.player.y_pos = y_save;
+                        paused = !paused;
+                    }
+                    _ => {}
+                }
+            }
+            window.request_redraw();
+        }
     });
     //Ok(())
     //use to crash program safely
