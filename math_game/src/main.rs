@@ -348,6 +348,19 @@ impl Player {
         }
     }
 
+    fn player_interact(&self) {
+        let mut check_x = self.x_pos;
+        let mut check_y = self.y_pos;
+        match self.direction {
+            1 => check_y -= 30,
+            2 => check_x -= 30 ,
+            3 => check_y += 30 + CHAR_WIDTH,
+            4 => check_x += 30 + CHAR_HEIGHT,
+            _ => {}
+        }
+        for it in screen.
+    }
+
     //used for turning single animation frame into readable bytes
     fn gen_sprite(spr: &str) -> Vec<u8> {
         //vector containing the sprite data to be returned
@@ -525,6 +538,8 @@ struct Screen {
     //the length of the screen
     screen_len: usize,
     scr: String,
+    interact: Vec<String>,
+    interact_pos: Vec<[u16]>,
 }
 
 impl Screen {
@@ -613,6 +628,12 @@ impl Screen {
             //default scroll len is 0
             screen_len: 0,
             scr: place.to_owned(),
+            interact:
+            interact_pos: read_from_file_vec16(
+                format!("{}{}{}",WORLD, place, "/data.json"),
+            "interact_pos"
+            )
+            .expect("Failed to read interaction positions"),
         }
     }
     fn read_from_file_u16(path: String, get: &str) -> Result<u16, std::io::Error> {
