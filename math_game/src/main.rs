@@ -348,7 +348,7 @@ impl Player {
         }
     }
 
-    fn player_interact(&self) {
+    fn player_interact(&self, interact: Vec<str>, interact_pos: Vec<u16>) {
         let mut check_x = self.x_pos;
         let mut check_y = self.y_pos;
         match self.direction {
@@ -358,7 +358,18 @@ impl Player {
             4 => check_x += 30 + CHAR_HEIGHT,
             _ => {}
         }
-        for it in screen.
+        for (i,it) in interact_pos.chunks_exact(2).enumerate() {
+            if check_x < it[0] && it[0] < check_x + CHAR_WIDTH
+                && check_y < it[1] && it[1] < check_y + CHAR_HEIGHT
+                {
+                match interact[i] {
+                    "move" => Screen::new_screen();
+                    // "battle" =>
+                    // "dialogue" =>
+                    _ => {}
+                }
+            }
+        }
     }
 
     //used for turning single animation frame into readable bytes
@@ -539,7 +550,7 @@ struct Screen {
     screen_len: usize,
     scr: String,
     interact: Vec<String>,
-    interact_pos: Vec<[u16]>,
+    interact_pos: Vec<u16>,
 }
 
 impl Screen {
@@ -603,16 +614,6 @@ impl Screen {
                         &format!("{}{}{}", "SpriteData/", ent, "/3.txt"),
                         &format!("{}{}{}", "SpriteData/", ent, "/4.txt"),
                         &ent,
-                        // Screen::read_from_file_u16(
-                        //     format!("{}{}{}", WORLD, place, "/data.json"),
-                        //     "start_x",
-                        // )
-                        //     .expect("Failed to read x value from file"),
-                        // Screen::read_from_file_u16(
-                        //     format!("{}{}{}", WORLD, place, "/data.json"),
-                        //     "start_y",
-                        // )
-                        //     .expect("Failed to read y value from file"),
                     ));
                 }
                 v
@@ -628,12 +629,12 @@ impl Screen {
             //default scroll len is 0
             screen_len: 0,
             scr: place.to_owned(),
-            interact:
-            interact_pos: read_from_file_vec16(
-                format!("{}{}{}",WORLD, place, "/data.json"),
-            "interact_pos"
+            interact: Screen::read_from_file_vecstr(format!("{}{}{}",WORLD, place, "/data.json"),"interact").expect("Failed to read interaction types"),
+            interact_pos: Screen::read_from_file_vecu16(
+                format!("{}{}{}", WORLD, place, "/data.json"),
+                "collision",
             )
-            .expect("Failed to read interaction positions"),
+                .expect("Failed to read interaction pos from file"),
         }
     }
     fn read_from_file_u16(path: String, get: &str) -> Result<u16, std::io::Error> {
