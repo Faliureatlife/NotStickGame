@@ -363,7 +363,7 @@ impl Player {
                 && check_y < it[1] && it[1] < check_y + CHAR_HEIGHT
                 {
                 match interact[i] {
-                    "move" => Screen::new_screen();
+                    "move" => Screen::new_screen(),
                     // "battle" =>
                     // "dialogue" =>
                     _ => {}
