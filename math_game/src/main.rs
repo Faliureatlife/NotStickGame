@@ -163,7 +163,10 @@ fn main() -> Result<(), pixels::Error> {
                         && check_y < it[1] && it[1] < check_y + CHAR_HEIGHT
                     {
                         match screen.interact[i].as_str() {
-                            "move" => {screen = Screen::new(&screen.interact_action[i]);},
+                            "move" => {screen = Screen::new(&screen.interact_action[i]);
+                                screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
+                                last_scr = screen.scr.clone();
+                            },
                             // "battle" =>
                             // "dialogue" =>
                             _ => {}
@@ -360,30 +363,6 @@ impl Player {
             change_screen: 0,
         }
     }
-
-    // fn player_interact(&self, interact: Vec<String>, interact_pos: Vec<u16>,interact_action: Vec<String>) {
-    //     let mut check_x = self.x_pos;
-    //     let mut check_y = self.y_pos;
-    //     match self.direction {
-    //         1 => check_y -= 30,
-    //         2 => check_x -= 30 ,
-    //         3 => check_y += 30 + CHAR_WIDTH,
-    //         4 => check_x += 30 + CHAR_HEIGHT,
-    //         _ => {}
-    //     }
-    //     for (i,it) in interact_pos.chunks_exact(2).enumerate() {
-    //         if check_x < it[0] && it[0] < check_x + CHAR_WIDTH
-    //             && check_y < it[1] && it[1] < check_y + CHAR_HEIGHT
-    //             {
-    //             match interact[i] {
-    //                 "move" => Screen::new_screen(interact_action[i]),
-    //                 // "battle" =>
-    //                 // "dialogue" =>
-    //                 _ => {}
-    //             }
-    //         }
-    //     }
-    // }
 
     //used for turning single animation frame into readable bytes
     fn gen_sprite(spr: &str) -> Vec<u8> {
@@ -723,6 +702,7 @@ impl Screen {
     fn new_screen(place: String) -> Vec<u8> {
         //makes vec to be returned
         let mut data = vec![];
+        println!("{}",place);
         //goes through the whole file by byte
         for pix in read(place)
             .expect("Unable to read from file")

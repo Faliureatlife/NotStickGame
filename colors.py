@@ -1,4 +1,4 @@
-from PIL import Image
+from pil import Image
 
 
 def rgb_to_hex(red, green, blue):
