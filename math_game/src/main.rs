@@ -29,6 +29,7 @@ use winit::{
     //dpi::PhysicalSize,
 };
 use winit_input_helper::WinitInputHelper;
+use coz;
 // use pixels::wgpu::Color;
 // use rayon::prelude::*;
 
@@ -82,7 +83,7 @@ fn main() -> Result<(), pixels::Error> {
 
     //setting the distance to be the correct value (add in to new() function later)
     screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
-
+    coz::progress!("Initialize");
     //declaring the direction moved values with initial value of false
     let mut up: bool = false;
     let mut left: bool = false;
@@ -110,6 +111,7 @@ fn main() -> Result<(), pixels::Error> {
         }
         //update part of code that handles key-presses and simple window things
         if input.update(&event) {
+            coz::begin!("input");
             //make into a match statement at some point maybe
             //close on pressing esc
             if input.key_pressed(VirtualKeyCode::Escape) || input.quit() {
@@ -171,7 +173,8 @@ fn main() -> Result<(), pixels::Error> {
                     }
                 }
             }
-
+            coz::end!("input");
+            coz::begin!("movement");
             match screen.player.change_screen {
                 1 => {
                     let x = screen.player.x_pos;
@@ -268,8 +271,11 @@ fn main() -> Result<(), pixels::Error> {
                 screen.player.move_state = 0;
                 screen.player.move_delay = 0;
             }
+            coz::end!("movement");
             //after updates happen redraw the screen
+            coz::begin!("draw");
             window.request_redraw();
+            coz::end!("draw")
         };
     });
     //Ok(())
