@@ -148,6 +148,29 @@ fn main() -> Result<(), pixels::Error> {
             {
                 right = !right;
             }
+            if input.key_pressed(VirtualKeyCode::E) {
+                let mut check_x = screen.player.x_pos;
+                let mut check_y = screen.player.y_pos;
+                match screen.player.direction {
+                    1 => check_y -= 30,
+                    2 => check_x -= 30 ,
+                    3 => check_y += 30 + CHAR_WIDTH,
+                    4 => check_x += 30 + CHAR_HEIGHT,
+                    _ => {}
+                }
+                for (i,it) in screen.interact_pos.clone().chunks_exact(2).enumerate() {
+                    if check_x < it[0] && it[0] < check_x + CHAR_WIDTH
+                        && check_y < it[1] && it[1] < check_y + CHAR_HEIGHT
+                    {
+                        match screen.interact[i].as_str() {
+                            "move" => {screen = Screen::new(&screen.interact_action[i]);},
+                            // "battle" =>
+                            // "dialogue" =>
+                            _ => {}
+                        }
+                    }
+                }
+            }
 
             match screen.player.change_screen {
                 1 => {
@@ -183,6 +206,7 @@ fn main() -> Result<(), pixels::Error> {
                 }
                 4 => {
                     let y = screen.player.y_pos;
+                    println!("{:?}",&screen.player.mvmt_destinations[3]);
                     screen = Screen::new(&screen.player.mvmt_destinations[3]);
                     screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
                     screen.player.y_pos = y;
@@ -193,17 +217,6 @@ fn main() -> Result<(), pixels::Error> {
                 _ => {}
             }
 
-            // if input.key_pressed(VirtualKeyCode::P)
-            // {
-            //     screen = Screen::new("dots");
-            //     screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
-            // }
-            // if input.key_pressed(VirtualKeyCode::H)
-            // {
-            //     screen = Screen::new("houses");
-            //     screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
-            // }
-            //move up if up using the mov function
             if up {
                 screen.player.mov(1, screen.scroll_dist);
             }
@@ -348,29 +361,29 @@ impl Player {
         }
     }
 
-    fn player_interact(&self, interact: Vec<str>, interact_pos: Vec<u16>) {
-        let mut check_x = self.x_pos;
-        let mut check_y = self.y_pos;
-        match self.direction {
-            1 => check_y -= 30,
-            2 => check_x -= 30 ,
-            3 => check_y += 30 + CHAR_WIDTH,
-            4 => check_x += 30 + CHAR_HEIGHT,
-            _ => {}
-        }
-        for (i,it) in interact_pos.chunks_exact(2).enumerate() {
-            if check_x < it[0] && it[0] < check_x + CHAR_WIDTH
-                && check_y < it[1] && it[1] < check_y + CHAR_HEIGHT
-                {
-                match interact[i] {
-                    "move" => Screen::new_screen();
-                    // "battle" =>
-                    // "dialogue" =>
-                    _ => {}
-                }
-            }
-        }
-    }
+    // fn player_interact(&self, interact: Vec<String>, interact_pos: Vec<u16>,interact_action: Vec<String>) {
+    //     let mut check_x = self.x_pos;
+    //     let mut check_y = self.y_pos;
+    //     match self.direction {
+    //         1 => check_y -= 30,
+    //         2 => check_x -= 30 ,
+    //         3 => check_y += 30 + CHAR_WIDTH,
+    //         4 => check_x += 30 + CHAR_HEIGHT,
+    //         _ => {}
+    //     }
+    //     for (i,it) in interact_pos.chunks_exact(2).enumerate() {
+    //         if check_x < it[0] && it[0] < check_x + CHAR_WIDTH
+    //             && check_y < it[1] && it[1] < check_y + CHAR_HEIGHT
+    //             {
+    //             match interact[i] {
+    //                 "move" => Screen::new_screen(interact_action[i]),
+    //                 // "battle" =>
+    //                 // "dialogue" =>
+    //                 _ => {}
+    //             }
+    //         }
+    //     }
+    // }
 
     //used for turning single animation frame into readable bytes
     fn gen_sprite(spr: &str) -> Vec<u8> {
@@ -551,6 +564,7 @@ struct Screen {
     scr: String,
     interact: Vec<String>,
     interact_pos: Vec<u16>,
+    interact_action: Vec<String>,
 }
 
 impl Screen {
@@ -635,6 +649,7 @@ impl Screen {
                 "collision",
             )
                 .expect("Failed to read interaction pos from file"),
+            interact_action: Screen::read_from_file_vecstr(format!("{}{}{}",WORLD, place, "/data.json"),"interact_actions").expect("Failed to read interaction types"),
         }
     }
     fn read_from_file_u16(path: String, get: &str) -> Result<u16, std::io::Error> {
