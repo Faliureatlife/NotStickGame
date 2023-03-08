@@ -8,9 +8,9 @@ edition = "2021"
 #lto = 'thin'
 #codegen-units = 256
 #
-#[profile.dev]
+[profile.dev]
 #lto = 'thin'
-#codegen-units = 256
+codegen-units = 256
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
