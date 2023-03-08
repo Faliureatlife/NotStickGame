@@ -743,16 +743,16 @@ impl Screen {
     }
     //not getting comments because it works
     fn draw(&self, pix: &mut [u8]) {
-        let bg = vec![[0;3]];
+        let bg: Vec<[u8;3]> = vec![[0;3]];
         for (it,pix) in self.area.chunks_exact(3).enumerate() {
-            bg[it[0]] = pix[0];
-            bg[it[1]] = pix[1];
-            bg[it[2]] = pix[2];
+            bg[it][0] = pix[0];
+            bg[it][1] = pix[1];
+            bg[it][2] = pix[2];
         }
         for (it,pixel) in bg.chunks_exact_mut(4).enumerate() {
-            pixel[0] = bg[it[0]];
-            pixel[1] = bg[it[1]];
-            pixel[2] = bg[it[2]];
+            pixel[0] = bg[it][0];
+            pixel[1] = bg[it][1];
+            pixel[2] = bg[it][2];
         }
     }
         //TODO: Update in chunks
