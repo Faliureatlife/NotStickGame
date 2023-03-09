@@ -723,6 +723,11 @@ impl Screen {
     }
     //not getting comments because it works
     fn draw(&self, pix: &mut [u8]) {
+        let mut ents = vec![];
+        ents.push(self.player.sprite[self.player.move_state]);
+        for entity in self.entities {
+            ents.push(entity.sprite[entity.move_state]);
+        }
         //TODO: Update in chunks
         //character iterator
         let mut it2: usize = 0;
@@ -736,6 +741,7 @@ impl Screen {
             */
             // if things break due to borrow use copy trait
             //IF PLAYER
+            for a in ents {}
             if it % 720 > self.player.x_pos as usize
                 && it % 720 < (self.player.x_pos + CHAR_WIDTH) as usize
                 && it / 720 > self.player.y_pos as usize
