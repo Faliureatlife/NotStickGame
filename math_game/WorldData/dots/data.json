@@ -1,8 +1,12 @@
 {
-	"start_x": 0,
-	"start_y": 0,
+	"start_x": 100,
+	"start_y": 100,
 	"default_scroll": 0,
 	"collision": [60,60,100,100],
-	"mvmt_dest": ["null","houses","null","null"]
+	"mvmt_dest": ["null","houses","null","null"],
+	"entities": [],
+	"interact": ["move"],
+	"interact_actions": ["lhouses"],
+	"interact_pos": ["588,180"]
 }
 	

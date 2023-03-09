@@ -1,9 +1,9 @@
 {
   "start_x": 0,
   "start_y": 0,
-  "collision": [891,96,856,96,459,38,423,38,399,38,399,91,399,83],
+  "collision": [],
   "default_scroll": 0,
-  "mvmt_dest": ["pond","null","null","lhouses"],
+  "mvmt_dest": ["null","school-out","pond","null"],
   "entities": [],
   "interact": [],
   "interact_actions": [],

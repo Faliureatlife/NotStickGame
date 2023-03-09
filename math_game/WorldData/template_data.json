@@ -3,5 +3,9 @@
   "start_y": 0,
   "collision": [],
   "default_scroll": 0,
-  "mvmt_dest": ["","","",""]
+  "mvmt_dest": ["","","",""],
+  "entities": [],
+  "interact": [],
+  "interact_actions": [],
+  "interact_pos": []
 }

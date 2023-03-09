@@ -88,7 +88,7 @@ fn main() -> Result<(), pixels::Error> {
     let mut left: bool = false;
     let mut down: bool = false;
     let mut right: bool = false;
-
+    let mut last_scr: String = format!("houses");
     //todo: multithreading to have game thinking and rendering at same time
     //loop that runs program
     event_loop.run(move |event, _, control_flow| {
@@ -148,6 +148,32 @@ fn main() -> Result<(), pixels::Error> {
             {
                 right = !right;
             }
+            if input.key_pressed(VirtualKeyCode::E) {
+                let mut check_x = screen.player.x_pos;
+                let mut check_y = screen.player.y_pos;
+                match screen.player.direction {
+                    1 => check_y -= 30,
+                    2 => check_x -= 30 ,
+                    3 => check_y += 30 + CHAR_WIDTH,
+                    4 => check_x += 30 + CHAR_HEIGHT,
+                    _ => {}
+                }
+                for (i,it) in screen.interact_pos.clone().chunks_exact(2).enumerate() {
+                    if check_x < it[0] && it[0] < check_x + CHAR_WIDTH
+                        && check_y < it[1] && it[1] < check_y + CHAR_HEIGHT
+                    {
+                        match screen.interact[i].as_str() {
+                            "move" => {screen = Screen::new(&screen.interact_action[i]);
+                                screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
+                                last_scr = screen.scr.clone();
+                            },
+                            // "battle" =>
+                            // "dialogue" =>
+                            _ => {}
+                        }
+                    }
+                }
+            }
 
             match screen.player.change_screen {
                 1 => {
@@ -159,6 +185,7 @@ fn main() -> Result<(), pixels::Error> {
                     screen.scroll_dist = scroll;
                     //bottom of screen offset by player height + mvmt distance
                     screen.player.y_pos = 540 - (CHAR_HEIGHT as u16 + MVMT_DIST + 1);
+                    last_scr = screen.scr.clone();
                 }
                 2 => {
                     let y = screen.player.y_pos;
@@ -168,6 +195,7 @@ fn main() -> Result<(), pixels::Error> {
                     //left side of screen offset by player height + mvmt distance
                     screen.player.x_pos = 720 - (CHAR_WIDTH + MVMT_DIST + 1);
                     screen.scroll_dist = (screen.screen_len - 720) as u16;
+                    last_scr = screen.scr.clone();
                 }
                 3 => {
                     let x = screen.player.x_pos;
@@ -177,29 +205,21 @@ fn main() -> Result<(), pixels::Error> {
                     screen.player.x_pos = x;
                     screen.scroll_dist = scroll;
                     screen.player.y_pos = 0 + (MVMT_DIST + 1);
+                    last_scr = screen.scr.clone();
                 }
                 4 => {
                     let y = screen.player.y_pos;
+                    println!("{:?}",&screen.player.mvmt_destinations[3]);
                     screen = Screen::new(&screen.player.mvmt_destinations[3]);
                     screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
                     screen.player.y_pos = y;
                     screen.player.x_pos = 0 + (MVMT_DIST + 1);
                     screen.scroll_dist = 0;
+                    last_scr = screen.scr.clone();
                 }
                 _ => {}
             }
 
-            // if input.key_pressed(VirtualKeyCode::P)
-            // {
-            //     screen = Screen::new("dots");
-            //     screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
-            // }
-            // if input.key_pressed(VirtualKeyCode::H)
-            // {
-            //     screen = Screen::new("houses");
-            //     screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
-            // }
-            //move up if up using the mov function
             if up {
                 screen.player.mov(1, screen.scroll_dist);
             }
@@ -520,6 +540,10 @@ struct Screen {
     scroll_dist: u16,
     //the length of the screen
     screen_len: usize,
+    scr: String,
+    interact: Vec<String>,
+    interact_pos: Vec<u16>,
+    interact_action: Vec<String>,
 }
 
 impl Screen {
@@ -583,16 +607,6 @@ impl Screen {
                         &format!("{}{}{}", "SpriteData/", ent, "/3.txt"),
                         &format!("{}{}{}", "SpriteData/", ent, "/4.txt"),
                         &ent,
-                        // Screen::read_from_file_u16(
-                        //     format!("{}{}{}", WORLD, place, "/data.json"),
-                        //     "start_x",
-                        // )
-                        //     .expect("Failed to read x value from file"),
-                        // Screen::read_from_file_u16(
-                        //     format!("{}{}{}", WORLD, place, "/data.json"),
-                        //     "start_y",
-                        // )
-                        //     .expect("Failed to read y value from file"),
                     ));
                 }
                 v
@@ -607,6 +621,14 @@ impl Screen {
             .expect("Failed to read the default scroll distance of the screen from file"),
             //default scroll len is 0
             screen_len: 0,
+            scr: place.to_owned(),
+            interact: Screen::read_from_file_vecstr(format!("{}{}{}",WORLD, place, "/data.json"),"interact").expect("Failed to read interaction types"),
+            interact_pos: Screen::read_from_file_vecu16(
+                format!("{}{}{}", WORLD, place, "/data.json"),
+                "collision",
+            )
+                .expect("Failed to read interaction pos from file"),
+            interact_action: Screen::read_from_file_vecstr(format!("{}{}{}",WORLD, place, "/data.json"),"interact_actions").expect("Failed to read interaction types"),
         }
     }
     fn read_from_file_u16(path: String, get: &str) -> Result<u16, std::io::Error> {
@@ -680,6 +702,7 @@ impl Screen {
     fn new_screen(place: String) -> Vec<u8> {
         //makes vec to be returned
         let mut data = vec![];
+        println!("{}",place);
         //goes through the whole file by byte
         for pix in read(place)
             .expect("Unable to read from file")
@@ -712,10 +735,12 @@ impl Screen {
             it / 720 < y_pos + 28
             */
             // if things break due to borrow use copy trait
+            //IF PLAYER
             if it % 720 > self.player.x_pos as usize
                 && it % 720 < (self.player.x_pos + CHAR_WIDTH) as usize
                 && it / 720 > self.player.y_pos as usize
                 && it / 720 < (self.player.y_pos + CHAR_HEIGHT as u16) as usize
+                //if player && transparent
             {
                 if (self.player.sprite[self.player.direction as usize]
                     [self.player.move_state as usize][(it2) * 3] as u16)
@@ -754,10 +779,10 @@ impl Screen {
             } else {
                 let mut used:bool = false;
                 for ent in &self.entities {
-                    if it % 720 > ent.x_pos as usize
-                        && it % 720 < (ent.x_pos + ent.width as u16) as usize
-                        && it / 720 > ent.y_pos as usize
-                        && it / 720 < (ent.y_pos + ent.height  as u16 - 1) as usize
+                    if  it % 720 > (self.scroll_dist + ent.x_pos as u16) as usize
+                        && (it / 720) > ent.y_pos as usize
+                        && (self.scroll_dist + ent.x_pos + ent.width as u16) as usize > (it % 720)
+                        && (it / 720) < (ent.y_pos + ent.height as u16) as usize
                     {
                         used = true;
                         if ent.sprite[ent.move_state as usize][((((it / 720)
@@ -843,7 +868,7 @@ struct Entity {
     //1-4 animation frames
     sprite: [Vec<u8>; 5],
     //direction the player is facing
-    direction: u8,
+    // direction: u8,
     height: u8,
     width: u8,
     move_state: u8,
@@ -871,8 +896,8 @@ impl Entity {
                 "width",
             )
             .unwrap(),
-            x_pos: 20,
-            y_pos: 300,
+            x_pos: 1,
+            y_pos: 1,
             move_state: 0,
             sprite: [
                 Entity::gen_sprite(spr0),
@@ -881,7 +906,7 @@ impl Entity {
                 Entity::gen_sprite(spr3),
                 Entity::gen_sprite(spr4),
             ],
-            direction: 0,
+            // direction: 0,
         }
     }
 
