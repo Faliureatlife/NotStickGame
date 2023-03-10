@@ -723,14 +723,17 @@ impl Screen {
     }
     //not getting comments because it works
     fn draw(&self, pix: &mut [u8]) {
+        let mut positions:Vec<[u16;2]> = vec![[0;2]];
+        positions.push([self.player.x_pos,self.player.y_pos]);
+        for entity in self.entities {
+            ents.push([entity.x_pos,entity.y_pos]);
+        }
         let mut ents = vec![];
         ents.push(self.player.sprite[self.player.move_state]);
         for entity in self.entities {
             ents.push(entity.sprite[entity.move_state]);
         }
         //TODO: Update in chunks
-        //character iterator
-        let mut it2: usize = 0;
         //for all pixels
         for (it, pixel) in pix.chunks_exact_mut(4).enumerate() {
             /*Four checks:
@@ -741,119 +744,52 @@ impl Screen {
             */
             // if things break due to borrow use copy trait
             //IF PLAYER
-            for a in ents {}
-            if it % 720 > self.player.x_pos as usize
-                && it % 720 < (self.player.x_pos + CHAR_WIDTH) as usize
-                && it / 720 > self.player.y_pos as usize
-                && it / 720 < (self.player.y_pos + CHAR_HEIGHT as u16) as usize
+            for (j,a) in positions.enumerate() {
+                let mut used = false;
+                if it % 720 > a[0] as usize
+                    && it % 720 < (a[0] + CHAR_WIDTH) as usize
+                    && it / 720 > a[1] as usize
+                    && it / 720 < (a[1] + CHAR_HEIGHT as u16) as usize
                 //if player && transparent
-            {
-                if (self.player.sprite[self.player.direction as usize]
-                    [self.player.move_state as usize][(it2) * 3] as u16)
-                    + (self.player.sprite[self.player.direction as usize]
-                        [self.player.move_state as usize][(it2) * 3 + 1]
-                        as u16)
-                    + (self.player.sprite[self.player.direction as usize]
-                        [self.player.move_state as usize][(it2) * 3 + 2]
-                        as u16)
-                    == 0
                 {
-                    //if transparent draw screen
-                    pixel[0] = self.area[3 * self.scroll_dist as usize
-                        + (3 * self.screen_len * ((3 * it) / (3 * SCREEN_WIDTH) as usize))
-                        + ((it * 3) % (3 * SCREEN_WIDTH as usize))];
-                    pixel[1] = self.area[3 * self.scroll_dist as usize
-                        + (3 * self.screen_len * ((3 * it + 1) / (3 * SCREEN_WIDTH) as usize))
-                        + ((it * 3 + 1) % (3 * SCREEN_WIDTH as usize))];
-                    pixel[2] = self.area[3 * self.scroll_dist as usize
-                        + (3 * self.screen_len * ((3 * it + 2) / (3 * SCREEN_WIDTH) as usize))
-                        + ((it * 3 + 2) % (3 * SCREEN_WIDTH as usize))];
-                    //draw player
-                } else {
-                    pixel[0] = self.player.sprite[self.player.direction as usize]
-                        [self.player.move_state as usize][(it2) * 3];
-                    pixel[1] = self.player.sprite[self.player.direction as usize]
-                        [self.player.move_state as usize][(it2) * 3 + 1];
-                    pixel[2] = self.player.sprite[self.player.direction as usize]
-                        [self.player.move_state as usize][(it2) * 3 + 2];
-
-                    // pixel[3] = 255;
-                }
-                it2 += 1;
-                continue
-                //if not in player draw screen
-            } else {
-                let mut used:bool = false;
-                for ent in &self.entities {
-                    if  it % 720 > (self.scroll_dist + ent.x_pos as u16) as usize
-                        && (it / 720) > ent.y_pos as usize
-                        && (self.scroll_dist + ent.x_pos + ent.width as u16) as usize > (it % 720)
-                        && (it / 720) < (ent.y_pos + ent.height as u16) as usize
+                    used = true;
+                    if ents[j][((((it / 720) - ent.y_pos as usize) * ent.width as usize) + (it % 720)) * 3] as u16
+                        + ents[j][((((it / 720) - ent.y_pos as usize) * ent.width as usize) + (it % 720)) * 3 + 1] as usize
+                        + ents[j][((((it / 720) - ent.y_pos as usize) * ent.width as usize) + (it % 720)) * 3 + 2] as usize
+                        == 0
                     {
-                        used = true;
-                        if ent.sprite[ent.move_state as usize][((((it / 720)
-                            - ent.y_pos as usize)
-                            * ent.width as usize)
-                            + (it % 720))
-                            * 3] as usize
-                            + ent.sprite[ent.move_state as usize][((((it / 720)
-                                - ent.y_pos as usize)
-                                * ent.width as usize)
-                                + (it % 720))
-                                * 3
-                                + 1] as usize
-                            + ent.sprite[ent.move_state as usize][((((it / 720)
-                                - ent.y_pos as usize)
-                                * ent.width as usize)
-                                + (it % 720))
-                                * 3
-                                + 2] as usize
-                            == 0
-                        {
-                            //if transparent draw screen
-                            pixel[0] = self.area[3 * self.scroll_dist as usize
-                                + (3 * self.screen_len * ((3 * it) / (3 * SCREEN_WIDTH) as usize))
-                                + ((it * 3) % (3 * SCREEN_WIDTH as usize))];
-                            pixel[1] = self.area[3 * self.scroll_dist as usize
-                                + (3 * self.screen_len
-                                    * ((3 * it + 1) / (3 * SCREEN_WIDTH) as usize))
-                                + ((it * 3 + 1) % (3 * SCREEN_WIDTH as usize))];
-                            pixel[2] = self.area[3 * self.scroll_dist as usize
-                                + (3 * self.screen_len
-                                    * ((3 * it + 2) / (3 * SCREEN_WIDTH) as usize))
-                                + ((it * 3 + 2) % (3 * SCREEN_WIDTH as usize))];
-                        } else {
-                            pixel[0] = ent.sprite[ent.move_state as usize][((((it / 720)
-                                - ent.y_pos as usize)
-                                * ent.width as usize)
-                                + (it % 720))
-                                * 3];
-                            pixel[1] = ent.sprite[ent.move_state as usize][((((it / 720)
-                                - ent.y_pos as usize)
-                                * ent.width as usize)
-                                + (it % 720))
-                                * 3
-                                + 1];
-                            pixel[2] = ent.sprite[ent.move_state as usize][((((it / 720)
-                                - ent.y_pos as usize)
-                                * ent.width as usize)
-                                + (it % 720))
-                                * 3
-                                + 2];
-                        }
+                        //if transparent draw screen
+                        pixel[0] = self.area[3 * self.scroll_dist as usize
+                            + (3 * self.screen_len * ((3 * it) / (3 * SCREEN_WIDTH) as usize))
+                            + ((it * 3) % (3 * SCREEN_WIDTH as usize))];
+                        pixel[1] = self.area[3 * self.scroll_dist as usize
+                            + (3 * self.screen_len * ((3 * it + 1) / (3 * SCREEN_WIDTH) as usize))
+                            + ((it * 3 + 1) % (3 * SCREEN_WIDTH as usize))];
+                        pixel[2] = self.area[3 * self.scroll_dist as usize
+                            + (3 * self.screen_len * ((3 * it + 2) / (3 * SCREEN_WIDTH) as usize))
+                            + ((it * 3 + 2) % (3 * SCREEN_WIDTH as usize))];
+                        //draw player
+                    } else {
+                        pixel[0] = ents[j][((((it / 720) - ent.y_pos as usize) * ent.width as usize) + (it % 720)) * 3];
+                        pixel[1] = ents[j][((((it / 720) - ent.y_pos as usize) * ent.width as usize) + (it % 720)) * 3 + 1];
+                        pixel[2] = ents[j][((((it / 720) - ent.y_pos as usize) * ent.width as usize) + (it % 720)) * 3 + 2];
+
+                        // pixel[3] = 255;
                     }
+                    break
                 }
-                if !used {
-                    pixel[0] = self.area[3 * self.scroll_dist as usize
-                        + (3 * self.screen_len * ((3 * it) / (3 * SCREEN_WIDTH) as usize))
-                        + ((it * 3) % (3 * SCREEN_WIDTH as usize))];
-                    pixel[1] = self.area[3 * self.scroll_dist as usize
-                        + (3 * self.screen_len * ((3 * it + 1) / (3 * SCREEN_WIDTH) as usize))
-                        + ((it * 3 + 1) % (3 * SCREEN_WIDTH as usize))];
-                    pixel[2] = self.area[3 * self.scroll_dist as usize
-                        + (3 * self.screen_len * ((3 * it + 2) / (3 * SCREEN_WIDTH) as usize))
-                        + ((it * 3 + 2) % (3 * SCREEN_WIDTH as usize))];
-                }
+            }
+            if !used {
+                pixel[0] = self.area[3 * self.scroll_dist as usize
+                    + (3 * self.screen_len * ((3 * it) / (3 * SCREEN_WIDTH) as usize))
+                    + ((it * 3) % (3 * SCREEN_WIDTH as usize))];
+                pixel[1] = self.area[3 * self.scroll_dist as usize
+                    + (3 * self.screen_len * ((3 * it + 1) / (3 * SCREEN_WIDTH) as usize))
+                    + ((it * 3 + 1) % (3 * SCREEN_WIDTH as usize))];
+                pixel[2] = self.area[3 * self.scroll_dist as usize
+                    + (3 * self.screen_len * ((3 * it + 2) / (3 * SCREEN_WIDTH) as usize))
+                    + ((it * 3 + 2) % (3 * SCREEN_WIDTH as usize))];
+            }
                 // pixel[3] = 255;
             }
         }
