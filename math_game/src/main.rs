@@ -1,8 +1,9 @@
-extra functions for idiomatic code or wtv
+//extra functions for idiomatic code or wtv
 //todo: make moving work
 //todo: replace serde with miniserde (maybe)
 //todo: multithreading
 //todo: pause when move off tab
+
 use pixels::{
     wgpu::{PowerPreference, RequestAdapterOptions},
     PixelsBuilder,
@@ -68,7 +69,7 @@ fn main() -> Result<(), pixels::Error> {
             power_preference: PowerPreference::HighPerformance,
             force_fallback_adapter: false,
             compatible_surface: None,
-        })
+         })
         .enable_vsync(true)
         .build()?;
 
@@ -90,14 +91,13 @@ fn main() -> Result<(), pixels::Error> {
     let mut right: bool = false;
 
     //variables for usage in menus
-    let tuple pause = (screen.player.x_pos,screen.player.y_pos,screen.player.direction,screen.scr,screen.scroll_dist);
+    //let tuple pause = (screen.player.x_pos,screen.player.y_pos,screen.player.direction,screen.scr,screen.scroll_dist);
     let mut x_save: u16 = screen.player.x_pos;
     let mut y_save: u16 = screen.player.y_pos;
     let mut paused:bool = false;
     let mut last_scr: String = format!("houses");
     let mut track: u8 = 0;
     
-    let mut battle:bool = false;
 
     //todo: multithreading to have game thinking and rendering at same time
     //loop that runs program
@@ -119,7 +119,7 @@ fn main() -> Result<(), pixels::Error> {
             }
         }
         //update part of code that handles key-presses and simple window things
-        if input.update(&event) && !paused && !battle{
+        if input.update(&event) && !paused {
             //make into a match statement at some point maybe
             //close on pressing esc
             if input.key_pressed(VirtualKeyCode::Escape) || input.quit() {
@@ -304,24 +304,6 @@ fn main() -> Result<(), pixels::Error> {
                 }
             }
             window.request_redraw();
-        }
-
-        if battle {
-            /*
-            1. Have screen open
-            2. Await player input
-            3. Player do thing
-                if player do fight {
-                    fight
-                }
-                if player do run {
-                    run
-                }
-                this should be obvious
-                but yk that
-            4. Check enemy health OR lower the amount of needed correct answers
-            
-            */
         }
     });
     //Ok(())
@@ -576,6 +558,7 @@ impl Player {
         })
     }
 }
+
 
 struct Screen {
     //the player object
@@ -998,3 +981,73 @@ impl Entity {
 //     std::fs::copy(self.place,"screen.txt");
 //
 // }
+
+fn battle() -> Result<(), pixels::Error> {
+    //where event loop is created for the future event_loop.run
+    let event_loop = EventLoop::new();
+
+    //handle inputs with winit_input_helper
+    let mut input = WinitInputHelper::new();
+
+    //set env variable to give simple backtrace of broken runtime code
+    let var = "RUST_BACKTRACE";
+    env::set_var(var, "1");
+
+    //Create window and give it Physical Size of 720 4:3
+    let window = Window::new(&event_loop).unwrap();
+    window.set_inner_size(PhysicalSize::new(SCREEN_WIDTH, SCREEN_HEIGHT));
+    //let size = window.inner_size();
+
+    //Create surface texture of given width and height with deref window
+    let surface_texture =
+        pixels::SurfaceTexture::new(SCREEN_WIDTH as u32, SCREEN_HEIGHT as u32, &window);
+
+    //frame buffer "pixels"
+    let mut pixels = PixelsBuilder::new(720, 540, surface_texture)
+        .request_adapter_options(RequestAdapterOptions {
+            power_preference: PowerPreference::HighPerformance,
+            force_fallback_adapter: false,
+            compatible_surface: None,
+         })
+        .enable_vsync(true)
+        .build()?;
+
+    //sets every fourth transparency pixel to 255
+    for pixel in pixels.get_frame().chunks_exact_mut(4) {
+        pixel[3] = 255;
+    }
+
+    //screen object made from the house page
+    let mut screen = Screen::new("houses");
+
+    //setting the distance to be the correct value (add in to new() function later)
+    screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
+
+    //let tuple pause = (screen.player.x_pos,screen.player.y_pos,screen.player.direction,screen.scr,screen.scroll_dist);
+    let mut x_save: u16 = screen.player.x_pos;
+    let mut y_save: u16 = screen.player.y_pos;
+    let mut last_scr: String = format!("houses");
+    let mut track: u8 = 0;
+    
+
+    //todo: multithreading to have game thinking and rendering at same time
+    //loop that runs program
+    event_loop.run(move |event, _, control_flow| {
+        //When it wants to redraw do this
+        if let Event::RedrawRequested(_) = event {
+            //framebuffer that we shall mut
+            screen.draw(pixels.get_frame());
+            //do the thinking for the drawing process
+            //render the frame buffer and panic if it has something passed to it
+            if pixels
+                .render()
+                .map_err(|e| panic!("pixels.render() failed: {:?}", e))
+                .is_err()
+            {
+                //after the panic close the process
+                *control_flow = ControlFlow::Exit;
+                return;
+            }
+        }
+    }
+}
