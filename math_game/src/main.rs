@@ -1023,12 +1023,10 @@ fn battle() -> Result<(), pixels::Error> {
     //setting the distance to be the correct value (add in to new() function later)
     screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
 
-    //let tuple pause = (screen.player.x_pos,screen.player.y_pos,screen.player.direction,screen.scr,screen.scroll_dist);
-    let mut x_save: u16 = screen.player.x_pos;
-    let mut y_save: u16 = screen.player.y_pos;
     let mut last_scr: String = format!("houses");
     let mut track: u8 = 0;
-    
+    let mut fight: bool = false;
+    let mut run: bool = false;
 
     //todo: multithreading to have game thinking and rendering at same time
     //loop that runs program
@@ -1048,6 +1046,9 @@ fn battle() -> Result<(), pixels::Error> {
                 *control_flow = ControlFlow::Exit;
                 return;
             }
+        }
+        if input.update(&event) && !run && !fight{
+            
         }
     }
 }
