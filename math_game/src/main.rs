@@ -731,10 +731,11 @@ impl Screen {
         let mut ents = vec![];
         ents.push(self.player.sprite[self.player.move_state]);
         for entity in self.entities {
-            ents.push(entity.sprite[entity.move_state]);
+            ents.push(&entity.sprite[entity.move_state as usize]);
         }
         //TODO: Update in chunks
         //for all pixels
+        let mut used: bool = false;
         for (it, pixel) in pix.chunks_exact_mut(4).enumerate() {
             /*Four checks:
             it % 720 > x_pos
@@ -745,7 +746,7 @@ impl Screen {
             // if things break due to borrow use copy trait
             //IF PLAYER
             for (j,a) in positions.enumerate() {
-                let mut used = false;
+                used= false;
                 if it % 720 > a[0] as usize
                     && it % 720 < (a[0] + CHAR_WIDTH) as usize
                     && it / 720 > a[1] as usize
@@ -753,9 +754,9 @@ impl Screen {
                 //if player && transparent
                 {
                     used = true;
-                    if ents[j][((((it / 720) - ent.y_pos as usize) * ent.width as usize) + (it % 720)) * 3] as u16
-                        + ents[j][((((it / 720) - ent.y_pos as usize) * ent.width as usize) + (it % 720)) * 3 + 1] as usize
-                        + ents[j][((((it / 720) - ent.y_pos as usize) * ent.width as usize) + (it % 720)) * 3 + 2] as usize
+                    if ents[j][((((it / 720) - self.entities[j+1].y_pos as usize) * self.entities[j+1].width as usize) + (it % 720)) * 3] as u16
+                        + ents[j][((((it / 720) - self.entities[j+1].y_pos as usize) * self.entities[j+1].width as usize) + (it % 720)) * 3 + 1] as usize
+                        + ents[j][((((it / 720) - self.entities[j+1].y_pos as usize) * self.entities[j+1].width as usize) + (it % 720)) * 3 + 2] as usize
                         == 0
                     {
                         //if transparent draw screen
@@ -770,9 +771,9 @@ impl Screen {
                             + ((it * 3 + 2) % (3 * SCREEN_WIDTH as usize))];
                         //draw player
                     } else {
-                        pixel[0] = ents[j][((((it / 720) - ent.y_pos as usize) * ent.width as usize) + (it % 720)) * 3];
-                        pixel[1] = ents[j][((((it / 720) - ent.y_pos as usize) * ent.width as usize) + (it % 720)) * 3 + 1];
-                        pixel[2] = ents[j][((((it / 720) - ent.y_pos as usize) * ent.width as usize) + (it % 720)) * 3 + 2];
+                        pixel[0] = ents[j][((((it / 720) - self.entities[j+1].y_pos as usize) * self.entities[j+1].width as usize) + (it % 720)) * 3];
+                        pixel[1] = ents[j][((((it / 720) - self.entities[j+1].y_pos as usize) * self.entities[j+1].width as usize) + (it % 720)) * 3 + 1];
+                        pixel[2] = ents[j][((((it / 720) - self.entities[j+1].y_pos as usize) * self.entities[j+1].width as usize) + (it % 720)) * 3 + 2];
 
                         // pixel[3] = 255;
                     }
@@ -791,7 +792,6 @@ impl Screen {
                     + ((it * 3 + 2) % (3 * SCREEN_WIDTH as usize))];
             }
                 // pixel[3] = 255;
-            }
         }
 
         //0-388799 it, should be right amt
