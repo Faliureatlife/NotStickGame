@@ -1048,6 +1048,29 @@ fn battle() -> Result<(), pixels::Error> {
             }
         }
         if input.update(&event) && !run && !fight{
+            if input.key_pressed(VirtualKeyCode::Escape) || input.quit() {
+                *control_flow = ControlFlow::Exit;
+                return;
+            }
+            if input.key_pressed(VirtualKeyCode::D){
+                track = track + 1;
+            }
+            if input.key_pressed(VirtualKeyCode::A){
+                track = track - 1;
+            }
+            if input.key_pressed(VirtualKeyCode::Return){
+                match track % 2 {
+                    0 => {
+                        fight = true;
+                    }
+                    1 => {
+                        run = true;
+                    }
+                    _ => {}
+                }
+            }
+        }
+        if input.update(&event) && run {
             
         }
     }
