@@ -726,11 +726,11 @@ impl Screen {
         let mut positions:Vec<[u16;2]> = vec![[0;2]];
         positions.push([self.player.x_pos,self.player.y_pos]);
         for entity in self.entities {
-            ents.push([entity.x_pos,entity.y_pos]);
+            positions.push([entity.x_pos,entity.y_pos]);
         }
         let mut ents = vec![];
-        ents.push(self.player.sprite[self.player.move_state]);
-        for entity in self.entities {
+        ents.push(&self.player.sprite[self.player.move_state as usize]);
+        for (e,entity) in self.entities.into_iter().enumerate() {
             ents.push(&entity.sprite[entity.move_state as usize]);
         }
         //TODO: Update in chunks
@@ -745,7 +745,7 @@ impl Screen {
             */
             // if things break due to borrow use copy trait
             //IF PLAYER
-            for (j,a) in positions.enumerate() {
+            for (j,a) in positions.into_iter().enumerate() {
                 used= false;
                 if it % 720 > a[0] as usize
                     && it % 720 < (a[0] + CHAR_WIDTH) as usize
