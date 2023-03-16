@@ -725,12 +725,12 @@ impl Screen {
     fn draw(&self, pix: &mut [u8]) {
         let mut positions:Vec<[u16;2]> = vec![[0;2]];
         positions.push([self.player.x_pos,self.player.y_pos]);
-        for entity in self.entities {
+        for entity in &self.entities {
             positions.push([entity.x_pos,entity.y_pos]);
         }
         let mut ents = vec![];
-        ents.push(&self.player.sprite[self.player.move_state as usize]);
-        for (e,entity) in self.entities.into_iter().enumerate() {
+        ents.push(&self.player.sprite[self.player.direction as usize][self.player.move_state as usize]);
+        for entity in &self.entities {
             ents.push(&entity.sprite[entity.move_state as usize]);
         }
         //TODO: Update in chunks
@@ -745,7 +745,7 @@ impl Screen {
             */
             // if things break due to borrow use copy trait
             //IF PLAYER
-            for (j,a) in positions.into_iter().enumerate() {
+            for (j,a) in positions.clone().into_iter().enumerate() {
                 used= false;
                 if it % 720 > a[0] as usize
                     && it % 720 < (a[0] + CHAR_WIDTH) as usize
@@ -753,10 +753,12 @@ impl Screen {
                     && it / 720 < (a[1] + CHAR_HEIGHT as u16) as usize
                 //if player && transparent
                 {
+                    //use match statement to see if it is on player or entity and access their pos and width
+
                     used = true;
                     if ents[j][((((it / 720) - self.entities[j+1].y_pos as usize) * self.entities[j+1].width as usize) + (it % 720)) * 3] as u16
-                        + ents[j][((((it / 720) - self.entities[j+1].y_pos as usize) * self.entities[j+1].width as usize) + (it % 720)) * 3 + 1] as usize
-                        + ents[j][((((it / 720) - self.entities[j+1].y_pos as usize) * self.entities[j+1].width as usize) + (it % 720)) * 3 + 2] as usize
+                        + ents[j][((((it / 720) - self.entities[j+1].y_pos as usize) * self.entities[j+1].width as usize) + (it % 720)) * 3 + 1] as u16
+                        + ents[j][((((it / 720) - self.entities[j+1].y_pos as usize) * self.entities[j+1].width as usize) + (it % 720)) * 3 + 2] as u16
                         == 0
                     {
                         //if transparent draw screen
