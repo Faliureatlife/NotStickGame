@@ -735,7 +735,8 @@ impl Screen {
         }
         //TODO: Update in chunks
         //for all pixels
-        let mut used: bool = false;
+        let mut used:bool;
+        let mut draw_p:bool;
         for (it, pixel) in pix.chunks_exact_mut(4).enumerate() {
             /*Four checks:
             it % 720 > x_pos
@@ -746,7 +747,7 @@ impl Screen {
             // if things break due to borrow use copy trait
             //IF PLAYER
             for (j,a) in positions.clone().into_iter().enumerate() {
-                used= false;
+                used = false;
                 if it % 720 > a[0] as usize
                     && it % 720 < (a[0] + CHAR_WIDTH) as usize
                     && it / 720 > a[1] as usize
@@ -756,9 +757,30 @@ impl Screen {
                     //use match statement to see if it is on player or entity and access their pos and width
 
                     used = true;
-                    if ents[j][((((it / 720) - self.entities[j+1].y_pos as usize) * self.entities[j+1].width as usize) + (it % 720)) * 3] as u16
-                        + ents[j][((((it / 720) - self.entities[j+1].y_pos as usize) * self.entities[j+1].width as usize) + (it % 720)) * 3 + 1] as u16
-                        + ents[j][((((it / 720) - self.entities[j+1].y_pos as usize) * self.entities[j+1].width as usize) + (it % 720)) * 3 + 2] as u16
+                    if j == 0 {
+                        if  ents[j][((((it / 720) - a[1] as usize) * ents[j].width as usize) + (it % 720)) * 3] as u16
+                            + ents[j][((((it / 720) - a[1] as usize) * ents[j].width as usize) + (it % 720)) * 3 + 1] as u16
+                            + ents[j][((((it / 720) - a[1] as usize) * ents[j].width as usize) + (it % 720)) * 3 + 2] as u16
+                            == 0
+                        {
+                            pixel[0] = self.area[3 * self.scroll_dist as usize
+                                + (3 * self.screen_len * ((3 * it) / (3 * SCREEN_WIDTH) as usize))
+                                + ((it * 3) % (3 * SCREEN_WIDTH as usize))];
+                            pixel[1] = self.area[3 * self.scroll_dist as usize
+                                + (3 * self.screen_len * ((3 * it + 1) / (3 * SCREEN_WIDTH) as usize))
+                                + ((it * 3 + 1) % (3 * SCREEN_WIDTH as usize))];
+                            pixel[2] = self.area[3 * self.scroll_dist as usize
+                                + (3 * self.screen_len * ((3 * it + 2) / (3 * SCREEN_WIDTH) as usize))
+                                + ((it * 3 + 2) % (3 * SCREEN_WIDTH as usize))];
+                        } else {
+                            pixel[0] = ents[j][((((it / 720) - a[1] as usize) * self.player.width as usize) + (it % 720)) * 3];
+                            pixel[1] = ents[j][((((it / 720) - a[1] as usize) * self.player.width as usize) + (it % 720)) * 3 + 1];
+                            pixel[2] = ents[j][((((it / 720) - a[1] as usize) * self.player.width as usize) + (it % 720)) * 3 + 2];
+                        }
+                    }
+                    if  ents[j][((((it / 720) - a[1] as usize) * ents[j].width as usize) + (it % 720)) * 3] as u16
+                        + ents[j][((((it / 720) - a[1] as usize) * ents[j].width as usize) + (it % 720)) * 3 + 1] as u16
+                        + ents[j][((((it / 720) - a[1] as usize) * ents[j].width as usize) + (it % 720)) * 3 + 2] as u16
                         == 0
                     {
                         //if transparent draw screen
@@ -773,11 +795,13 @@ impl Screen {
                             + ((it * 3 + 2) % (3 * SCREEN_WIDTH as usize))];
                         //draw player
                     } else {
-                        pixel[0] = ents[j][((((it / 720) - self.entities[j+1].y_pos as usize) * self.entities[j+1].width as usize) + (it % 720)) * 3];
-                        pixel[1] = ents[j][((((it / 720) - self.entities[j+1].y_pos as usize) * self.entities[j+1].width as usize) + (it % 720)) * 3 + 1];
-                        pixel[2] = ents[j][((((it / 720) - self.entities[j+1].y_pos as usize) * self.entities[j+1].width as usize) + (it % 720)) * 3 + 2];
-
+                        pixel[0] = ents[j][((((it / 720) - a[1] as usize) * self.entities[j+1].width as usize) + (it % 720)) * 3];
+                        pixel[1] = ents[j][((((it / 720) - a[1] as usize) * self.entities[j+1].width as usize) + (it % 720)) * 3 + 1];
+                        pixel[2] = ents[j][((((it / 720) - a[1] as usize) * self.entities[j+1].width as usize) + (it % 720)) * 3 + 2];
                         // pixel[3] = 255;
+                    }
+                    if draw_p {
+
                     }
                     break
                 }
