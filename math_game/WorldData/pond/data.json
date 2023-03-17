@@ -4,5 +4,8 @@
   "collision": [],
   "default_scroll": 0,
   "mvmt_dest": ["library","null","stoor","null"],
-  "entities": []
+  "entities": [],
+  "interact": [],
+  "interact_actions": [],
+  "interact_pos": []
 }
