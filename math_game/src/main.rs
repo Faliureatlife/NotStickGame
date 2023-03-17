@@ -153,20 +153,24 @@ fn main() -> Result<(), pixels::Error> {
                 let mut check_y = screen.player.y_pos;
                 match screen.player.direction {
                     1 => check_y -= 30,
-                    2 => check_x -= 30 ,
+                    2 => check_x -= 30,
                     3 => check_y += 30 + CHAR_WIDTH,
                     4 => check_x += 30 + CHAR_HEIGHT,
                     _ => {}
                 }
-                for (i,it) in screen.interact_pos.clone().chunks_exact(2).enumerate() {
-                    if check_x < it[0] && it[0] < check_x + CHAR_WIDTH
-                        && check_y < it[1] && it[1] < check_y + CHAR_HEIGHT
+                for (i, it) in screen.interact_pos.clone().chunks_exact(2).enumerate() {
+                    if check_x < it[0]
+                        && it[0] < check_x + CHAR_WIDTH
+                        && check_y < it[1]
+                        && it[1] < check_y + CHAR_HEIGHT
                     {
                         match screen.interact[i].as_str() {
-                            "move" => {screen = Screen::new(&screen.interact_action[i]);
-                                screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
+                            "move" => {
+                                screen = Screen::new(&screen.interact_action[i]);
+                                screen.screen_len =
+                                    screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
                                 last_scr = screen.scr.clone();
-                            },
+                            }
                             // "battle" =>
                             // "dialogue" =>
                             _ => {}
@@ -209,7 +213,7 @@ fn main() -> Result<(), pixels::Error> {
                 }
                 4 => {
                     let y = screen.player.y_pos;
-                    println!("{:?}",&screen.player.mvmt_destinations[3]);
+                    println!("{:?}", &screen.player.mvmt_destinations[3]);
                     screen = Screen::new(&screen.player.mvmt_destinations[3]);
                     screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
                     screen.player.y_pos = y;
@@ -622,13 +626,21 @@ impl Screen {
             //default scroll len is 0
             screen_len: 0,
             scr: place.to_owned(),
-            interact: Screen::read_from_file_vecstr(format!("{}{}{}",WORLD, place, "/data.json"),"interact").expect("Failed to read interaction types"),
+            interact: Screen::read_from_file_vecstr(
+                format!("{}{}{}", WORLD, place, "/data.json"),
+                "interact",
+            )
+            .expect("Failed to read interaction types"),
             interact_pos: Screen::read_from_file_vecu16(
                 format!("{}{}{}", WORLD, place, "/data.json"),
                 "collision",
             )
-                .expect("Failed to read interaction pos from file"),
-            interact_action: Screen::read_from_file_vecstr(format!("{}{}{}",WORLD, place, "/data.json"),"interact_actions").expect("Failed to read interaction types"),
+            .expect("Failed to read interaction pos from file"),
+            interact_action: Screen::read_from_file_vecstr(
+                format!("{}{}{}", WORLD, place, "/data.json"),
+                "interact_actions",
+            )
+            .expect("Failed to read interaction types"),
         }
     }
     fn read_from_file_u16(path: String, get: &str) -> Result<u16, std::io::Error> {
@@ -702,7 +714,7 @@ impl Screen {
     fn new_screen(place: String) -> Vec<u8> {
         //makes vec to be returned
         let mut data = vec![];
-        println!("{}",place);
+        println!("{}", place);
         //goes through the whole file by byte
         for pix in read(place)
             .expect("Unable to read from file")
@@ -723,31 +735,33 @@ impl Screen {
     }
     //not getting comments because it works
     fn draw(&self, pix: &mut [u8]) {
-        let mut positions:Vec<[u16;2]> = vec![[0;2]];
-        positions.push([self.player.x_pos,self.player.y_pos]);
+        let mut positions: Vec<[u16; 2]> = vec![[0; 2]];
+        positions.push([self.player.x_pos, self.player.y_pos]);
         for entity in &self.entities {
-            positions.push([entity.x_pos,entity.y_pos]);
+            positions.push([entity.x_pos, entity.y_pos]);
         }
         let mut ents = vec![];
-        ents.push(&self.player.sprite[self.player.direction as usize][self.player.move_state as usize]);
+        ents.push(
+            &self.player.sprite[self.player.direction as usize][self.player.move_state as usize],
+        );
         for entity in &self.entities {
             ents.push(&entity.sprite[entity.move_state as usize]);
         }
         //TODO: Update in chunks
         //for all pixels
-        let mut used:bool;
-        let mut draw_p:bool;
+        let mut used: bool = false;
         for (it, pixel) in pix.chunks_exact_mut(4).enumerate() {
+            // println!("main iterator {}",it);
             /*Four checks:
             it % 720 > x_pos
             it % 720 < x_pos + 19
             it / 720 > y_pos
             it / 720 < y_pos + 28
             */
-            // if things break due to borrow use copy trait
             //IF PLAYER
-            for (j,a) in positions.clone().into_iter().enumerate() {
+            for (j, a) in positions.clone().into_iter().enumerate() {
                 used = false;
+                // update to work for player and entity :/
                 if it % 720 > a[0] as usize
                     && it % 720 < (a[0] + CHAR_WIDTH) as usize
                     && it / 720 > a[1] as usize
@@ -757,53 +771,100 @@ impl Screen {
                     //use match statement to see if it is on player or entity and access their pos and width
 
                     used = true;
-                    if j == 0 {
-                        if  ents[j][((((it / 720) - a[1] as usize) * ents[j].width as usize) + (it % 720)) * 3] as u16
-                            + ents[j][((((it / 720) - a[1] as usize) * ents[j].width as usize) + (it % 720)) * 3 + 1] as u16
-                            + ents[j][((((it / 720) - a[1] as usize) * ents[j].width as usize) + (it % 720)) * 3 + 2] as u16
-                            == 0
-                        {
-                            pixel[0] = self.area[3 * self.scroll_dist as usize
-                                + (3 * self.screen_len * ((3 * it) / (3 * SCREEN_WIDTH) as usize))
-                                + ((it * 3) % (3 * SCREEN_WIDTH as usize))];
-                            pixel[1] = self.area[3 * self.scroll_dist as usize
-                                + (3 * self.screen_len * ((3 * it + 1) / (3 * SCREEN_WIDTH) as usize))
-                                + ((it * 3 + 1) % (3 * SCREEN_WIDTH as usize))];
-                            pixel[2] = self.area[3 * self.scroll_dist as usize
-                                + (3 * self.screen_len * ((3 * it + 2) / (3 * SCREEN_WIDTH) as usize))
-                                + ((it * 3 + 2) % (3 * SCREEN_WIDTH as usize))];
-                        } else {
-                            pixel[0] = ents[j][((((it / 720) - a[1] as usize) * self.player.width as usize) + (it % 720)) * 3];
-                            pixel[1] = ents[j][((((it / 720) - a[1] as usize) * self.player.width as usize) + (it % 720)) * 3 + 1];
-                            pixel[2] = ents[j][((((it / 720) - a[1] as usize) * self.player.width as usize) + (it % 720)) * 3 + 2];
+                    match j {
+                        0 => {
+                            println!("{:?}", ents[j]);
+                            if ents[j][((((it / 720) - a[1] as usize) * CHAR_WIDTH as usize)
+                                + ((it % 720) - a[0] as usize))
+                                * 3] as u16
+                                + ents[j][((((it / 720) - a[1] as usize) * CHAR_WIDTH as usize)
+                                + ((it % 720) - a[0] as usize))
+                                * 3
+                                + 1] as u16
+                                + ents[j][((((it / 720) - a[1] as usize) * CHAR_WIDTH as usize)
+                                + ((it % 720) - a[0] as usize))
+                                * 3
+                                + 2] as u16
+                                == 0
+                            {
+                                pixel[0] = self.area[3 * self.scroll_dist as usize
+                                    + (3 * self.screen_len
+                                        * ((3 * it) / (3 * SCREEN_WIDTH) as usize))
+                                    + ((it * 3) % (3 * SCREEN_WIDTH as usize))];
+                                pixel[1] = self.area[3 * self.scroll_dist as usize
+                                    + (3 * self.screen_len
+                                        * ((3 * it + 1) / (3 * SCREEN_WIDTH) as usize))
+                                    + ((it * 3 + 1) % (3 * SCREEN_WIDTH as usize))];
+                                pixel[2] = self.area[3 * self.scroll_dist as usize
+                                    + (3 * self.screen_len
+                                        * ((3 * it + 2) / (3 * SCREEN_WIDTH) as usize))
+                                    + ((it * 3 + 2) % (3 * SCREEN_WIDTH as usize))];
+                            } else {
+                                pixel[0] = ents[j][((((it / 720) - a[1] as usize)
+                                    * CHAR_WIDTH as usize)
+                                    + ((it % 720) - a[0] as usize))
+                                    * 3];
+                                pixel[1] = ents[j][((((it / 720) - a[1] as usize)
+                                    * CHAR_WIDTH as usize)
+                                    + ((it % 720) - a[0] as usize))
+                                    * 3
+                                    + 1];
+                                pixel[2] = ents[j][((((it / 720) - a[1] as usize)
+                                    * CHAR_WIDTH as usize)
+                                    + ((it % 720) - a[0] as usize))
+                                    * 3
+                                    + 2];
+                            }
+                        }
+
+                        _ => {
+                            if ents[j][((((it / 720) - a[1] as usize) * self.entities[j-1].width as usize)
+                                + ((it % 720) - a[0] as usize))
+                                * 3] as u16
+                                + ents[j][((((it / 720) - a[1] as usize) * self.entities[j-1].width as usize)
+                                    + ((it % 720) - a[0] as usize))
+                                    * 3
+                                    + 1] as u16
+                                + ents[j][((((it / 720) - a[1] as usize) * self.entities[j-1].width as usize)
+                                    + ((it % 720) - a[0] as usize))
+                                    * 3
+                                    + 2] as u16
+                                == 0
+                            {
+                                //if transparent draw screen
+                                pixel[0] = self.area[3 * self.scroll_dist as usize
+                                    + (3 * self.screen_len
+                                        * ((3 * it) / (3 * SCREEN_WIDTH) as usize))
+                                    + ((it * 3) % (3 * SCREEN_WIDTH as usize))];
+                                pixel[1] = self.area[3 * self.scroll_dist as usize
+                                    + (3 * self.screen_len
+                                        * ((3 * it + 1) / (3 * SCREEN_WIDTH) as usize))
+                                    + ((it * 3 + 1) % (3 * SCREEN_WIDTH as usize))];
+                                pixel[2] = self.area[3 * self.scroll_dist as usize
+                                    + (3 * self.screen_len
+                                        * ((3 * it + 2) / (3 * SCREEN_WIDTH) as usize))
+                                    + ((it * 3 + 2) % (3 * SCREEN_WIDTH as usize))];
+                                //draw player
+                            } else {
+                                pixel[0] = ents[j][((((it / 720) - a[1] as usize)
+                                    * self.entities[j + 1].width as usize)
+                                    + ((it % 720) - a[0] as usize))
+                                    * 3];
+                                pixel[1] = ents[j][((((it / 720) - a[1] as usize)
+                                    * self.entities[j + 1].width as usize)
+                                    + ((it % 720) - a[0] as usize))
+                                    * 3
+                                    + 1];
+                                pixel[2] = ents[j][((((it / 720) - a[1] as usize)
+                                    * self.entities[j + 1].width as usize)
+                                    + ((it % 720) - a[0] as usize))
+                                    * 3
+                                    + 2];
+                                // pixel[3] = 255;
+                            }
                         }
                     }
-                    if  ents[j][((((it / 720) - a[1] as usize) * ents[j].width as usize) + (it % 720)) * 3] as u16
-                        + ents[j][((((it / 720) - a[1] as usize) * ents[j].width as usize) + (it % 720)) * 3 + 1] as u16
-                        + ents[j][((((it / 720) - a[1] as usize) * ents[j].width as usize) + (it % 720)) * 3 + 2] as u16
-                        == 0
-                    {
-                        //if transparent draw screen
-                        pixel[0] = self.area[3 * self.scroll_dist as usize
-                            + (3 * self.screen_len * ((3 * it) / (3 * SCREEN_WIDTH) as usize))
-                            + ((it * 3) % (3 * SCREEN_WIDTH as usize))];
-                        pixel[1] = self.area[3 * self.scroll_dist as usize
-                            + (3 * self.screen_len * ((3 * it + 1) / (3 * SCREEN_WIDTH) as usize))
-                            + ((it * 3 + 1) % (3 * SCREEN_WIDTH as usize))];
-                        pixel[2] = self.area[3 * self.scroll_dist as usize
-                            + (3 * self.screen_len * ((3 * it + 2) / (3 * SCREEN_WIDTH) as usize))
-                            + ((it * 3 + 2) % (3 * SCREEN_WIDTH as usize))];
-                        //draw player
-                    } else {
-                        pixel[0] = ents[j][((((it / 720) - a[1] as usize) * self.entities[j+1].width as usize) + (it % 720)) * 3];
-                        pixel[1] = ents[j][((((it / 720) - a[1] as usize) * self.entities[j+1].width as usize) + (it % 720)) * 3 + 1];
-                        pixel[2] = ents[j][((((it / 720) - a[1] as usize) * self.entities[j+1].width as usize) + (it % 720)) * 3 + 2];
-                        // pixel[3] = 255;
-                    }
-                    if draw_p {
-
-                    }
-                    break
+                    break;
                 }
             }
             if !used {
@@ -817,7 +878,7 @@ impl Screen {
                     + (3 * self.screen_len * ((3 * it + 2) / (3 * SCREEN_WIDTH) as usize))
                     + ((it * 3 + 2) % (3 * SCREEN_WIDTH as usize))];
             }
-                // pixel[3] = 255;
+            // pixel[3] = 255;
         }
 
         //0-388799 it, should be right amt
