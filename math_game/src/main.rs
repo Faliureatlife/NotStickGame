@@ -40,6 +40,7 @@ const WORLD: &str = "WorldData/";
 const SCREEN_WIDTH: u16 = 720;
 const SCREEN_HEIGHT: u16 = 540;
 const MVMT_DIST: u16 = 5;
+//real width + 1
 const CHAR_WIDTH: u16 = 37;
 const CHAR_HEIGHT: u16 = 54;
 fn main() -> Result<(), pixels::Error> {
@@ -153,20 +154,24 @@ fn main() -> Result<(), pixels::Error> {
                 let mut check_y = screen.player.y_pos;
                 match screen.player.direction {
                     1 => check_y -= 30,
-                    2 => check_x -= 30 ,
+                    2 => check_x -= 30,
                     3 => check_y += 30 + CHAR_WIDTH,
                     4 => check_x += 30 + CHAR_HEIGHT,
                     _ => {}
                 }
-                for (i,it) in screen.interact_pos.clone().chunks_exact(2).enumerate() {
-                    if check_x < it[0] && it[0] < check_x + CHAR_WIDTH
-                        && check_y < it[1] && it[1] < check_y + CHAR_HEIGHT
+                for (i, it) in screen.interact_pos.clone().chunks_exact(2).enumerate() {
+                    if check_x < it[0]
+                        && it[0] < check_x + CHAR_WIDTH
+                        && check_y < it[1]
+                        && it[1] < check_y + CHAR_HEIGHT
                     {
                         match screen.interact[i].as_str() {
-                            "move" => {screen = Screen::new(&screen.interact_action[i]);
-                                screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
+                            "move" => {
+                                screen = Screen::new(&screen.interact_action[i]);
+                                screen.screen_len =
+                                    screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
                                 last_scr = screen.scr.clone();
-                            },
+                            }
                             // "battle" =>
                             // "dialogue" =>
                             _ => {}
@@ -209,7 +214,6 @@ fn main() -> Result<(), pixels::Error> {
                 }
                 4 => {
                     let y = screen.player.y_pos;
-                    println!("{:?}",&screen.player.mvmt_destinations[3]);
                     screen = Screen::new(&screen.player.mvmt_destinations[3]);
                     screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
                     screen.player.y_pos = y;
@@ -390,8 +394,6 @@ impl Player {
             1 if self.y_pos - MVMT_DIST >= 2 => {
                 //loop through all possible collision points
                 for colliders in self.collision.chunks_exact(2) {
-                    // println!("{} {:?}",scrolled, colliders[0].checked_sub(scrolled));
-                    // println!();
                     //check to see if character is or will be within any of the bounds
                     if colliders[0] >= self.x_pos + scrolled {
                         if colliders[0] >= scrolled + self.x_pos
@@ -400,8 +402,6 @@ impl Player {
                             && colliders[1] <= (self.y_pos - MVMT_DIST + CHAR_HEIGHT)
                         {
                             //flips collision to true and break from for loop
-                            // println!("{:?} ",colliders);
-                            // println!("x:{},y:{}",self.x_pos,self.y_pos);
                             colliding = !colliding;
                             break;
                         }
@@ -423,8 +423,6 @@ impl Player {
             2 if self.x_pos - MVMT_DIST > MVMT_DIST => {
                 //loop through all possible collision points
                 for colliders in self.collision.chunks_exact(2) {
-                    // println!("{} {:?}",scrolled, colliders[0].checked_sub(scrolled));
-                    // println!();
                     //check to see if character is or will be within any of the bounds
                     if colliders[0] >= self.x_pos + scrolled {
                         if colliders[0] >= scrolled + self.x_pos - MVMT_DIST
@@ -433,8 +431,6 @@ impl Player {
                             && colliders[1] <= (self.y_pos + CHAR_HEIGHT)
                         {
                             //flips collision to true and break from for loop
-                            // println!("{:?} ",colliders);
-                            // println!("x:{},y:{}",self.x_pos,self.y_pos);
                             colliding = !colliding;
                             break;
                         }
@@ -456,8 +452,6 @@ impl Player {
             3 if self.y_pos + MVMT_DIST < 540 - CHAR_HEIGHT - MVMT_DIST => {
                 //loop through all possible collision points
                 for colliders in self.collision.chunks_exact(2) {
-                    // println!("{} {:?}",scrolled, colliders[0].checked_sub(scrolled));
-                    // println!();
                     //check to see if character is or will be within any of the bounds
                     if colliders[0] >= self.x_pos + scrolled {
                         if colliders[0] >= scrolled + self.x_pos
@@ -466,8 +460,6 @@ impl Player {
                             && colliders[1] <= (self.y_pos + MVMT_DIST + CHAR_HEIGHT)
                         {
                             //flips collision to true and break from for loop
-                            // println!("{:?} ",colliders);
-                            // println!("x:{},y:{}",self.x_pos,self.y_pos);
                             colliding = !colliding;
                             break;
                         }
@@ -491,8 +483,6 @@ impl Player {
             4 if self.x_pos + MVMT_DIST < 720 - CHAR_WIDTH => {
                 //loop through all possible collision points
                 for colliders in self.collision.chunks_exact(2) {
-                    // println!("{} {:?}",scrolled, colliders[0].checked_sub(scrolled));
-                    // println!();
                     //check to see if character is or will be within any of the bounds
                     if colliders[0] >= self.x_pos + scrolled {
                         if colliders[0] >= scrolled + self.x_pos + MVMT_DIST
@@ -501,9 +491,6 @@ impl Player {
                             && colliders[1] <= (self.y_pos + CHAR_HEIGHT)
                         {
                             //flips collision to true and break from for loop
-                            // println!("{:?} ",colliders);
-                            // println!("x:{},y:{}",self.x_pos,self.y_pos);
-                            // println!("1{} 2{} 3{} 4{}",colliders[0] >= scrolled + self.x_pos + MVMT_DIST,colliders[0] <= scrolled + self.x_pos + CHAR_WIDTH + MVMT_DIST,colliders[1] >= scrolled + (self.y_pos),colliders[1] <= scrolled + (self.y_pos + CHAR_HEIGHT));
                             colliding = !colliding;
                             break;
                         }
@@ -599,7 +586,6 @@ impl Screen {
                 )
                 .unwrap()
                 {
-                    println!("{}", ent);
                     v.push(Entity::new(
                         &format!("{}{}{}", "SpriteData/", ent, "/0.txt"),
                         &format!("{}{}{}", "SpriteData/", ent, "/1.txt"),
@@ -622,13 +608,21 @@ impl Screen {
             //default scroll len is 0
             screen_len: 0,
             scr: place.to_owned(),
-            interact: Screen::read_from_file_vecstr(format!("{}{}{}",WORLD, place, "/data.json"),"interact").expect("Failed to read interaction types"),
+            interact: Screen::read_from_file_vecstr(
+                format!("{}{}{}", WORLD, place, "/data.json"),
+                "interact",
+            )
+            .expect("Failed to read interaction types"),
             interact_pos: Screen::read_from_file_vecu16(
                 format!("{}{}{}", WORLD, place, "/data.json"),
                 "collision",
             )
-                .expect("Failed to read interaction pos from file"),
-            interact_action: Screen::read_from_file_vecstr(format!("{}{}{}",WORLD, place, "/data.json"),"interact_actions").expect("Failed to read interaction types"),
+            .expect("Failed to read interaction pos from file"),
+            interact_action: Screen::read_from_file_vecstr(
+                format!("{}{}{}", WORLD, place, "/data.json"),
+                "interact_actions",
+            )
+            .expect("Failed to read interaction types"),
         }
     }
     fn read_from_file_u16(path: String, get: &str) -> Result<u16, std::io::Error> {
@@ -702,7 +696,6 @@ impl Screen {
     fn new_screen(place: String) -> Vec<u8> {
         //makes vec to be returned
         let mut data = vec![];
-        println!("{}",place);
         //goes through the whole file by byte
         for pix in read(place)
             .expect("Unable to read from file")
@@ -723,84 +716,35 @@ impl Screen {
     }
     //not getting comments because it works
     fn draw(&self, pix: &mut [u8]) {
-        let mut positions:Vec<[u16;2]> = vec![[0;2]];
-        positions.push([self.player.x_pos,self.player.y_pos]);
-        for entity in &self.entities {
-            positions.push([entity.x_pos,entity.y_pos]);
+        for (it,pixel) in pix.chunks_exact_mut(4).enumerate() {
+            pixel[0] = self.area[3 * self.scroll_dist as usize
+                + (3 * self.screen_len * ((3 * it) / (3 * SCREEN_WIDTH) as usize))
+                + ((it * 3) % (3 * SCREEN_WIDTH as usize))];
+            pixel[1] = self.area[3 * self.scroll_dist as usize
+                + (3 * self.screen_len * ((3 * it + 1) / (3 * SCREEN_WIDTH) as usize))
+                + ((it * 3 + 1) % (3 * SCREEN_WIDTH as usize))];
+            pixel[2] = self.area[3 * self.scroll_dist as usize
+                + (3 * self.screen_len * ((3 * it + 2) / (3 * SCREEN_WIDTH) as usize))
+                + ((it * 3 + 2) % (3 * SCREEN_WIDTH as usize))];
         }
-        let mut ents = vec![];
-        ents.push(&self.player.sprite[self.player.direction as usize][self.player.move_state as usize]);
-        for entity in &self.entities {
-            ents.push(&entity.sprite[entity.move_state as usize]);
+        //find a way to not have to cast to u16 if i ever care
+        for (it, pixel) in self.player.sprite[self.player.direction as usize][self.player.move_state as usize].chunks_exact(3).enumerate() {
+            if pixel[0] as u16 + pixel[1] as u16 + pixel[2] as u16 != 0 {
+                pix[(((self.player.y_pos as usize + (it / (CHAR_WIDTH - 1) as usize)) * SCREEN_WIDTH as usize) + (self.player.x_pos as usize + (it % (CHAR_WIDTH - 1) as usize))) * 4] = pixel[0];
+                pix[(((self.player.y_pos as usize + (it / (CHAR_WIDTH - 1) as usize)) * SCREEN_WIDTH as usize) + (self.player.x_pos as usize + (it % (CHAR_WIDTH - 1) as usize))) * 4 + 1] = pixel[1];
+                pix[(((self.player.y_pos as usize + (it / (CHAR_WIDTH - 1) as usize)) * SCREEN_WIDTH as usize) + (self.player.x_pos as usize + (it % (CHAR_WIDTH - 1) as usize))) * 4 + 2] = pixel[2];
+            }
         }
-        //TODO: Update in chunks
-        //for all pixels
-        let mut used: bool = false;
-        for (it, pixel) in pix.chunks_exact_mut(4).enumerate() {
-            /*Four checks:
-            it % 720 > x_pos
-            it % 720 < x_pos + 19
-            it / 720 > y_pos
-            it / 720 < y_pos + 28
-            */
-            // if things break due to borrow use copy trait
-            //IF PLAYER
-            for (j,a) in positions.clone().into_iter().enumerate() {
-                used= false;
-                if it % 720 > a[0] as usize
-                    && it % 720 < (a[0] + CHAR_WIDTH) as usize
-                    && it / 720 > a[1] as usize
-                    && it / 720 < (a[1] + CHAR_HEIGHT as u16) as usize
-                //if player && transparent
-                {
-                    //use match statement to see if it is on player or entity and access their pos and width
-
-                    used = true;
-                    if ents[j][((((it / 720) - self.entities[j+1].y_pos as usize) * self.entities[j+1].width as usize) + (it % 720)) * 3] as u16
-                        + ents[j][((((it / 720) - self.entities[j+1].y_pos as usize) * self.entities[j+1].width as usize) + (it % 720)) * 3 + 1] as u16
-                        + ents[j][((((it / 720) - self.entities[j+1].y_pos as usize) * self.entities[j+1].width as usize) + (it % 720)) * 3 + 2] as u16
-                        == 0
-                    {
-                        //if transparent draw screen
-                        pixel[0] = self.area[3 * self.scroll_dist as usize
-                            + (3 * self.screen_len * ((3 * it) / (3 * SCREEN_WIDTH) as usize))
-                            + ((it * 3) % (3 * SCREEN_WIDTH as usize))];
-                        pixel[1] = self.area[3 * self.scroll_dist as usize
-                            + (3 * self.screen_len * ((3 * it + 1) / (3 * SCREEN_WIDTH) as usize))
-                            + ((it * 3 + 1) % (3 * SCREEN_WIDTH as usize))];
-                        pixel[2] = self.area[3 * self.scroll_dist as usize
-                            + (3 * self.screen_len * ((3 * it + 2) / (3 * SCREEN_WIDTH) as usize))
-                            + ((it * 3 + 2) % (3 * SCREEN_WIDTH as usize))];
-                        //draw player
-                    } else {
-                        pixel[0] = ents[j][((((it / 720) - self.entities[j+1].y_pos as usize) * self.entities[j+1].width as usize) + (it % 720)) * 3];
-                        pixel[1] = ents[j][((((it / 720) - self.entities[j+1].y_pos as usize) * self.entities[j+1].width as usize) + (it % 720)) * 3 + 1];
-                        pixel[2] = ents[j][((((it / 720) - self.entities[j+1].y_pos as usize) * self.entities[j+1].width as usize) + (it % 720)) * 3 + 2];
-
-                        // pixel[3] = 255;
-                    }
-                    break
+        // no scrolling but its too late for that atm
+        for a in &self.entities {
+            for (it,pixel) in a.sprite[a.move_state as usize].chunks_exact(3).enumerate(){
+                if pixel[0] as u16 + pixel[1] as u16 + pixel[2] as u16 != 0 {
+                    pix[(((a.y_pos as usize + (it / (a.width) as usize)) * SCREEN_WIDTH as usize) + (a.x_pos as usize + (it % (a.width) as usize))) * 4] = pixel[0];
+                    pix[(((a.y_pos as usize + (it / (a.width) as usize)) * SCREEN_WIDTH as usize) + (a.x_pos as usize + (it % (a.width) as usize))) * 4 + 1] = pixel[1];
+                    pix[(((a.y_pos as usize + (it / (a.width) as usize)) * SCREEN_WIDTH as usize) + (a.x_pos as usize + (it % (a.width) as usize))) * 4 + 2] = pixel[2];
                 }
             }
-            if !used {
-                pixel[0] = self.area[3 * self.scroll_dist as usize
-                    + (3 * self.screen_len * ((3 * it) / (3 * SCREEN_WIDTH) as usize))
-                    + ((it * 3) % (3 * SCREEN_WIDTH as usize))];
-                pixel[1] = self.area[3 * self.scroll_dist as usize
-                    + (3 * self.screen_len * ((3 * it + 1) / (3 * SCREEN_WIDTH) as usize))
-                    + ((it * 3 + 1) % (3 * SCREEN_WIDTH as usize))];
-                pixel[2] = self.area[3 * self.scroll_dist as usize
-                    + (3 * self.screen_len * ((3 * it + 2) / (3 * SCREEN_WIDTH) as usize))
-                    + ((it * 3 + 2) % (3 * SCREEN_WIDTH as usize))];
-            }
-                // pixel[3] = 255;
         }
-
-        //0-388799 it, should be right amt
-        //testing the fb contents
-        // let a = format!("{:?}",&pix);
-        // std::fs::write("framebuffer.txt", a).unwrap();
-        // println!("File created");
     }
 }
 
