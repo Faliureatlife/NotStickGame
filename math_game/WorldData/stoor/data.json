@@ -5,5 +5,8 @@
   "entities": ["parasite"],
   "default_scroll": 0,
   "mvmt_dest": ["pond","null","null","lhouses"],
-  "entities": []
+  "entities": [],
+  "interact": [],
+  "interact_actions": [],
+  "interact_pos": []
 }
