@@ -765,6 +765,8 @@ impl Screen {
             }
         }
     }
+        //TODO: Update in chunks
+
 }
 
 struct Entity {

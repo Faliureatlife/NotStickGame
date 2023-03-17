@@ -3,7 +3,7 @@
   "start_y": 0,
   "collision": [],
   "default_scroll": 0,
-  "mvmt_dest": ["null","school-out","pond","null"],
+  "mvmt_dest": ["null","school","pond","null"],
   "entities": [],
   "interact": [],
   "interact_actions": [],
