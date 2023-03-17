@@ -40,6 +40,7 @@ const WORLD: &str = "WorldData/";
 const SCREEN_WIDTH: u16 = 720;
 const SCREEN_HEIGHT: u16 = 540;
 const MVMT_DIST: u16 = 5;
+//real width + 1
 const CHAR_WIDTH: u16 = 37;
 const CHAR_HEIGHT: u16 = 54;
 fn main() -> Result<(), pixels::Error> {
@@ -213,7 +214,6 @@ fn main() -> Result<(), pixels::Error> {
                 }
                 4 => {
                     let y = screen.player.y_pos;
-                    println!("{:?}", &screen.player.mvmt_destinations[3]);
                     screen = Screen::new(&screen.player.mvmt_destinations[3]);
                     screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
                     screen.player.y_pos = y;
@@ -394,8 +394,6 @@ impl Player {
             1 if self.y_pos - MVMT_DIST >= 2 => {
                 //loop through all possible collision points
                 for colliders in self.collision.chunks_exact(2) {
-                    // println!("{} {:?}",scrolled, colliders[0].checked_sub(scrolled));
-                    // println!();
                     //check to see if character is or will be within any of the bounds
                     if colliders[0] >= self.x_pos + scrolled {
                         if colliders[0] >= scrolled + self.x_pos
@@ -404,8 +402,6 @@ impl Player {
                             && colliders[1] <= (self.y_pos - MVMT_DIST + CHAR_HEIGHT)
                         {
                             //flips collision to true and break from for loop
-                            // println!("{:?} ",colliders);
-                            // println!("x:{},y:{}",self.x_pos,self.y_pos);
                             colliding = !colliding;
                             break;
                         }
@@ -427,8 +423,6 @@ impl Player {
             2 if self.x_pos - MVMT_DIST > MVMT_DIST => {
                 //loop through all possible collision points
                 for colliders in self.collision.chunks_exact(2) {
-                    // println!("{} {:?}",scrolled, colliders[0].checked_sub(scrolled));
-                    // println!();
                     //check to see if character is or will be within any of the bounds
                     if colliders[0] >= self.x_pos + scrolled {
                         if colliders[0] >= scrolled + self.x_pos - MVMT_DIST
@@ -437,8 +431,6 @@ impl Player {
                             && colliders[1] <= (self.y_pos + CHAR_HEIGHT)
                         {
                             //flips collision to true and break from for loop
-                            // println!("{:?} ",colliders);
-                            // println!("x:{},y:{}",self.x_pos,self.y_pos);
                             colliding = !colliding;
                             break;
                         }
@@ -460,8 +452,6 @@ impl Player {
             3 if self.y_pos + MVMT_DIST < 540 - CHAR_HEIGHT - MVMT_DIST => {
                 //loop through all possible collision points
                 for colliders in self.collision.chunks_exact(2) {
-                    // println!("{} {:?}",scrolled, colliders[0].checked_sub(scrolled));
-                    // println!();
                     //check to see if character is or will be within any of the bounds
                     if colliders[0] >= self.x_pos + scrolled {
                         if colliders[0] >= scrolled + self.x_pos
@@ -470,8 +460,6 @@ impl Player {
                             && colliders[1] <= (self.y_pos + MVMT_DIST + CHAR_HEIGHT)
                         {
                             //flips collision to true and break from for loop
-                            // println!("{:?} ",colliders);
-                            // println!("x:{},y:{}",self.x_pos,self.y_pos);
                             colliding = !colliding;
                             break;
                         }
@@ -495,8 +483,6 @@ impl Player {
             4 if self.x_pos + MVMT_DIST < 720 - CHAR_WIDTH => {
                 //loop through all possible collision points
                 for colliders in self.collision.chunks_exact(2) {
-                    // println!("{} {:?}",scrolled, colliders[0].checked_sub(scrolled));
-                    // println!();
                     //check to see if character is or will be within any of the bounds
                     if colliders[0] >= self.x_pos + scrolled {
                         if colliders[0] >= scrolled + self.x_pos + MVMT_DIST
@@ -505,9 +491,6 @@ impl Player {
                             && colliders[1] <= (self.y_pos + CHAR_HEIGHT)
                         {
                             //flips collision to true and break from for loop
-                            // println!("{:?} ",colliders);
-                            // println!("x:{},y:{}",self.x_pos,self.y_pos);
-                            // println!("1{} 2{} 3{} 4{}",colliders[0] >= scrolled + self.x_pos + MVMT_DIST,colliders[0] <= scrolled + self.x_pos + CHAR_WIDTH + MVMT_DIST,colliders[1] >= scrolled + (self.y_pos),colliders[1] <= scrolled + (self.y_pos + CHAR_HEIGHT));
                             colliding = !colliding;
                             break;
                         }
@@ -603,7 +586,6 @@ impl Screen {
                 )
                 .unwrap()
                 {
-                    println!("{}", ent);
                     v.push(Entity::new(
                         &format!("{}{}{}", "SpriteData/", ent, "/0.txt"),
                         &format!("{}{}{}", "SpriteData/", ent, "/1.txt"),
@@ -714,7 +696,6 @@ impl Screen {
     fn new_screen(place: String) -> Vec<u8> {
         //makes vec to be returned
         let mut data = vec![];
-        println!("{}", place);
         //goes through the whole file by byte
         for pix in read(place)
             .expect("Unable to read from file")
@@ -758,15 +739,13 @@ impl Screen {
         for a in &self.entities {
             for (it,pixel) in a.sprite[a.move_state as usize].chunks_exact(3).enumerate(){
                 if pixel[0] as u16 + pixel[1] as u16 + pixel[2] as u16 != 0 {
-                    pix[(((a.y_pos as usize + (it / (a.width - 1) as usize)) * SCREEN_WIDTH as usize) + (a.x_pos as usize + (it % (a.width - 1) as usize))) * 4] = pixel[0];
-                    pix[(((a.y_pos as usize + (it / (a.width - 1) as usize)) * SCREEN_WIDTH as usize) + (a.x_pos as usize + (it % (a.width - 1) as usize))) * 4 + 1] = pixel[1];
-                    pix[(((a.y_pos as usize + (it / (a.width - 1) as usize)) * SCREEN_WIDTH as usize) + (a.x_pos as usize + (it % (a.width - 1) as usize))) * 4 + 2] = pixel[2];
+                    pix[(((a.y_pos as usize + (it / (a.width) as usize)) * SCREEN_WIDTH as usize) + (a.x_pos as usize + (it % (a.width) as usize))) * 4] = pixel[0];
+                    pix[(((a.y_pos as usize + (it / (a.width) as usize)) * SCREEN_WIDTH as usize) + (a.x_pos as usize + (it % (a.width) as usize))) * 4 + 1] = pixel[1];
+                    pix[(((a.y_pos as usize + (it / (a.width) as usize)) * SCREEN_WIDTH as usize) + (a.x_pos as usize + (it % (a.width) as usize))) * 4 + 2] = pixel[2];
                 }
             }
         }
     }
-        //TODO: Update in chunks
-
 }
 
 struct Entity {
