@@ -361,10 +361,19 @@ fn main() -> Result<(), pixels::Error> {
                 }
             }
             if fight{
-
+                // Display a random problem, chosen from a vector randomly
+                // Let user select answer
+                // Once chosen, laugh because they are wrong, hahahahahahhahaha
+                // Oh and if they succeed then add to correct count
+                // if wrong, hit em' for 25% health (4 strikes, not 3 Mr. Maxson, omega lul)
+                // Also if you happen to read this, don't forget that you have a math test to make up
+                // Like seriously, thats important, you could fail if you don't make it up, so do that before other things
+                // Ok that should be it
             }
             if run{
-
+                // Roll random number
+                // If not high enough, no leave, must stay
+                // If high enough, may stay, don't run, you friend
             }
         }
     });
