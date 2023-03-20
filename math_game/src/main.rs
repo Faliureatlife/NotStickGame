@@ -98,6 +98,10 @@ fn main() -> Result<(), pixels::Error> {
     let mut last_scr: String = format!("houses");
     let mut track: u8 = 0;
     
+    //battle variables
+    let mut battle: bool = false;   
+    let mut fight: bool = false;
+    let mut run: bool = false;
 
     //todo: multithreading to have game thinking and rendering at same time
     //loop that runs program
@@ -132,7 +136,7 @@ fn main() -> Result<(), pixels::Error> {
                 last_scr = screen.scr.clone();
                 x_save = screen.player.x_pos;
                 y_save = screen.player.y_pos;
-                screen = Screen::new("stoor");
+                screen = Screen::new("pause-menu/pause-menu-a");
                 screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
                 paused = !paused;
             }
@@ -279,6 +283,29 @@ fn main() -> Result<(), pixels::Error> {
             window.request_redraw();
         };
         if input.update(&event) && paused {
+            match track % 5 {
+                0 => {
+                    screen = Screen::new("pause-menu/pause-menu-a");
+                    screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
+                }
+                1 => {
+                    screen = Screen::new("pause-menu/pause-menu-b");
+                    screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
+                }
+                2 => {
+                    screen = Screen::new("pause-menu/pause-menu-c");
+                    screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
+                }
+                3 => {
+                    screen = Screen::new("pause-menu/pause-menu-d");
+                    screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
+                }
+                4 => {
+                    screen = Screen::new("pause-menu/pause-menu-e");
+                    screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
+                }
+                _ => {}
+            }
             if input.key_pressed(VirtualKeyCode::Escape) || input.quit() {
                 *control_flow = ControlFlow::Exit;
                 return;
@@ -298,12 +325,47 @@ fn main() -> Result<(), pixels::Error> {
                         screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
                         screen.player.x_pos = x_save;
                         screen.player.y_pos = y_save;
+                        track = 0;
                         paused = !paused;
                     }
                     _ => {}
                 }
             }
             window.request_redraw();
+        }
+
+        if input.update(&event) && battle {
+            if input.key_pressed(VirtualKeyCode::Escape) || input.quit() {
+                *control_flow = ControlFlow::Exit;
+                return;
+            }
+            if !fight && !run {
+                if input.key_pressed(VirtualKeyCode::A) {
+                    track = track - 1;
+                }
+                if input.key_pressed(VirtualKeyCode::D) {
+                    track = track + 1;
+                }
+                if input.key_pressed(VirtualKeyCode::Return) {
+                    match track % 2{
+                        0 => {
+                            fight = true;
+                            track = 0;
+                        }
+                        1 => {
+                            run = true;
+                            track = 0;
+                        }
+                        _ => {}
+                    }
+                }
+            }
+            if fight{
+
+            }
+            if run{
+
+            }
         }
     });
     //Ok(())
@@ -981,97 +1043,3 @@ impl Entity {
 //     std::fs::copy(self.place,"screen.txt");
 //
 // }
-
-fn battle() -> Result<(), pixels::Error> {
-    //where event loop is created for the future event_loop.run
-    let event_loop = EventLoop::new();
-
-    //handle inputs with winit_input_helper
-    let mut input = WinitInputHelper::new();
-
-    //set env variable to give simple backtrace of broken runtime code
-    let var = "RUST_BACKTRACE";
-    env::set_var(var, "1");
-
-    //Create window and give it Physical Size of 720 4:3
-    let window = Window::new(&event_loop).unwrap();
-    window.set_inner_size(PhysicalSize::new(SCREEN_WIDTH, SCREEN_HEIGHT));
-    //let size = window.inner_size();
-
-    //Create surface texture of given width and height with deref window
-    let surface_texture =
-        pixels::SurfaceTexture::new(SCREEN_WIDTH as u32, SCREEN_HEIGHT as u32, &window);
-
-    //frame buffer "pixels"
-    let mut pixels = PixelsBuilder::new(720, 540, surface_texture)
-        .request_adapter_options(RequestAdapterOptions {
-            power_preference: PowerPreference::HighPerformance,
-            force_fallback_adapter: false,
-            compatible_surface: None,
-         })
-        .enable_vsync(true)
-        .build()?;
-
-    //sets every fourth transparency pixel to 255
-    for pixel in pixels.get_frame().chunks_exact_mut(4) {
-        pixel[3] = 255;
-    }
-
-    //screen object made from the house page
-    let mut screen = Screen::new("houses");
-
-    //setting the distance to be the correct value (add in to new() function later)
-    screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
-
-    let mut last_scr: String = format!("houses");
-    let mut track: u8 = 0;
-    let mut fight: bool = false;
-    let mut run: bool = false;
-
-    //todo: multithreading to have game thinking and rendering at same time
-    //loop that runs program
-    event_loop.run(move |event, _, control_flow| {
-        //When it wants to redraw do this
-        if let Event::RedrawRequested(_) = event {
-            //framebuffer that we shall mut
-            screen.draw(pixels.get_frame());
-            //do the thinking for the drawing process
-            //render the frame buffer and panic if it has something passed to it
-            if pixels
-                .render()
-                .map_err(|e| panic!("pixels.render() failed: {:?}", e))
-                .is_err()
-            {
-                //after the panic close the process
-                *control_flow = ControlFlow::Exit;
-                return;
-            }
-        }
-        if input.update(&event) && !run && !fight{
-            if input.key_pressed(VirtualKeyCode::Escape) || input.quit() {
-                *control_flow = ControlFlow::Exit;
-                return;
-            }
-            if input.key_pressed(VirtualKeyCode::D){
-                track = track + 1;
-            }
-            if input.key_pressed(VirtualKeyCode::A){
-                track = track - 1;
-            }
-            if input.key_pressed(VirtualKeyCode::Return){
-                match track % 2 {
-                    0 => {
-                        fight = true;
-                    }
-                    1 => {
-                        run = true;
-                    }
-                    _ => {}
-                }
-            }
-        }
-        if input.update(&event) && run {
-            
-        }
-    }
-}

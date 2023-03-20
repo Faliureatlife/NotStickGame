@@ -1,0 +1,8 @@
+{
+  "start_x": 720,
+	"start_y": 540,
+	"default_scroll": 0,
+	"collision": [],
+	"mvmt_dest": ["null","null","null","null"],
+	"entities": []
+}
