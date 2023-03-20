@@ -30,7 +30,7 @@ use winit::{
 };
 use winit_input_helper::WinitInputHelper;
 // use pixels::wgpu::Color;
-// use rayon::prelude::*;
+use rayon::prelude::*;
 
 // unused constants
 // const START_Y: u16 = 10;
