@@ -117,7 +117,7 @@ fn main() -> Result<(), pixels::Error> {
             }
         }
         //update part of code that handles key-presses and simple window things
-        if input.update(&event) {
+        if input.update(&event) && !paused{
             //make into a match statement at some point maybe
             //close on pressing esc
             if input.key_pressed(VirtualKeyCode::Escape) || input.quit() {
@@ -323,6 +323,9 @@ fn main() -> Result<(), pixels::Error> {
                 return;
             }
             if input.key_pressed(VirtualKeyCode::A) || input.key_pressed(VirtualKeyCode::Left) {
+                if track == 0 {
+                    track = 5;
+                }
                 track = track - 1;
                 println!("{}", track);
             }
