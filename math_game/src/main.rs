@@ -90,6 +90,13 @@ fn main() -> Result<(), pixels::Error> {
     let mut down: bool = false;
     let mut right: bool = false;
     let mut last_scr: String = format!("houses");
+
+    // Pause menu variables
+    let mut x_save: u16 = screen.player.x_pos;
+    let mut y_save: u16 = screen.player.y_pos;
+    let mut paused:bool = false;
+    let mut last_scr: String = format!("houses");
+    let mut track: u8 = 0;
     //todo: multithreading to have game thinking and rendering at same time
     //loop that runs program
     event_loop.run(move |event, _, control_flow| {
@@ -116,6 +123,15 @@ fn main() -> Result<(), pixels::Error> {
             if input.key_pressed(VirtualKeyCode::Escape) || input.quit() {
                 *control_flow = ControlFlow::Exit;
                 return;
+            }
+            if input.key_pressed(VirtualKeyCode::Tab) {
+                track = 0;
+                last_scr = screen.scr.clone();
+                x_save = screen.player.x_pos;
+                y_save = screen.player.y_pos;
+                screen = Screen::new("pause-menu/pause-menu-a");
+                screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
+                paused = !paused;
             }
             //When w or up arrow pressed flip value of upwards movement
             if input.key_released(VirtualKeyCode::W)
@@ -278,6 +294,57 @@ fn main() -> Result<(), pixels::Error> {
             //after updates happen redraw the screen
             window.request_redraw();
         };
+        if input.update(&event) && paused {
+            match track % 5 {
+                0 => {
+                    screen = Screen::new("pause-menu/pause-menu-a");
+                    screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
+                }
+                1 => {
+                    screen = Screen::new("pause-menu/pause-menu-b");
+                    screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
+                }
+                2 => {
+                    screen = Screen::new("pause-menu/pause-menu-c");
+                    screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
+                }
+                3 => {
+                    screen = Screen::new("pause-menu/pause-menu-d");
+                    screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
+                }
+                4 => {
+                    screen = Screen::new("pause-menu/pause-menu-e");
+                    screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
+                }
+                _ => {}
+            }
+            if input.key_pressed(VirtualKeyCode::Escape) || input.quit() {
+                *control_flow = ControlFlow::Exit;
+                return;
+            }
+            if input.key_pressed(VirtualKeyCode::A) || input.key_pressed(VirtualKeyCode::Left) {
+                track = track - 1;
+                println!("{}", track);
+            }
+            if input.key_pressed(VirtualKeyCode::D) || input.key_pressed(VirtualKeyCode::Right) {
+                track = track + 1;
+                println!("{}", track);
+            }
+            if input.key_pressed(VirtualKeyCode::Return) {
+                match track % 5 {
+                    4 => {
+                        screen = Screen::new(&last_scr);
+                        screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
+                        screen.player.x_pos = x_save;
+                        screen.player.y_pos = y_save;
+                        track = 0;
+                        paused = !paused;
+                    }
+                    _ => {}
+                }
+            }
+            window.request_redraw();
+        }
     });
     //Ok(())
     //use to crash program safely
