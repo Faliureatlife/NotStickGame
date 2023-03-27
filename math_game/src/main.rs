@@ -324,13 +324,18 @@ fn main() -> Result<(), pixels::Error> {
             }
             if input.key_pressed(VirtualKeyCode::A) || input.key_pressed(VirtualKeyCode::Left) {
                 if track == 0 {
-                    track = 5;
+                    track = 254;
+                } else {
+                    track = track - 1;
                 }
-                track = track - 1;
                 println!("{}", track);
             }
             if input.key_pressed(VirtualKeyCode::D) || input.key_pressed(VirtualKeyCode::Right) {
-                track = track + 1;
+                if track == 254 {
+                    track = 0;
+                } else {
+                    track = track + 1;
+                }
                 println!("{}", track);
             }
             if input.key_pressed(VirtualKeyCode::Return) {
