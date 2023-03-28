@@ -295,6 +295,12 @@ fn main() -> Result<(), pixels::Error> {
             window.request_redraw();
         };
         if input.update(&event) && paused {
+            // Switches screen based on choice selected
+            // 1. Save
+            // 2. Load
+            // 3. Bag
+            // 4. Settings
+            // 5. Quit
             match track % 5 {
                 0 => {
                     screen = Screen::new("pause-menu/pause-menu-a");
@@ -318,26 +324,28 @@ fn main() -> Result<(), pixels::Error> {
                 }
                 _ => {}
             }
+            // Closes program on Escape
             if input.key_pressed(VirtualKeyCode::Escape) || input.quit() {
                 *control_flow = ControlFlow::Exit;
                 return;
             }
+            // Moves option selected to previous option
             if input.key_pressed(VirtualKeyCode::A) || input.key_pressed(VirtualKeyCode::Left) {
                 if track == 0 {
                     track = 254;
                 } else {
                     track = track - 1;
                 }
-                println!("{}", track);
             }
+            // Moves option selected to following option
             if input.key_pressed(VirtualKeyCode::D) || input.key_pressed(VirtualKeyCode::Right) {
                 if track == 254 {
                     track = 0;
                 } else {
                     track = track + 1;
                 }
-                println!("{}", track);
             }
+            // Selects choice and runs appropriate code
             if input.key_pressed(VirtualKeyCode::Return) {
                 match track % 5 {
                     4 => {
@@ -351,6 +359,7 @@ fn main() -> Result<(), pixels::Error> {
                     _ => {}
                 }
             }
+            //after updates happen redraw the screen
             window.request_redraw();
         }
     });
