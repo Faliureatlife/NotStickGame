@@ -182,18 +182,22 @@ fn main() -> Result<(), pixels::Error> {
 
             match screen.player.change_screen {
                 1 => {
-                    let x = screen.player.x_pos;
-                    let scroll = screen.scroll_dist;
+                    println!("up");
+                    println!("{}",screen.area.len() / (SCREEN_HEIGHT * 3) as usize);
+                    // let x = screen.player.x_pos;
+                    // let scroll = screen.scroll_dist;
                     screen = Screen::new(&screen.player.mvmt_destinations[0]);
-                    screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
-                    screen.player.x_pos = x;
-                    screen.scroll_dist = scroll;
+                    screen.screen_len = 1189;
+                    // screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
+                    // screen.player.x_pos = x;
+                    // screen.scroll_dist = scroll;
                     //bottom of screen offset by player height + mvmt distance
                     screen.player.y_pos = 540 - (CHAR_HEIGHT as u16 + MVMT_DIST + 1);
                     last_scr = screen.scr.clone();
                 }
                 2 => {
                     let y = screen.player.y_pos;
+                    println!("{}",screen.area.len() / (SCREEN_HEIGHT * 3) as usize);
                     screen = Screen::new(&screen.player.mvmt_destinations[1]);
                     screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
                     screen.player.y_pos = y;

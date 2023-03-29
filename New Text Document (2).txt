@@ -17,6 +17,20 @@ What learn?
 What next?
 To be Continued.....                                                                                                Jojo
 
+3/29
+make the collision gen start working and find out why pond, library and school dont work
+borrowing and printing tests
+scaling them wrong
+need to double check more times
+fix at home
+
+3/28
+write collision gen
+loop and check values
+didnt test yet
+it may be easy it may not be
+testing and fix
+
 3/16
 3/15
 3/14
