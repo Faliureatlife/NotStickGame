@@ -17,6 +17,8 @@ What learn?
 What next?
 To be Continued.....                                                                                                Jojo
 
+3/30
+
 3/29
 make the collision gen start working and find out why pond, library and school dont work
 borrowing and printing tests
