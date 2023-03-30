@@ -299,11 +299,11 @@ fn main() -> Result<(), pixels::Error> {
         };
         if input.update(&event) && paused {
             // Switches screen based on choice selected
-            // 1. Save
-            // 2. Load
-            // 3. Bag
-            // 4. Settings
-            // 5. Quit
+            // 0. Save Select
+            // 1. Load Select
+            // 2. Bag Select
+            // 3. Settings Select
+            // 4. Quit Select
             match track % 5 {
                 0 => {
                     screen = Screen::new("pause-menu/pause-menu-a");
