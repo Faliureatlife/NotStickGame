@@ -188,8 +188,7 @@ fn main() -> Result<(), pixels::Error> {
                                     screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
                                 last_scr = screen.scr.clone();
                             }
-                            // "battle" =>
-                            // "dialogue" =>
+                             // "dialogue" =>
                             _ => {}
                         }
                     }
