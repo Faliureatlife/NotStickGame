@@ -89,7 +89,6 @@ fn main() -> Result<(), pixels::Error> {
     let mut left: bool = false;
     let mut down: bool = false;
     let mut right: bool = false;
-    let mut last_scr: String = format!("houses");
 
     // Pause menu variables
     let mut x_save: u16 = screen.player.x_pos;
@@ -188,7 +187,8 @@ fn main() -> Result<(), pixels::Error> {
                                     screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
                                 last_scr = screen.scr.clone();
                             }
-                             // "dialogue" =>
+                             "dialogue" => {}
+                             //add new dialogue section, take string and turn into csv of each char which are gotten from the premade alphabet
                             _ => {}
                         }
                     }

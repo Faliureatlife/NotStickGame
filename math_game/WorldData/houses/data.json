@@ -7,6 +7,7 @@
 	"entities": ["parasite"],
 	"interact": ["move"],
 	"interact_actions": ["stoor"],
-	"interact_pos": ["588,180"]
+	"interact_pos": ["588,180"],
+
 }
 	
