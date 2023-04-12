@@ -17,7 +17,19 @@ What learn?
 What next?
 To be Continued.....                                                                                                Jojo
 
+4/11
+I finished the script for making collision work
+Changing the value checked to hexadecimal
+Forgetting how color values work
+not much i just did clerical work
+Work on adding dialog in
+
 3/30
+Begin work for adding dialog
+not much i was just fixing what jacob broke
+commiting the compiler files
+dont commit the files it says not to commit
+
 
 3/29
 make the collision gen start working and find out why pond, library and school dont work
