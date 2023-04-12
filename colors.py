@@ -90,6 +90,8 @@ def rgb_to_hex(red, green, blue):
 
 
 # Loads Image
+
+print("test")
 img = Image.open("math_game/WorldData/school/pixil-frame-0.png")
 width, height = img.size
 pixels = img.load()
@@ -109,3 +111,4 @@ text_file.write(allColors)
 print("done")
 # close file
 text_file.close()
+
