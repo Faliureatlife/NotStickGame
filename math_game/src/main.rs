@@ -187,7 +187,9 @@ fn main() -> Result<(), pixels::Error> {
                                     screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
                                 last_scr = screen.scr.clone();
                             }
-                             "dialogue" => {}
+                             "dialogue" => {
+                                 screen.new_dialog("")
+                             }
                              //add new dialogue section, take string and turn into csv of each char which are gotten from the premade alphabet
                             _ => {}
                         }
@@ -831,6 +833,12 @@ impl Screen {
                     pix[(((a.y_pos as usize + (it / (a.width) as usize)) * SCREEN_WIDTH as usize) + (a.x_pos as usize + (it % (a.width) as usize))) * 4 + 2] = pixel[2];
                 }
             }
+        }
+    }
+    fn new_dialog(String: text) {
+        let mut words:Vec<&str>= vec!();
+        for letter in text.chars {
+            words.push(format!("{}{}.txt", "letras/", letter))
         }
     }
 }
