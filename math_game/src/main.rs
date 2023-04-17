@@ -103,6 +103,7 @@ fn main() -> Result<(), pixels::Error> {
         if let Event::RedrawRequested(_) = event {
             //framebuffer that we shall mut
             screen.draw(pixels.get_frame());
+            //screen.draw_dialog(pix.get_frane());
             //do the thinking for the drawing process
             //render the frame buffer and panic if it has something passed to it
             if pixels
@@ -835,13 +836,24 @@ impl Screen {
             }
         }
     }
-    fn new_dialog(String: text) {
+
+    fn new_dialog(text: &str) {
         let mut words:Vec<&str>= vec!();
         for letter in text.chars {
-            words.push(format!("{}{}.txt", "letras/", letter))
+            if letter == " "{
+                words.push("letras/space.txt")
+            } else {
+                words.push(&*format!("{}{}.txt", "letras/", letter))
+            }
         }
     }
+
+    fn draw_dialog(&self, pix: &mut [u8]){
+
+    }
+
 }
+
 
 struct Entity {
     //horizontal position from right of screen to left of player
