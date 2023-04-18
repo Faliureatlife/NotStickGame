@@ -838,7 +838,7 @@ impl Screen {
     }
 
     fn new_dialog(text: &str) {
-        let mut words:Vec<&str>= vec!();
+        let mut words: Vec<&str>= vec!();
         for letter in text.chars {
             if letter == " "{
                 words.push("letras/space.txt")
@@ -846,10 +846,15 @@ impl Screen {
                 words.push(&*format!("{}{}.txt", "letras/", letter))
             }
         }
+        now
     }
 
-    fn draw_dialog(&self, pix: &mut [u8]){
+    fn draw_dialog(&self, pix: &mut [u8], text:&str) {
+        let letre: Vec<&str> = new_dialog(text);
+        let (_,dialog) = &pix.split_at(1555200);
+        for letter in words {
 
+        }
     }
 
 }

@@ -18,6 +18,19 @@ What learn?
 What next?
 To be Continued.....                                                                                                Jojo
 
+4/18
+work on dialog functions
+variable names that somewhat made sense
+two seperate functions
+split_at isnt listed anywhere
+dont do it like i was going to instead make letters entities
+4/17
+Finish the new dialog writing
+manual checking for space characters
+na
+edge cases need to be checked for other chars that arent allowed in file names (only if we use them)
+adding it as either sprite or manual flagged toggle
+
 4/11
 I finished the script for making collision work
 Changing the value checked to hexadecimal
