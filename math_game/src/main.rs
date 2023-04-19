@@ -103,6 +103,7 @@ fn main() -> Result<(), pixels::Error> {
         if let Event::RedrawRequested(_) = event {
             //framebuffer that we shall mut
             screen.draw(pixels.get_frame());
+            //screen.draw_dialog(pix.get_frane());
             //do the thinking for the drawing process
             //render the frame buffer and panic if it has something passed to it
             if pixels
@@ -119,6 +120,9 @@ fn main() -> Result<(), pixels::Error> {
         if input.update(&event) && !paused{
             //make into a match statement at some point maybe
             //close on pressing esc
+            if input.key_pressed(VirtualKeyCode::U) {
+                println!("{:?}", screen.entities.len());
+            }
             if input.key_pressed(VirtualKeyCode::Escape) || input.quit() {
                 *control_flow = ControlFlow::Exit;
                 return;
@@ -187,7 +191,9 @@ fn main() -> Result<(), pixels::Error> {
                                     screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
                                 last_scr = screen.scr.clone();
                             }
-                             "dialogue" => {}
+                             "dialogue" => {
+                                 screennew_dialog("")
+                             }
                              //add new dialogue section, take string and turn into csv of each char which are gotten from the premade alphabet
                             _ => {}
                         }
@@ -833,6 +839,20 @@ impl Screen {
             }
         }
     }
+
+    fn new_dialog(&self, text: &str) {
+        for letter in text.chars() {
+            if letter == " "{
+                entities.push("letras/space.txt")
+                Entity::new();
+            } else {
+                words.push(&*format!("{}{}.txt", "letras/", letter))
+            }
+        }
+
+    }
+
+
 }
 
 struct Entity {
@@ -920,7 +940,41 @@ impl Entity {
         Ok(d)
     }
 }
-
+impl letter_entity{
+    fn new(
+        spr0: &str,
+        spr1: &str,
+        spr2: &str,
+        spr3: &str,
+        spr4: &str,
+        idd: &str,
+        x_pos: u16,
+        y_pos: u16,
+    ) -> Self {
+        Self {
+            height: Entity::read_from_file_u8(
+                format!("{}{}{}", "SpriteData/", idd, "/data.json"),
+                "height",
+            )
+                .expect("failed to get height"),
+            width: Entity::read_from_file_u8(
+                format!("{}{}{}", "SpriteData/", idd, "/data.json"),
+                "width",
+            )
+                .unwrap(),
+            x_pos,
+            y_pos,
+            move_state: 0,
+            sprite: [
+                Entity::gen_sprite(spr0),
+                Entity::gen_sprite(spr1),
+                Entity::gen_sprite(spr2),
+                Entity::gen_sprite(spr3),
+                Entity::gen_sprite(spr4),
+            ],
+        }
+    }
+}
 // fn _update(&mut self, sc) -> std::io::Result <()> {
 //     std::fs::copy(self.place,"screen.txt");
 //

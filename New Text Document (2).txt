@@ -1,4 +1,5 @@
 May 26 big day -- MUST COMPLETE BY NOW
+may 23 recognize seniors in cs at 6pm
 May 1st "due" :(
 spring break april 3-10
 March 1st """working program"""
@@ -16,6 +17,27 @@ What workn't?
 What learn?
 What next?
 To be Continued.....                                                                                                Jojo
+
+4/19
+Work on implementing letters as entities
+adding direct to entity pool
+reusing the same new function for entities
+you can have multiple impls of one struct
+use the new letter_entity impl to make the letters in correct positions
+
+4/18
+work on dialog functions
+variable names that somewhat made sense
+two seperate functions
+split_at isnt listed anywhere
+dont do it like i was going to instead make letters entities
+
+4/17
+Finish the new dialog writing
+manual checking for space characters
+na
+edge cases need to be checked for other chars that arent allowed in file names (only if we use them)
+adding it as either sprite or manual flagged toggle
 
 4/11
 I finished the script for making collision work
