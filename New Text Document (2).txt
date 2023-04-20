@@ -18,6 +18,13 @@ What learn?
 What next?
 To be Continued.....                                                                                                Jojo
 
+4/20
+Fixed upwards movement between screens
+undoing debug lines of code 
+upwards and downward movement
+movement downwards does not work and also the inside of places font work
+Fix moving down and inside (i believe it has to do with not setting the screen.len variable)
+
 4/19
 Work on implementing letters as entities
 adding direct to entity pool
