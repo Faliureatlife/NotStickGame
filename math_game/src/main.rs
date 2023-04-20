@@ -30,7 +30,7 @@ use winit::{
 };
 use winit_input_helper::WinitInputHelper;
 // use pixels::wgpu::Color;
-use rayon::prelude::*;
+// use rayon::prelude::*;
 
 // unused constants
 // const START_Y: u16 = 10;
@@ -192,7 +192,6 @@ fn main() -> Result<(), pixels::Error> {
                                 last_scr = screen.scr.clone();
                             }
                              "dialogue" => {
-                                 screennew_dialog("")
                              }
                              //add new dialogue section, take string and turn into csv of each char which are gotten from the premade alphabet
                             _ => {}
@@ -625,7 +624,6 @@ struct Screen {
     interact_pos: Vec<u16>,
     interact_action: Vec<String>,
 }
-
 impl Screen {
     fn new(place: &str) -> Self {
         Self {
@@ -668,9 +666,6 @@ impl Screen {
                 )
                 .expect("failed to read values"),
             ),
-
-            //vec of entities
-            //currently unused
             entities: {
                 let mut v: Vec<Entity> = vec![];
                 for ent in Screen::read_from_file_vecstr(
@@ -807,6 +802,7 @@ impl Screen {
         //returns vector
         data
     }
+
     //not getting comments because it works
     fn draw(&self, pix: &mut [u8]) {
         for (it,pixel) in pix.chunks_exact_mut(4).enumerate() {
@@ -828,7 +824,6 @@ impl Screen {
                 pix[(((self.player.y_pos as usize + (it / (CHAR_WIDTH - 1) as usize)) * SCREEN_WIDTH as usize) + (self.player.x_pos as usize + (it % (CHAR_WIDTH - 1) as usize))) * 4 + 2] = pixel[2];
             }
         }
-        // no scrolling but its too late for that atm
         for a in &self.entities {
             for (it,pixel) in a.sprite[a.move_state as usize].chunks_exact(3).enumerate(){
                 if pixel[0] as u16 + pixel[1] as u16 + pixel[2] as u16 != 0 {
@@ -840,19 +835,29 @@ impl Screen {
         }
     }
 
-    fn new_dialog(&self, text: &str) {
+    fn new_dialog(&mut self, text: &str) {
+        let mut x:u16 = 30;
+        let mut y:u16 = 360;
+        let mut lett: Entity;
         for letter in text.chars() {
-            if letter == " "{
-                entities.push("letras/space.txt")
-                Entity::new();
+            x += 340;
+            if letter == ' '{
+                continue
             } else {
-                words.push(&*format!("{}{}.txt", "letras/", letter))
+                lett = Entity::new(
+                    &format!("{}{}{}{}.txt", "letras/", letter, "/", letter),
+                    &format!("{}{}{}{}.txt", "letras/", letter, "/", letter),
+                    &format!("{}{}{}{}.txt", "letras/", letter, "/", letter),
+                    &format!("{}{}{}{}.txt", "letras/", letter, "/", letter),
+                    &format!("{}{}{}{}.txt", "letras/", letter, "/", letter),
+                    &format!("{}{}{}{}.txt", "letras/", letter, "/", letter),
+                );
+                lett.x_pos = x;
+                lett.y_pos = y;
+                self.entities.push(lett);
             }
         }
-
     }
-
-
 }
 
 struct Entity {
@@ -885,12 +890,12 @@ impl Entity {
                 format!("{}{}{}", "SpriteData/", idd, "/data.json"),
                 "height",
             )
-            .expect("failed to get height"),
+                .expect("failed to get height"),
             width: Entity::read_from_file_u8(
                 format!("{}{}{}", "SpriteData/", idd, "/data.json"),
                 "width",
             )
-            .unwrap(),
+                .unwrap(),
             x_pos: 1,
             y_pos: 1,
             move_state: 0,
@@ -904,7 +909,6 @@ impl Entity {
             // direction: 0,
         }
     }
-
     //used for turning single animation frame into readable bytes
     fn gen_sprite(spr: &str) -> Vec<u8> {
         //vector containing the sprite data to be returned
@@ -917,7 +921,7 @@ impl Entity {
                     std::str::from_utf8(pix).expect("Failed to convert to utf8"),
                     16,
                 )
-                .expect("Failed to convert to hex value"),
+                    .expect("Failed to convert to hex value"),
             );
         }
         //return the vector with the info
@@ -940,41 +944,7 @@ impl Entity {
         Ok(d)
     }
 }
-impl letter_entity{
-    fn new(
-        spr0: &str,
-        spr1: &str,
-        spr2: &str,
-        spr3: &str,
-        spr4: &str,
-        idd: &str,
-        x_pos: u16,
-        y_pos: u16,
-    ) -> Self {
-        Self {
-            height: Entity::read_from_file_u8(
-                format!("{}{}{}", "SpriteData/", idd, "/data.json"),
-                "height",
-            )
-                .expect("failed to get height"),
-            width: Entity::read_from_file_u8(
-                format!("{}{}{}", "SpriteData/", idd, "/data.json"),
-                "width",
-            )
-                .unwrap(),
-            x_pos,
-            y_pos,
-            move_state: 0,
-            sprite: [
-                Entity::gen_sprite(spr0),
-                Entity::gen_sprite(spr1),
-                Entity::gen_sprite(spr2),
-                Entity::gen_sprite(spr3),
-                Entity::gen_sprite(spr4),
-            ],
-        }
-    }
-}
+
 // fn _update(&mut self, sc) -> std::io::Result <()> {
 //     std::fs::copy(self.place,"screen.txt");
 //
