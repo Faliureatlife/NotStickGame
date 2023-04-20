@@ -3,7 +3,7 @@
 	"start_y": 0,
 	"default_scroll": 0,
 	"collision": [],
-	"mvmt_dest": ["","","",""],
+	"mvmt_dest": ["null","library-tables","null","library-books"],
 	"entities": [""],
 	"interact": [""],
 	"interact_actions": [""],

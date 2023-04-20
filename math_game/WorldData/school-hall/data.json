@@ -3,10 +3,10 @@
 	"start_y": 0,
 	"default_scroll": 0,
 	"collision": [],
-	"mvmt_dest": ["","","",""],
+	"mvmt_dest": ["null","school-cafeteria","null","hall2"],
 	"entities": [""],
-	"interact": [""],
-	"interact_actions": [""],
-	"interact_pos": [""]
+	"interact": ["move","move","move"],
+	"interact_actions": ["school-english","school-science","school-math"],
+	"interact_pos": ["545,475,417,139,138,139"]
 }
 	

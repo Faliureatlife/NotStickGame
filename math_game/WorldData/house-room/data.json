@@ -4,7 +4,7 @@
 	"default_scroll": 0,
 	"collision": [],
 	"mvmt_dest": ["","","",""],
-	"entities": [""],
+	"entities": [],
 	"interact": [""],
 	"interact_actions": [""],
 	"interact_pos": [""]

@@ -5,7 +5,7 @@
   "default_scroll": 0,
   "mvmt_dest": ["null","school","pond","null"],
   "entities": [],
-  "interact": [],
-  "interact_actions": [],
-  "interact_pos": []
+  "interact": ["move"],
+  "interact_actions": ["library-enterance"],
+  "interact_pos": ["452,140,496,140"]
 }

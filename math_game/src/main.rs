@@ -207,7 +207,7 @@ fn main() -> Result<(), pixels::Error> {
                     // let x = screen.player.x_pos;
                     // let scroll = screen.scroll_dist;
                     screen = Screen::new(&screen.player.mvmt_destinations[0]);
-                    screen.screen_len = 1189;
+                    screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
                     // screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
                     // screen.player.x_pos = x;
                     // screen.scroll_dist = scroll;

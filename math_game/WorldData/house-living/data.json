@@ -1,12 +1,12 @@
 {
-	"start_x": 0,
-	"start_y": 0,
+	"start_x": 300,
+	"start_y": 300,
 	"default_scroll": 0,
 	"collision": [],
-	"mvmt_dest": ["","","",""],
-	"entities": [""],
-	"interact": [""],
-	"interact_actions": [""],
-	"interact_pos": [""]
+	"mvmt_dest": ["null","null","null","null"],
+	"entities": [],
+	"interact": ["move,move"],
+	"interact_actions": ["house-room,house-garage"],
+	"interact_pos": ["272,5,692,334"]
 }
 	
