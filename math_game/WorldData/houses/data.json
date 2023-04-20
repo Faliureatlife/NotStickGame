@@ -6,8 +6,7 @@
 	"mvmt_dest": ["null","lhouses","null","dots"],
 	"entities": ["parasite"],
 	"interact": ["move"],
-	"interact_actions": ["stoor"],
-	"interact_pos": ["588,180"],
-
+	"interact_actions": ["house-living"],
+	"interact_pos": ["588,180"]
 }
 	
