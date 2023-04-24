@@ -70,7 +70,8 @@ fn main() -> Result<(), pixels::Error> {
             force_fallback_adapter: false,
             compatible_surface: None,
         })
-        .present_mode(PresentMode::Mailbox)
+        //Fifo
+        .present_mode(PresentMode::Fifo)
         .build()?;
 
     //sets every fourth transparency pixel to 255
@@ -120,9 +121,9 @@ fn main() -> Result<(), pixels::Error> {
         if input.update(&event) && !paused{
             //make into a match statement at some point maybe
             //close on pressing esc
-            /*if input.key_pressed(VirtualKeyCode::U) {
-                println!("{:?}", screen.entities.len());
-            }*/
+            if input.key_pressed(VirtualKeyCode::U) {
+                println!("{:?}", screen.interact_pos);
+            }
             if input.key_pressed(VirtualKeyCode::Escape) || input.quit() {
                 *control_flow = ControlFlow::Exit;
                 return;
@@ -192,6 +193,7 @@ fn main() -> Result<(), pixels::Error> {
                                 last_scr = screen.scr.clone();
                             }
                              "dialogue" => {
+
                              }
                              //add new dialogue section, take string and turn into csv of each char which are gotten from the premade alphabet
                             _ => {}
@@ -202,9 +204,7 @@ fn main() -> Result<(), pixels::Error> {
 
             match screen.player.change_screen {
                 1 => {
-
                     // println!("up");
-                    // println!("{}",screen.area.len() / (SCREEN_HEIGHT * 3) as usize);
                     let x = screen.player.x_pos;
                     screen = Screen::new(&screen.player.mvmt_destinations[0]);
                     screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
@@ -215,7 +215,6 @@ fn main() -> Result<(), pixels::Error> {
                 }
                 2 => {
                     let y = screen.player.y_pos;
-                    // println!("{}",screen.area.len() / (SCREEN_HEIGHT * 3) as usize);
                     screen = Screen::new(&screen.player.mvmt_destinations[1]);
                     screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
                     screen.player.y_pos = y;
@@ -265,7 +264,9 @@ fn main() -> Result<(), pixels::Error> {
             }
             //move right or scroll right if moved pos would be past the bounds
             if right {
-                if screen.player.x_pos + MVMT_DIST > 360
+                //first checking where player will be next move
+                //second checking to make sure no bad negative overflows
+                if screen.player.x_pos + MVMT_DIST > 360 && screen.screen_len > 720
                     && screen.scroll_dist + MVMT_DIST < (screen.screen_len - 720) as u16
                 {
                     screen.scroll_dist += MVMT_DIST;
@@ -701,7 +702,7 @@ impl Screen {
             .expect("Failed to read interaction types"),
             interact_pos: Screen::read_from_file_vecu16(
                 format!("{}{}{}", WORLD, place, "/data.json"),
-                "collision",
+                "interact_pos",
             )
             .expect("Failed to read interaction pos from file"),
             interact_action: Screen::read_from_file_vecstr(
