@@ -566,7 +566,7 @@ impl Player {
                 self.direction = 0;
             }
             3 if self.mvmt_destinations[2] != "null"
-                && self.y_pos + MVMT_DIST >= 513 - MVMT_DIST =>
+                && self.y_pos + MVMT_DIST >= 540 - CHAR_HEIGHT - MVMT_DIST =>
             {
                 self.change_screen = 3;
             }
