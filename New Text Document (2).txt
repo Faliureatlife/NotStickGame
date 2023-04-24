@@ -18,6 +18,13 @@ What learn?
 What next?
 To be Continued.....                                                                                                Jojo
 
+4/24
+Work on fixing the entering of areas
+the old way of handling it
+the new way of handling it
+i have more to fix than i thought
+making it register properly
+
 4/20
 Fixed upwards movement between screens
 undoing debug lines of code 
