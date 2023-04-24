@@ -4,7 +4,7 @@
 //todo: multithreading
 //todo: pause when move off tab
 use pixels::{
-    wgpu::{PowerPreference, RequestAdapterOptions},
+    wgpu::{PowerPreference, RequestAdapterOptions,PresentMode},
     PixelsBuilder,
 };
 //Dont just import all of pixels at some point
@@ -70,7 +70,7 @@ fn main() -> Result<(), pixels::Error> {
             force_fallback_adapter: false,
             compatible_surface: None,
         })
-        .enable_vsync(true)
+        .present_mode(PresentMode::Mailbox)
         .build()?;
 
     //sets every fourth transparency pixel to 255
@@ -120,9 +120,9 @@ fn main() -> Result<(), pixels::Error> {
         if input.update(&event) && !paused{
             //make into a match statement at some point maybe
             //close on pressing esc
-            if input.key_pressed(VirtualKeyCode::U) {
+            /*if input.key_pressed(VirtualKeyCode::U) {
                 println!("{:?}", screen.entities.len());
-            }
+            }*/
             if input.key_pressed(VirtualKeyCode::Escape) || input.quit() {
                 *control_flow = ControlFlow::Exit;
                 return;
@@ -202,22 +202,20 @@ fn main() -> Result<(), pixels::Error> {
 
             match screen.player.change_screen {
                 1 => {
-                    println!("up");
-                    println!("{}",screen.area.len() / (SCREEN_HEIGHT * 3) as usize);
-                    // let x = screen.player.x_pos;
-                    // let scroll = screen.scroll_dist;
+
+                    // println!("up");
+                    // println!("{}",screen.area.len() / (SCREEN_HEIGHT * 3) as usize);
+                    let x = screen.player.x_pos;
                     screen = Screen::new(&screen.player.mvmt_destinations[0]);
                     screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
-                    // screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
-                    // screen.player.x_pos = x;
-                    // screen.scroll_dist = scroll;
+                    screen.player.x_pos = x;
                     //bottom of screen offset by player height + mvmt distance
                     screen.player.y_pos = 540 - (CHAR_HEIGHT as u16 + MVMT_DIST + 1);
                     last_scr = screen.scr.clone();
                 }
                 2 => {
                     let y = screen.player.y_pos;
-                    println!("{}",screen.area.len() / (SCREEN_HEIGHT * 3) as usize);
+                    // println!("{}",screen.area.len() / (SCREEN_HEIGHT * 3) as usize);
                     screen = Screen::new(&screen.player.mvmt_destinations[1]);
                     screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
                     screen.player.y_pos = y;
@@ -302,7 +300,7 @@ fn main() -> Result<(), pixels::Error> {
             //after updates happen redraw the screen
             window.request_redraw();
         };
-        if input.update(&event) && paused {
+        if paused {
             // Switches screen based on choice selected
             // 0. Save Select
             // 1. Load Select

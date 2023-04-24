@@ -1,6 +1,6 @@
 {
-	"start_x": 300,
-	"start_y": 300,
+	"start_x": 370,
+	"start_y": 440,
 	"default_scroll": 0,
 	"collision": [],
 	"mvmt_dest": ["null","null","null","null"],
