@@ -5,8 +5,8 @@
 	"collision": [],
 	"mvmt_dest": ["null","null","null","null"],
 	"entities": [],
-	"interact": ["move,move"],
-	"interact_actions": ["house-room,house-garage"],
-	"interact_pos": ["272,5,692,334"]
+	"interact": ["move","move"],
+	"interact_actions": ["house-room","house-garage"],
+	"interact_pos": [272,5,672,344]
 }
 	
