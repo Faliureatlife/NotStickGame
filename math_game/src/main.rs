@@ -84,7 +84,6 @@ fn main() -> Result<(), pixels::Error> {
 
     //setting the distance to be the correct value (add in to new() function later)
     screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
-
     //declaring the direction moved values with initial value of false
     let mut up: bool = false;
     let mut left: bool = false;
@@ -170,7 +169,7 @@ fn main() -> Result<(), pixels::Error> {
                 right = !right;
             }
             if input.key_pressed(VirtualKeyCode::E) {
-                let mut check_x = screen.player.x_pos;
+                let mut check_x = screen.player.x_pos + screen.scroll_dist;
                 let mut check_y = screen.player.y_pos;
                 match screen.player.direction {
                     1 => check_y -= 30,
@@ -179,6 +178,8 @@ fn main() -> Result<(), pixels::Error> {
                     4 => check_x += 30 + CHAR_HEIGHT,
                     _ => {}
                 }
+                println!("checking for x {},{}",check_x,check_x + CHAR_WIDTH);
+                println!("checking for y {},{}",check_y,check_y + CHAR_HEIGHT);
                 for (i, it) in screen.interact_pos.clone().chunks_exact(2).enumerate() {
                     if check_x < it[0]
                         && it[0] < check_x + CHAR_WIDTH
@@ -194,6 +195,7 @@ fn main() -> Result<(), pixels::Error> {
                             }
                              "dialogue" => {
 
+                                 screen.new_dialog(screen.interact_action[i].clone());
                              }
                              //add new dialogue section, take string and turn into csv of each char which are gotten from the premade alphabet
                             _ => {}
@@ -834,26 +836,28 @@ impl Screen {
         }
     }
 
-    fn new_dialog(&mut self, text: &str) {
+    fn new_dialog(&mut self, text: String) {
         let mut x:u16 = 30;
-        let mut y:u16 = 360;
+        let y:u16 = 360;
         let mut lett: Entity;
         for letter in text.chars() {
-            x += 340;
+            x += 38;
             if letter == ' '{
                 continue
             } else {
+                println!("{}",&format!("{}{}{}{}.txt", "SpriteData/letras/", letter, "/", letter));
                 lett = Entity::new(
-                    &format!("{}{}{}{}.txt", "letras/", letter, "/", letter),
-                    &format!("{}{}{}{}.txt", "letras/", letter, "/", letter),
-                    &format!("{}{}{}{}.txt", "letras/", letter, "/", letter),
-                    &format!("{}{}{}{}.txt", "letras/", letter, "/", letter),
-                    &format!("{}{}{}{}.txt", "letras/", letter, "/", letter),
-                    &format!("{}{}{}{}.txt", "letras/", letter, "/", letter),
+                    &format!("{}{}{}{}.txt", "SpriteData/letras/", letter, "/", letter),
+                    &format!("{}{}{}{}.txt", "SpriteData/letras/", letter, "/", letter),
+                    &format!("{}{}{}{}.txt", "SpriteData/letras/", letter, "/", letter),
+                    &format!("{}{}{}{}.txt", "SpriteData/letras/", letter, "/", letter),
+                    &format!("{}{}{}{}.txt", "SpriteData/letras/", letter, "/", letter),
+                    &format!("{}{}{}{}.txt", "SpriteData/letras/", letter, "/", letter),
                 );
                 lett.x_pos = x;
                 lett.y_pos = y;
                 self.entities.push(lett);
+                println!("{}",format!("{}{}{}", "SpriteData/", letter, "/data.json");
             }
         }
     }
