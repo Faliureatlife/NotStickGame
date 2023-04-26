@@ -5,8 +5,8 @@
 	"collision": [],
 	"mvmt_dest": ["","","",""],
 	"entities": [],
-	"interact": [""],
-	"interact_actions": [""],
-	"interact_pos": [""]
+	"interact": [],
+	"interact_actions": [],
+	"interact_pos": []
 }
 	
