@@ -18,12 +18,19 @@ What learn?
 What next?
 To be Continued.....                                                                                                Jojo
 
+4/26
+fixed interactions and worked on fixing the dialog
+adjusting the position to the scroll
+the dialog trying to find where the letter files were
+the path is not correct in the new() function
+find out where the error is and correct for it
+
 4/24
-Work on fixing the entering of areas
-the old way of handling it
-the new way of handling it
-i have more to fix than i thought
-making it register properly
+began fixing json values and found error with interaction
+not writing the interaction vec as a string
+using the collision vec to look for interaction
+
+got deleted :/
 
 4/20
 Fixed upwards movement between screens
