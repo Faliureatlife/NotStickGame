@@ -39,7 +39,6 @@ use winit_input_helper::WinitInputHelper;
 const WORLD: &str = "WorldData/";
 const SCREEN_WIDTH: u16 = 720;
 const SCREEN_HEIGHT: u16 = 540;
-const MVMT_DIST: u16 = 5;
 //real width + 1
 const CHAR_WIDTH: u16 = 37;
 const CHAR_HEIGHT: u16 = 54;
@@ -81,6 +80,7 @@ fn main() -> Result<(), pixels::Error> {
 
     //screen object made from the house page
     let mut screen = Screen::new("houses");
+    let mut mvmt_dist: u16 = 5;
 
     //setting the distance to be the correct value (add in to new() function later)
     screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
@@ -212,7 +212,7 @@ fn main() -> Result<(), pixels::Error> {
                     screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
                     screen.player.x_pos = x;
                     //bottom of screen offset by player height + mvmt distance
-                    screen.player.y_pos = 540 - (CHAR_HEIGHT as u16 + MVMT_DIST + 1);
+                    screen.player.y_pos = 540 - (CHAR_HEIGHT as u16 + mvmt_dist + 1);
                     last_scr = screen.scr.clone();
                 }
                 2 => {
@@ -221,7 +221,7 @@ fn main() -> Result<(), pixels::Error> {
                     screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
                     screen.player.y_pos = y;
                     //left side of screen offset by player height + mvmt distance
-                    screen.player.x_pos = 720 - (CHAR_WIDTH + MVMT_DIST + 1);
+                    screen.player.x_pos = 720 - (CHAR_WIDTH + mvmt_dist + 1);
                     screen.scroll_dist = (screen.screen_len - 720) as u16;
                     last_scr = screen.scr.clone();
                 }
@@ -232,7 +232,7 @@ fn main() -> Result<(), pixels::Error> {
                     screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
                     screen.player.x_pos = x;
                     screen.scroll_dist = scroll;
-                    screen.player.y_pos = 0 + (MVMT_DIST + 1);
+                    screen.player.y_pos = 0 + (mvmt_dist + 1);
                     last_scr = screen.scr.clone();
                 }
                 4 => {
@@ -240,7 +240,7 @@ fn main() -> Result<(), pixels::Error> {
                     screen = Screen::new(&screen.player.mvmt_destinations[3]);
                     screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
                     screen.player.y_pos = y;
-                    screen.player.x_pos = 0 + (MVMT_DIST + 1);
+                    screen.player.x_pos = 0 + (mvmt_dist + 1);
                     screen.scroll_dist = 0;
                     last_scr = screen.scr.clone();
                 }
@@ -248,34 +248,34 @@ fn main() -> Result<(), pixels::Error> {
             }
 
             if up {
-                screen.player.mov(1, screen.scroll_dist);
+                screen.player.mov(1, screen.scroll_dist,mvmt_dist);
             }
             //move down if down using the mov function
             if down {
-                screen.player.mov(3, screen.scroll_dist);
+                screen.player.mov(3, screen.scroll_dist,mvmt_dist);
             }
             //move left or scroll if the updated position will be past the bounds
             if left {
-                if screen.player.x_pos < 360 && screen.scroll_dist > 0 + MVMT_DIST + 1 {
-                    screen.scroll_dist -= MVMT_DIST;
+                if screen.player.x_pos < 360 && screen.scroll_dist > 0 + mvmt_dist + 1 {
+                    screen.scroll_dist -= mvmt_dist;
                     screen.player.move_delay += 1;
                     screen.player.direction = 2;
                 } else {
-                    screen.player.mov(2, screen.scroll_dist);
+                    screen.player.mov(2, screen.scroll_dist,mvmt_dist);
                 }
             }
             //move right or scroll right if moved pos would be past the bounds
             if right {
                 //first checking where player will be next move
                 //second checking to make sure no bad negative overflows
-                if screen.player.x_pos + MVMT_DIST > 360 && screen.screen_len > 720
-                    && screen.scroll_dist + MVMT_DIST < (screen.screen_len - 720) as u16
+                if screen.player.x_pos + mvmt_dist > 360 && screen.screen_len > 720
+                    && screen.scroll_dist + mvmt_dist < (screen.screen_len - 720) as u16
                 {
-                    screen.scroll_dist += MVMT_DIST;
+                    screen.scroll_dist += mvmt_dist;
                     screen.player.move_delay += 1;
                     screen.player.direction = 3;
                 } else {
-                    screen.player.mov(4, screen.scroll_dist);
+                    screen.player.mov(4, screen.scroll_dist,mvmt_dist);
                 }
             }
             //delay the player movement to every three ticks
@@ -479,20 +479,20 @@ impl Player {
         //return the vector with the info
         data
     }
-    fn mov(&mut self, dir: u8, scrolled: u16) -> Option<()> {
+    fn mov(&mut self, dir: u8, scrolled: u16, mvmt_dist: u16) -> Option<()> {
         //variable for whether or not collision is taking place
         let mut colliding: bool = false;
         Option::from(match dir {
             //Move up W
-            1 if self.y_pos - MVMT_DIST >= 2 => {
+            1 if self.y_pos - mvmt_dist >= 2 => {
                 //loop through all possible collision points
                 for colliders in self.collision.chunks_exact(2) {
                     //check to see if character is or will be within any of the bounds
                     if colliders[0] >= self.x_pos + scrolled {
                         if colliders[0] >= scrolled + self.x_pos
                             && colliders[0] <= scrolled + self.x_pos + CHAR_WIDTH
-                            && colliders[1] >= (self.y_pos - MVMT_DIST)
-                            && colliders[1] <= (self.y_pos - MVMT_DIST + CHAR_HEIGHT)
+                            && colliders[1] >= (self.y_pos - mvmt_dist)
+                            && colliders[1] <= (self.y_pos - mvmt_dist + CHAR_HEIGHT)
                         {
                             //flips collision to true and break from for loop
                             colliding = !colliding;
@@ -500,26 +500,26 @@ impl Player {
                         }
                     }
                 }
-                //if collision is not taking place then move by amount MVMT_DIST
+                //if collision is not taking place then move by amount mvmt_dist
                 if !colliding {
-                    self.y_pos -= MVMT_DIST;
+                    self.y_pos -= mvmt_dist;
                 }
                 //increase delay and set direction
                 self.move_delay += 1;
                 self.direction = 1;
             }
-            1 if self.mvmt_destinations[0] != "null" && self.y_pos - MVMT_DIST <= MVMT_DIST => {
+            1 if self.mvmt_destinations[0] != "null" && self.y_pos - mvmt_dist <= mvmt_dist => {
                 self.change_screen = 1;
             }
             1 => {}
             //Move left A
-            2 if self.x_pos - MVMT_DIST > MVMT_DIST => {
+            2 if self.x_pos - mvmt_dist > mvmt_dist => {
                 //loop through all possible collision points
                 for colliders in self.collision.chunks_exact(2) {
                     //check to see if character is or will be within any of the bounds
                     if colliders[0] >= self.x_pos + scrolled {
-                        if colliders[0] >= scrolled + self.x_pos - MVMT_DIST
-                            && colliders[0] <= scrolled + self.x_pos + CHAR_WIDTH - MVMT_DIST
+                        if colliders[0] >= scrolled + self.x_pos - mvmt_dist
+                            && colliders[0] <= scrolled + self.x_pos + CHAR_WIDTH - mvmt_dist
                             && colliders[1] >= (self.y_pos)
                             && colliders[1] <= (self.y_pos + CHAR_HEIGHT)
                         {
@@ -529,28 +529,28 @@ impl Player {
                         }
                     }
                 }
-                //if collision is not taking place then move by amount MVMT_DIST
+                //if collision is not taking place then move by amount mvmt_dist
                 if !colliding {
-                    self.x_pos -= MVMT_DIST;
+                    self.x_pos -= mvmt_dist;
                 }
                 //increase delay and set direction
                 self.move_delay += 1;
                 self.direction = 2;
             }
-            2 if self.mvmt_destinations[1] != "null" && self.x_pos - MVMT_DIST <= MVMT_DIST => {
+            2 if self.mvmt_destinations[1] != "null" && self.x_pos - mvmt_dist <= mvmt_dist => {
                 self.change_screen = 2;
             }
             2 => {}
             //Move down S
-            3 if self.y_pos + MVMT_DIST < 540 - CHAR_HEIGHT - MVMT_DIST => {
+            3 if self.y_pos + mvmt_dist < 540 - CHAR_HEIGHT - mvmt_dist => {
                 //loop through all possible collision points
                 for colliders in self.collision.chunks_exact(2) {
                     //check to see if character is or will be within any of the bounds
                     if colliders[0] >= self.x_pos + scrolled {
                         if colliders[0] >= scrolled + self.x_pos
                             && colliders[0] <= scrolled + self.x_pos + CHAR_WIDTH
-                            && colliders[1] >= (self.y_pos + MVMT_DIST)
-                            && colliders[1] <= (self.y_pos + MVMT_DIST + CHAR_HEIGHT)
+                            && colliders[1] >= (self.y_pos + mvmt_dist)
+                            && colliders[1] <= (self.y_pos + mvmt_dist + CHAR_HEIGHT)
                         {
                             //flips collision to true and break from for loop
                             colliding = !colliding;
@@ -558,28 +558,28 @@ impl Player {
                         }
                     }
                 }
-                //if collision is not taking place then move by amount MVMT_DIST
+                //if collision is not taking place then move by amount mvmt_dist
                 if !colliding {
-                    self.y_pos += MVMT_DIST;
+                    self.y_pos += mvmt_dist;
                 }
                 //increase delay and set direction
                 self.move_delay += 1;
                 self.direction = 0;
             }
             3 if self.mvmt_destinations[2] != "null"
-                && self.y_pos + MVMT_DIST >= 540 - CHAR_HEIGHT - MVMT_DIST =>
+                && self.y_pos + mvmt_dist >= 540 - CHAR_HEIGHT - mvmt_dist =>
             {
                 self.change_screen = 3;
             }
             3 => {}
             //Move right D
-            4 if self.x_pos + MVMT_DIST < 720 - CHAR_WIDTH => {
+            4 if self.x_pos + mvmt_dist < 720 - CHAR_WIDTH => {
                 //loop through all possible collision points
                 for colliders in self.collision.chunks_exact(2) {
                     //check to see if character is or will be within any of the bounds
                     if colliders[0] >= self.x_pos + scrolled {
-                        if colliders[0] >= scrolled + self.x_pos + MVMT_DIST
-                            && colliders[0] <= scrolled + self.x_pos + CHAR_WIDTH + MVMT_DIST
+                        if colliders[0] >= scrolled + self.x_pos + mvmt_dist
+                            && colliders[0] <= scrolled + self.x_pos + CHAR_WIDTH + mvmt_dist
                             && colliders[1] >= (self.y_pos)
                             && colliders[1] <= (self.y_pos + CHAR_HEIGHT)
                         {
@@ -589,16 +589,16 @@ impl Player {
                         }
                     }
                 }
-                //if collision is not taking place then move by amount MVMT_DIST
+                //if collision is not taking place then move by amount mvmt_dist
                 if !colliding {
-                    self.x_pos += MVMT_DIST;
+                    self.x_pos += mvmt_dist;
                 }
                 //increase delay and set direction
                 self.move_delay += 1;
                 self.direction = 3;
             }
             4 if self.mvmt_destinations[3] != "null"
-                && self.x_pos + MVMT_DIST >= SCREEN_WIDTH - CHAR_WIDTH - MVMT_DIST =>
+                && self.x_pos + mvmt_dist >= SCREEN_WIDTH - CHAR_WIDTH - mvmt_dist =>
             {
                 self.change_screen = 4;
             }
@@ -838,26 +838,29 @@ impl Screen {
 
     fn new_dialog(&mut self, text: String) {
         let mut x:u16 = 30;
-        let y:u16 = 360;
+        let mut y:u16 = 360;
         let mut lett: Entity;
         for letter in text.chars() {
             x += 38;
+            if x >=630 {
+                x = 68;
+                y += 40;
+            }
             if letter == ' '{
                 continue
             } else {
-                println!("{}",&format!("{}{}{}{}.txt", "SpriteData/letras/", letter, "/", letter));
+                println!("{}",format!("{}{}", "letras/", letter));
                 lett = Entity::new(
                     &format!("{}{}{}{}.txt", "SpriteData/letras/", letter, "/", letter),
                     &format!("{}{}{}{}.txt", "SpriteData/letras/", letter, "/", letter),
                     &format!("{}{}{}{}.txt", "SpriteData/letras/", letter, "/", letter),
                     &format!("{}{}{}{}.txt", "SpriteData/letras/", letter, "/", letter),
                     &format!("{}{}{}{}.txt", "SpriteData/letras/", letter, "/", letter),
-                    &format!("{}{}{}{}.txt", "SpriteData/letras/", letter, "/", letter),
+                    &format!("{}{}", "letras/", letter,),
                 );
                 lett.x_pos = x;
                 lett.y_pos = y;
                 self.entities.push(lett);
-                println!("{}",format!("{}{}{}", "SpriteData/", letter, "/data.json");
             }
         }
     }

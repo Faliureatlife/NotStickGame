@@ -6,7 +6,7 @@
 	"mvmt_dest": ["null","lhouses","null","dots"],
 	"entities": [],
 	"interact": ["move","dialogue"],
-	"interact_actions": ["house-living","keemstar"],
+	"interact_actions": ["house-living","lorem ipsum dolor sit amore"],
 	"interact_pos": [588,180,650,180]
 }
 	
