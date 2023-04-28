@@ -3,6 +3,7 @@
 //todo: replace serde with miniserde (maybe)
 //todo: multithreading
 //todo: pause when move off tab
+use rand::prelude::*;
 use pixels::{
     wgpu::{PowerPreference, RequestAdapterOptions,PresentMode},
     PixelsBuilder,
@@ -96,6 +97,11 @@ fn main() -> Result<(), pixels::Error> {
     let mut paused:bool = false;
     let mut last_scr: String = format!("houses");
     let mut track: u8 = 0;
+
+    let mut battle:bool = false;
+    let mut fight:bool = false;
+    let mut run:bool = false;
+    let mut run_did:bool = false;
     //todo: multithreading to have game thinking and rendering at same time
     //loop that runs program
     event_loop.run(move |event, _, control_flow| {
@@ -370,6 +376,51 @@ fn main() -> Result<(), pixels::Error> {
             }
             //after updates happen redraw the screen
             window.request_redraw();
+        }
+        if battle {
+            match track {
+                0 => {
+                    // Fight select
+                }
+                1 => {
+                    // Run Select
+                }
+                _ => {}
+            }
+
+            if !fight && !run {
+                // Moves option selected to previous option
+                if input.key_pressed(VirtualKeyCode::A) || input.key_pressed(VirtualKeyCode::Left) {
+                    if track == 0 {
+                        track = 1;
+                    } else {
+                        track = 0;
+                    }
+                }
+                // Moves option selected to following option
+                if input.key_pressed(VirtualKeyCode::D) || input.key_pressed(VirtualKeyCode::Right) {
+                    if track == 1 {
+                        track = 0;
+                    } else {
+                        track = 1;
+                    }
+                }
+            }
+
+            if fight {
+                
+            }
+
+            if run {
+                let run_good: u8 = rng.gen();
+                if run_good > 178 {
+                    // Display dialogue: "You stay, Stockholm syndrome"
+                    // Kill Nav (only a little)
+                } else {
+                    // Display dialogue: "Nav has escaped combat"
+                    // Don't kill Nav (He get away, just a little)
+                }
+            }
         }
     });
     //Ok(())
