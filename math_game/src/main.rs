@@ -3,17 +3,22 @@
 //todo: replace serde with miniserde (maybe)
 //todo: multithreading
 //todo: pause when move off tab
+//jacob cringe rust book import
 use rand::prelude::*;
+//screen access
 use pixels::{
     wgpu::{PowerPreference, RequestAdapterOptions,PresentMode},
     PixelsBuilder,
 };
-use rodio::{Decoder,OutputStream,Sink};
-//Dont just import all of pixels at some point
+//audio
+use rodio::{Decoder, OutputStream, source::Source};
+//deserialize json files
 use serde_json::{de, value::Value};
+//whatever i need from the std library atm
 use std::{
     env,
     fs::*,
+    io::BufReader
     // time::SystemTime,
     // mem,
     // io::Write,
@@ -22,13 +27,9 @@ use std::{
     // u8,
     // error::Error;
 };
+//window management and input
 use winit::event::VirtualKeyCode;
-use winit::{
-    dpi::PhysicalSize,
-    event::*,
-    event_loop::*,
-    window::Window,
-};
+use winit::{dpi::PhysicalSize, event::*, event_loop::*, window::Window, };
 use winit_input_helper::WinitInputHelper;
 // use pixels::wgpu::Color;
 // use rayon::prelude::*;
@@ -83,6 +84,19 @@ fn main() -> Result<(), pixels::Error> {
     let mut screen = Screen::new("houses");
     let mut mvmt_dist: u16 = 5;
 
+    //music initialization
+
+    //find default settings for audio
+    let (_stream, stream_handle) = OutputStream::try_default().unwrap();
+    //decide which file will be read as the music
+    let file = BufReader::new(File::open("music/Stroll_Around_Town.wav").unwrap());
+    //decode the file into a usable format
+    let source = Decoder::new(file).unwrap();
+    //play the audio to the device from the source converted to output f32
+    stream_handle.play_raw(source.convert_samples().repeat_infinite().pausable(false)).unwrap();
+    //idk the docs say to use this part but it seems stupid imo
+    // std::thread::sleep(std::time::Duration::from_secs(5));
+
     //setting the distance to be the correct value (add in to new() function later)
     screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
     //declaring the direction moved values with initial value of false
@@ -110,7 +124,6 @@ fn main() -> Result<(), pixels::Error> {
         if let Event::RedrawRequested(_) = event {
             //framebuffer that we shall mut
             screen.draw(pixels.get_frame());
-            //screen.draw_dialog(pix.get_frane());
             //do the thinking for the drawing process
             //render the frame buffer and panic if it has something passed to it
             if pixels
@@ -128,7 +141,10 @@ fn main() -> Result<(), pixels::Error> {
             //make into a match statement at some point maybe
             //close on pressing esc
             if input.key_pressed(VirtualKeyCode::U) {
-                println!("{:?}", screen.interact_pos);
+                let file = BufReader::new(File::open("music/Mystery_Beckons.wav").unwrap());
+                let source = Decoder::new(file).unwrap();
+                stream_handle.play_raw(source.convert_samples().repeat_infinite().pausable(false)).unwrap();
+
             }
             if input.key_pressed(VirtualKeyCode::Escape) || input.quit() {
                 *control_flow = ControlFlow::Exit;
@@ -387,6 +403,7 @@ fn main() -> Result<(), pixels::Error> {
                     _ => {}
                 }
             }
+
             //after updates happen redraw the screen
             window.request_redraw();
         }
@@ -461,6 +478,7 @@ struct Player {
     //1 - W, 2 - A, 3 - S, 4 - D
     change_screen: u8,
 }
+
 impl Player {
     //horrific number of params i dont feel like mutilating into looking pretty
     fn new(
