@@ -8,6 +8,7 @@ use pixels::{
     wgpu::{PowerPreference, RequestAdapterOptions,PresentMode},
     PixelsBuilder,
 };
+use rodio::{Decoder,OutputStream,Sink};
 //Dont just import all of pixels at some point
 use serde_json::{de, value::Value};
 use std::{
@@ -27,7 +28,6 @@ use winit::{
     event::*,
     event_loop::*,
     window::Window,
-    //dpi::PhysicalSize,
 };
 use winit_input_helper::WinitInputHelper;
 // use pixels::wgpu::Color;
@@ -96,6 +96,7 @@ fn main() -> Result<(), pixels::Error> {
     let mut y_save: u16 = screen.player.y_pos;
     let mut paused:bool = false;
     let mut last_scr: String = format!("houses");
+    let mut last_scroll: u16 = 0;
     let mut track: u8 = 0;
 
     let mut battle:bool = false;
@@ -134,8 +135,8 @@ fn main() -> Result<(), pixels::Error> {
                 return;
             }
             if input.key_pressed(VirtualKeyCode::Tab) {
-                track = 0;
                 last_scr = screen.scr.clone();
+                last_scroll = screen.scroll_dist;
                 x_save = screen.player.x_pos;
                 y_save = screen.player.y_pos;
                 screen = Screen::new("pause-menu/pause-menu-a");
@@ -360,11 +361,23 @@ fn main() -> Result<(), pixels::Error> {
                     track = track + 1;
                 }
             }
+            if input.key_pressed(VirtualKeyCode::Tab) && !input.key_held(VirtualKeyCode::Tab) {
+                println!("AAAAAAAAAAAAA");
+                screen = Screen::new(&last_scr);
+                screen.scroll_dist = last_scroll;
+                screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
+                screen.player.x_pos = x_save;
+                screen.player.y_pos = y_save;
+                track = 0;
+                paused = !paused;
+            }
+
             // Selects choice and runs appropriate code
             if input.key_pressed(VirtualKeyCode::Return) {
                 match track % 5 {
                     4 => {
                         screen = Screen::new(&last_scr);
+                        screen.scroll_dist = last_scroll;
                         screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
                         screen.player.x_pos = x_save;
                         screen.player.y_pos = y_save;
@@ -377,7 +390,7 @@ fn main() -> Result<(), pixels::Error> {
             //after updates happen redraw the screen
             window.request_redraw();
         }
-        if battle {
+        /*if battle {
             match track {
                 0 => {
                     // Fight select
@@ -421,7 +434,7 @@ fn main() -> Result<(), pixels::Error> {
                     // Don't kill Nav (He get away, just a little)
                 }
             }
-        }
+        }*/
     });
     //Ok(())
     //use to crash program safely
@@ -938,8 +951,6 @@ impl Entity {
         spr3: &str,
         spr4: &str,
         idd: &str,
-        // x: u16,
-        // y: u16,
     ) -> Self {
         // giving all variables the default values
         Self {
@@ -1001,8 +1012,3 @@ impl Entity {
         Ok(d)
     }
 }
-
-// fn _update(&mut self, sc) -> std::io::Result <()> {
-//     std::fs::copy(self.place,"screen.txt");
-//
-// }
