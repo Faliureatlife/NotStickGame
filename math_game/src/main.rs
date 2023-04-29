@@ -11,7 +11,7 @@ use pixels::{
     PixelsBuilder,
 };
 //audio
-use rodio::{Decoder, OutputStream, source::Source};
+use rodio::{Decoder, OutputStream, source::Source, Sink};
 //deserialize json files
 use serde_json::{de, value::Value};
 //whatever i need from the std library atm
@@ -85,17 +85,24 @@ fn main() -> Result<(), pixels::Error> {
     let mut mvmt_dist: u16 = 5;
 
     //music initialization
-
+/*
     //find default settings for audio
     let (_stream, stream_handle) = OutputStream::try_default().unwrap();
     //decide which file will be read as the music
     let file = BufReader::new(File::open("music/Stroll_Around_Town.wav").unwrap());
     //decode the file into a usable format
     let source = Decoder::new(file).unwrap();
-    //play the audio to the device from the source converted to output f32
-    stream_handle.play_raw(source.convert_samples().repeat_infinite().pausable(false)).unwrap();
-    //idk the docs say to use this part but it seems stupid imo
-    // std::thread::sleep(std::time::Duration::from_secs(5));
+    let mut pausable = source.pausable(false);
+    stream_handle.play_raw(pausable.convert_samples().repeat_infinite());
+    pausable.set_paused(true);
+*/
+    let file = File::open("music/Stroll_Around_Town.wav").unwrap();
+    let source = Decoder::new(BufReader::new(file)).unwrap();
+
+    let (_stream, stream_handle) = OutputStream::try_default().unwrap();
+    let sink = Sink::try_new(&stream_handle).unwrap();
+    sink.append(source);
+    sink.play();
 
     //setting the distance to be the correct value (add in to new() function later)
     screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
@@ -138,14 +145,25 @@ fn main() -> Result<(), pixels::Error> {
         }
         //update part of code that handles key-presses and simple window things
         if input.update(&event) && !paused{
-            //make into a match statement at some point maybe
-            //close on pressing esc
+
+            //debug key
             if input.key_pressed(VirtualKeyCode::U) {
-                let file = BufReader::new(File::open("music/Mystery_Beckons.wav").unwrap());
-                let source = Decoder::new(file).unwrap();
-                stream_handle.play_raw(source.convert_samples().repeat_infinite().pausable(false)).unwrap();
 
             }
+
+            //mute/unmute sound
+            if input.key_pressed(VirtualKeyCode::M) {
+                match sink.is_paused() {
+                    true => {
+                        sink.play();
+                    }
+                    false => {
+                        sink.pause();
+                    }
+                }
+            }
+
+            //close on pressing esc
             if input.key_pressed(VirtualKeyCode::Escape) || input.quit() {
                 *control_flow = ControlFlow::Exit;
                 return;
