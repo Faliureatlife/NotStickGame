@@ -7,6 +7,8 @@
 	"entities": ["parasite"],
 	"interact": ["move"],
 	"interact_actions": ["lhouses"],
-	"interact_pos": [588,180]
+	"interact_pos": [588,180],
+	"music": "music/Stroll_Around_Town.wav"
+
 }
 	

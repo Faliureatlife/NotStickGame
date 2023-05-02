@@ -97,7 +97,7 @@ fn main() -> Result<(), pixels::Error> {
     pausable.set_paused(true);
 */
     let file = File::open("music/Stroll_Around_Town.wav").unwrap();
-    let source = Decoder::new(BufReader::new(file)).unwrap();
+    let source = Decoder::new(BufReader::new(file)).unwrap().repeat_infinite();
 
     let (_stream, stream_handle) = OutputStream::try_default().unwrap();
     let sink = Sink::try_new(&stream_handle).unwrap();
@@ -617,17 +617,16 @@ impl Player {
                 //loop through all possible collision points
                 for colliders in self.collision.chunks_exact(2) {
                     //check to see if character is or will be within any of the bounds
-                    if colliders[0] >= self.x_pos + scrolled {
                         if colliders[0] >= scrolled + self.x_pos - mvmt_dist
                             && colliders[0] <= scrolled + self.x_pos + CHAR_WIDTH - mvmt_dist
                             && colliders[1] >= (self.y_pos)
                             && colliders[1] <= (self.y_pos + CHAR_HEIGHT)
                         {
                             //flips collision to true and break from for loop
+                            // println!("AAAAAA {:.?}",colliders);
                             colliding = !colliding;
                             break;
                         }
-                    }
                 }
                 //if collision is not taking place then move by amount mvmt_dist
                 if !colliding {
