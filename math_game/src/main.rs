@@ -1,8 +1,6 @@
 //extra functions for idiomatic code or wtv
 //todo: make moving work
-//todo: replace serde with miniserde (maybe)
-//todo: multithreading
-//todo: pause when move off tab
+
 //jacob cringe rust book import
 use rand::prelude::*;
 //screen access
@@ -19,20 +17,13 @@ use std::{
     env,
     fs::*,
     io::BufReader
-    // time::SystemTime,
-    // mem,
-    // io::Write,
-    // time::Duration,
     // thread::sleep,
-    // u8,
-    // error::Error;
 };
 //window management and input
 use winit::event::VirtualKeyCode;
 use winit::{dpi::PhysicalSize, event::*, event_loop::*, window::Window, };
 use winit_input_helper::WinitInputHelper;
 // use pixels::wgpu::Color;
-// use rayon::prelude::*;
 
 // unused constants
 // const START_Y: u16 = 10;
@@ -85,21 +76,9 @@ fn main() -> Result<(), pixels::Error> {
     let mut mvmt_dist: u16 = 5;
 
     //music initialization
-/*
-    //find default settings for audio
     let (_stream, stream_handle) = OutputStream::try_default().unwrap();
-    //decide which file will be read as the music
-    let file = BufReader::new(File::open("music/Stroll_Around_Town.wav").unwrap());
-    //decode the file into a usable format
-    let source = Decoder::new(file).unwrap();
-    let mut pausable = source.pausable(false);
-    stream_handle.play_raw(pausable.convert_samples().repeat_infinite());
-    pausable.set_paused(true);
-*/
     let file = File::open("music/Stroll_Around_Town.wav").unwrap();
     let source = Decoder::new(BufReader::new(file)).unwrap().repeat_infinite();
-
-    let (_stream, stream_handle) = OutputStream::try_default().unwrap();
     let sink = Sink::try_new(&stream_handle).unwrap();
     sink.append(source);
     sink.play();
@@ -425,51 +404,6 @@ fn main() -> Result<(), pixels::Error> {
             //after updates happen redraw the screen
             window.request_redraw();
         }
-        /*if battle {
-            match track {
-                0 => {
-                    // Fight select
-                }
-                1 => {
-                    // Run Select
-                }
-                _ => {}
-            }
-
-            if !fight && !run {
-                // Moves option selected to previous option
-                if input.key_pressed(VirtualKeyCode::A) || input.key_pressed(VirtualKeyCode::Left) {
-                    if track == 0 {
-                        track = 1;
-                    } else {
-                        track = 0;
-                    }
-                }
-                // Moves option selected to following option
-                if input.key_pressed(VirtualKeyCode::D) || input.key_pressed(VirtualKeyCode::Right) {
-                    if track == 1 {
-                        track = 0;
-                    } else {
-                        track = 1;
-                    }
-                }
-            }
-
-            if fight {
-                
-            }
-
-            if run {
-                let run_good: u8 = rng.gen();
-                if run_good > 178 {
-                    // Display dialogue: "You stay, Stockholm syndrome"
-                    // Kill Nav (only a little)
-                } else {
-                    // Display dialogue: "Nav has escaped combat"
-                    // Don't kill Nav (He get away, just a little)
-                }
-            }
-        }*/
     });
     //Ok(())
     //use to crash program safely
@@ -723,6 +657,7 @@ struct Screen {
     interact: Vec<String>,
     interact_pos: Vec<u16>,
     interact_action: Vec<String>,
+    music: String,
 }
 impl Screen {
     fn new(place: &str) -> Self {
@@ -793,6 +728,7 @@ impl Screen {
                 "default_scroll",
             )
             .expect("Failed to read the default scroll distance of the screen from file"),
+
             //default scroll len is 0
             screen_len: 0,
             scr: place.to_owned(),
@@ -801,16 +737,25 @@ impl Screen {
                 "interact",
             )
             .expect("Failed to read interaction types"),
+
             interact_pos: Screen::read_from_file_vecu16(
                 format!("{}{}{}", WORLD, place, "/data.json"),
                 "interact_pos",
             )
             .expect("Failed to read interaction pos from file"),
+
             interact_action: Screen::read_from_file_vecstr(
                 format!("{}{}{}", WORLD, place, "/data.json"),
                 "interact_actions",
             )
             .expect("Failed to read interaction types"),
+
+            music: {
+                Screen::read_from_file_str(
+                    format!("{}{}{}", WORLD, place, "/data.json"),
+                    "music",
+                ).expect("Failed to read background music")
+            }
         }
     }
     fn read_from_file_u16(path: String, get: &str) -> Result<u16, std::io::Error> {
@@ -855,6 +800,25 @@ impl Screen {
         //returns as result
         Ok(e)
     }
+
+    fn read_from_file_str(path: String, get: &str) -> Result<String, std::io::Error> {
+        //opens the json file
+        let a = File::open(path)?;
+        //makes the file a buffered reader
+        let b = std::io::BufReader::new(a);
+        //reads from file into Value enum
+        let c: Value = serde_json::from_reader(b).expect("File not a valid .json");
+        //gets the list from the overall value
+        let d = c
+            .get(get)
+            .expect("read_from_file_vec failed to get value")
+            .as_str()
+            .expect("read_from_file_vec failed to convert to array")
+            .to_string();
+        //returns as result
+        Ok(d)
+    }
+
     fn read_from_file_vecu16(path: String, get: &str) -> Result<Vec<u16>, std::io::Error> {
         //opens the json file
         let a = File::open(path)?;
