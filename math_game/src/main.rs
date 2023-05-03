@@ -102,6 +102,16 @@ fn main() -> Result<(), pixels::Error> {
     let mut fight:bool = false;
     let mut run:bool = false;
     let mut run_did:bool = false;
+    let mut rng = rand::thread_rng();
+    let mut time_count: u16 = 0;
+    let mut run_good: u8 = 0;
+    let mut try_run:bool = false;
+    //let mut submit: bool = false;
+    //let mut generated_question:bool = false;
+    //let mut problem_select: String = "".to_string();
+    //let mut answer_select: String = "".to_string();
+    //const problems: Vec<&str> = ["5 + 5", "10 + 10", "21542 + 2"];
+    //const answers: Vec<&str> = ["10", "20", "21544"];
     //todo: multithreading to have game thinking and rendering at same time
     //loop that runs program
     event_loop.run(move |event, _, control_flow| {
@@ -123,7 +133,7 @@ fn main() -> Result<(), pixels::Error> {
             }
         }
         //update part of code that handles key-presses and simple window things
-        if input.update(&event) && !paused{
+        if input.update(&event) && !paused && !battle{
             //make into a match statement at some point maybe
             //close on pressing esc
             if input.key_pressed(VirtualKeyCode::U) {
@@ -140,7 +150,7 @@ fn main() -> Result<(), pixels::Error> {
                 y_save = screen.player.y_pos;
                 screen = Screen::new("pause-menu/pause-menu-a");
                 screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
-                paused = !paused;
+                battle = !battle;
             }
             //When w or up arrow pressed flip value of upwards movement
             if input.key_released(VirtualKeyCode::W)
@@ -306,10 +316,23 @@ fn main() -> Result<(), pixels::Error> {
                 screen.player.move_state = 0;
                 screen.player.move_delay = 0;
             }
+
+            if screen.player.move_state != 0 {
+                let encounter:u16 = rng.gen_range(0..500);
+                if encounter <= 2 {
+                    track = 0;
+                    last_scr = screen.scr.clone();
+                    x_save = screen.player.x_pos;
+                    y_save = screen.player.y_pos;
+                    screen = Screen::new("pause-menu/pause-menu-a");
+                    screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
+                    battle = !battle;
+                }
+            }
             //after updates happen redraw the screen
             window.request_redraw();
         };
-        if paused {
+        if paused && input.update(&event) {
             // Switches screen based on choice selected
             // 0. Save Select
             // 1. Load Select
@@ -377,7 +400,11 @@ fn main() -> Result<(), pixels::Error> {
             //after updates happen redraw the screen
             window.request_redraw();
         }
-        if battle {
+        if battle && input.update(&event) {
+            if input.key_pressed(VirtualKeyCode::Escape) {
+                *control_flow = ControlFlow::Exit;
+                return;
+            }
             match track {
                 0 => {
                     // Fight select
@@ -405,19 +432,81 @@ fn main() -> Result<(), pixels::Error> {
                         track = 1;
                     }
                 }
+                if input.key_pressed(VirtualKeyCode::Return) {
+                    match track{
+                        0 => {
+                            fight = true;
+                            run = false;
+                        }   
+                        1 => {
+                            run = true;
+                            fight = false
+                        }
+                        _ => {}
+                    }
+                }
             }
 
-            if fight {
-                
-            }
+            //if fight {
+                //if !generated_question {
+                    //let problem_select_index:u8 = rng.gen_range(0..3);
+                    //problem_select = problems[0].to_string();
+                    //answer_select = answers[0].to_string();
+                    //generated_question = true;
+            //     }
+            //     screen.new_dialog(problem_select);
+            //     if !submit {
+                    
+            //         if input.key_pressed(VirtualKeyCode::Return) {
+            //             submit = true;
+            //             // if player_answer == answer_select {
+            //             //     // Attack enemy
+            //             // } else {
+            //             //     // Get hit by enemy
+            //             // }
+            //             generated_question = false;
+            //             fight = false;
+            //         }
+            //     }
+            // }
 
             if run {
-                let run_good: u8 = rng.gen();
+                if !try_run {
+                    run_good = rng.gen();
+                    try_run = true;
+                }
                 if run_good > 178 {
-                    // Display dialogue: "You stay, Stockholm syndrome"
-                    // Kill Nav (only a little)
+                    if time_count < 100 {
+                        time_count = time_count + 1;
+                        screen.new_dialog("you fail to run".to_string());
+                    } else {
+                        screen = Screen::new("pause-menu/pause-menu-a");
+                        screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
+                        screen.new_dialog("             you are very cringe".to_string());
+                        if time_count < 150 {
+                            time_count = time_count + 1;
+                        } else {
+                            // Enemy hits player
+                        }
+                    }
+
                 } else {
-                    // Display dialogue: "Nav has escaped combat"
+                    screen.new_dialog("you run away".to_string());
+                    if time_count < 100 {
+                        time_count = time_count + 1;
+                    } else {
+                        battle = !battle;
+                        screen = Screen::new(&last_scr);
+                        screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
+                        screen.player.x_pos = x_save;
+                        screen.player.y_pos = y_save;
+                        track = 0;
+                        try_run = false;
+                        run = false;
+                        fight = false;
+                        time_count = 0;
+                        
+                    }
                     // Don't kill Nav (He get away, just a little)
                 }
             }
