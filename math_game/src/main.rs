@@ -106,12 +106,6 @@ fn main() -> Result<(), pixels::Error> {
     let mut time_count: u16 = 0;
     let mut run_good: u8 = 0;
     let mut try_run:bool = false;
-    //let mut submit: bool = false;
-    //let mut generated_question:bool = false;
-    //let mut problem_select: String = "".to_string();
-    //let mut answer_select: String = "".to_string();
-    //const problems: Vec<&str> = ["5 + 5", "10 + 10", "21542 + 2"];
-    //const answers: Vec<&str> = ["10", "20", "21544"];
     //todo: multithreading to have game thinking and rendering at same time
     //loop that runs program
     event_loop.run(move |event, _, control_flow| {
@@ -447,28 +441,40 @@ fn main() -> Result<(), pixels::Error> {
                 }
             }
 
-            //if fight {
-                //if !generated_question {
-                    //let problem_select_index:u8 = rng.gen_range(0..3);
-                    //problem_select = problems[0].to_string();
-                    //answer_select = answers[0].to_string();
-                    //generated_question = true;
-            //     }
-            //     screen.new_dialog(problem_select);
-            //     if !submit {
-                    
-            //         if input.key_pressed(VirtualKeyCode::Return) {
-            //             submit = true;
-            //             // if player_answer == answer_select {
-            //             //     // Attack enemy
-            //             // } else {
-            //             //     // Get hit by enemy
-            //             // }
-            //             generated_question = false;
-            //             fight = false;
-            //         }
-            //     }
-            // }
+            if fight {
+                if !generate_problem {
+                    // Generate Problem
+                }
+                if generate_problem {
+                    if input.key_pressed(VirtualKeyCode::A) || input.key_pressed(VirtualKeyCode::Left) {
+                        if track == 0 {
+                            track = 254;
+                        } else {
+                            track = track - 1;
+                        }
+                    }
+                    if input.key_pressed(VirtualKeyCode::D) || input.key_pressed(VirtualKeyCode::Right) {
+                        if track == 254 {
+                            track = 0;
+                        } else {
+                            track = track + 1;
+                        }
+                    }
+                    if input.key_pressed(VirtualKeyCode::Return) {
+                        match {
+                            // answer A
+                            0 => {}
+                            // answer B
+                            1 => {}
+                            // answer C
+                            2 => {}
+                            // answer D
+                            3 => {}
+                            // answer E
+                            4 => {}
+                        }
+                    }
+                }
 
             if run {
                 if !try_run {
@@ -482,7 +488,6 @@ fn main() -> Result<(), pixels::Error> {
                     } else {
                         screen = Screen::new("pause-menu/pause-menu-a");
                         screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
-                        screen.new_dialog("             you are very cringe".to_string());
                         if time_count < 150 {
                             time_count = time_count + 1;
                         } else {
