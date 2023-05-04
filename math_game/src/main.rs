@@ -73,6 +73,7 @@ fn main() -> Result<(), pixels::Error> {
 
     //screen object made from the house page
     let mut screen = Screen::new("houses");
+
     let mut mvmt_dist: u16 = 5;
 
     //music initialization
@@ -82,7 +83,10 @@ fn main() -> Result<(), pixels::Error> {
     let sink = Sink::try_new(&stream_handle).unwrap();
     sink.append(source);
     sink.play();
-
+    if Decoder::new(BufReader::new(File::open(format!("music/{}",screen.music)))).unwrap().repeat_infinite() != source {
+        sink.clear();
+        sink.append(Decoder::new(BufReader::new(File::open(format!("music/{}",screen.music)))).unwrap().repeat_infinite());
+    }
     //setting the distance to be the correct value (add in to new() function later)
     screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
     //declaring the direction moved values with initial value of false
@@ -153,6 +157,7 @@ fn main() -> Result<(), pixels::Error> {
                 x_save = screen.player.x_pos;
                 y_save = screen.player.y_pos;
                 screen = Screen::new("pause-menu/pause-menu-a");
+
                 screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
                 paused = !paused;
             }
@@ -209,6 +214,7 @@ fn main() -> Result<(), pixels::Error> {
                         match screen.interact[i].as_str() {
                             "move" => {
                                 screen = Screen::new(&screen.interact_action[i]);
+
                                 screen.screen_len =
                                     screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
                                 last_scr = screen.scr.clone();
@@ -229,6 +235,7 @@ fn main() -> Result<(), pixels::Error> {
                     // println!("up");
                     let x = screen.player.x_pos;
                     screen = Screen::new(&screen.player.mvmt_destinations[0]);
+
                     screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
                     screen.player.x_pos = x;
                     //bottom of screen offset by player height + mvmt distance
@@ -238,6 +245,7 @@ fn main() -> Result<(), pixels::Error> {
                 2 => {
                     let y = screen.player.y_pos;
                     screen = Screen::new(&screen.player.mvmt_destinations[1]);
+
                     screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
                     screen.player.y_pos = y;
                     //left side of screen offset by player height + mvmt distance
@@ -249,6 +257,7 @@ fn main() -> Result<(), pixels::Error> {
                     let x = screen.player.x_pos;
                     let scroll = screen.scroll_dist;
                     screen = Screen::new(&screen.player.mvmt_destinations[2]);
+
                     screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
                     screen.player.x_pos = x;
                     screen.scroll_dist = scroll;
@@ -258,6 +267,7 @@ fn main() -> Result<(), pixels::Error> {
                 4 => {
                     let y = screen.player.y_pos;
                     screen = Screen::new(&screen.player.mvmt_destinations[3]);
+
                     screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
                     screen.player.y_pos = y;
                     screen.player.x_pos = 0 + (mvmt_dist + 1);
@@ -333,22 +343,27 @@ fn main() -> Result<(), pixels::Error> {
             match track % 5 {
                 0 => {
                     screen = Screen::new("pause-menu/pause-menu-a");
+
                     screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
                 }
                 1 => {
                     screen = Screen::new("pause-menu/pause-menu-b");
+
                     screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
                 }
                 2 => {
                     screen = Screen::new("pause-menu/pause-menu-c");
+
                     screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
                 }
                 3 => {
                     screen = Screen::new("pause-menu/pause-menu-d");
+
                     screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
                 }
                 4 => {
                     screen = Screen::new("pause-menu/pause-menu-e");
+
                     screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
                 }
                 _ => {}
@@ -377,6 +392,7 @@ fn main() -> Result<(), pixels::Error> {
             if input.key_pressed(VirtualKeyCode::Tab) && !input.key_held(VirtualKeyCode::Tab) {
                 println!("AAAAAAAAAAAAA");
                 screen = Screen::new(&last_scr);
+
                 screen.scroll_dist = last_scroll;
                 screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
                 screen.player.x_pos = x_save;
@@ -390,6 +406,7 @@ fn main() -> Result<(), pixels::Error> {
                 match track % 5 {
                     4 => {
                         screen = Screen::new(&last_scr);
+
                         screen.scroll_dist = last_scroll;
                         screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
                         screen.player.x_pos = x_save;
@@ -722,6 +739,7 @@ impl Screen {
             },
             //getting the data for a new screen
             area: Screen::new_screen(format!("{}{}{}", WORLD, place, "/picture.txt")),
+
             //default scroll dist is read from file
             scroll_dist: Screen::read_from_file_u16(
                 format!("{}{}{}", WORLD, place, "/data.json"),
@@ -869,6 +887,7 @@ impl Screen {
 
     //not getting comments because it works
     fn draw(&self, pix: &mut [u8]) {
+        //draw bg
         for (it,pixel) in pix.chunks_exact_mut(4).enumerate() {
             pixel[0] = self.area[3 * self.scroll_dist as usize
                 + (3 * self.screen_len * ((3 * it) / (3 * SCREEN_WIDTH) as usize))
@@ -881,6 +900,7 @@ impl Screen {
                 + ((it * 3 + 2) % (3 * SCREEN_WIDTH as usize))];
         }
         //find a way to not have to cast to u16 if i ever care
+        //draw player
         for (it, pixel) in self.player.sprite[self.player.direction as usize][self.player.move_state as usize].chunks_exact(3).enumerate() {
             if pixel[0] as u16 + pixel[1] as u16 + pixel[2] as u16 != 0 {
                 pix[(((self.player.y_pos as usize + (it / (CHAR_WIDTH - 1) as usize)) * SCREEN_WIDTH as usize) + (self.player.x_pos as usize + (it % (CHAR_WIDTH - 1) as usize))) * 4] = pixel[0];
@@ -888,6 +908,7 @@ impl Screen {
                 pix[(((self.player.y_pos as usize + (it / (CHAR_WIDTH - 1) as usize)) * SCREEN_WIDTH as usize) + (self.player.x_pos as usize + (it % (CHAR_WIDTH - 1) as usize))) * 4 + 2] = pixel[2];
             }
         }
+        //draw entity
         for a in &self.entities {
             for (it,pixel) in a.sprite[a.move_state as usize].chunks_exact(3).enumerate(){
                 if pixel[0] as u16 + pixel[1] as u16 + pixel[2] as u16 != 0 {
