@@ -83,10 +83,6 @@ fn main() -> Result<(), pixels::Error> {
     let sink = Sink::try_new(&stream_handle).unwrap();
     sink.append(source);
     sink.play();
-    if Decoder::new(BufReader::new(File::open(format!("music/{}",screen.music)))).unwrap().repeat_infinite() != source {
-        sink.clear();
-        sink.append(Decoder::new(BufReader::new(File::open(format!("music/{}",screen.music)))).unwrap().repeat_infinite());
-    }
     //setting the distance to be the correct value (add in to new() function later)
     screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
     //declaring the direction moved values with initial value of false
@@ -131,7 +127,10 @@ fn main() -> Result<(), pixels::Error> {
 
             //debug key
             if input.key_pressed(VirtualKeyCode::U) {
-
+                if Decoder::new(BufReader::new(File::open(format!("music/{}",screen.music)).unwrap())).unwrap().repeat_infinite() != source {
+                    sink.clear();
+                    sink.append(Decoder::new(BufReader::new(File::open(format!("music/{}",screen.music)).unwrap())).unwrap().repeat_infinite());
+                }
             }
 
             //mute/unmute sound
