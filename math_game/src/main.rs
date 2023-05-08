@@ -418,7 +418,7 @@ fn main() -> Result<(), pixels::Error> {
                     // Fight select
                     if player_health == 4 {
                         screen = Screen::new("LibraryLoungeBattleScene/Full-Health/Select/Fight");
-                        screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;      
+                        screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
                     }
                     if player_health == 3 {
                         screen = Screen::new("LibraryLoungeBattleScene/75-Health/Select/Fight");
@@ -486,9 +486,6 @@ fn main() -> Result<(), pixels::Error> {
                         _ => {}
                     }
                 }
-                if input.key_pressed(VirtualKeyCode::T) {
-                    player_health = player_health - 1;
-                }
             }
 
             if fight {
@@ -498,7 +495,7 @@ fn main() -> Result<(), pixels::Error> {
             if run {
                 if !try_run {
                     run_good = rng.gen_range(0..100);
-                    if run_good > 70 {
+                    if run_good > 50 {
                         run_did = false;
                     } else {
                         run_did = true;
@@ -528,12 +525,14 @@ fn main() -> Result<(), pixels::Error> {
                 }
 
                 if run_did {
+                    
                     if time_count < 65 {
                         screen = Screen::new("LibraryLoungeBattleScene/General-Use");
                         screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
                         screen.fight_write("Nav runs away".to_string(), 75, 468);
                         time_count = time_count + 1;
                     }
+
                     if time_count >= 65 {
                         player_health = 4;
                         run = false;
