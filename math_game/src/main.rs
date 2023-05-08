@@ -106,6 +106,7 @@ fn main() -> Result<(), pixels::Error> {
     let mut time_count: u16 = 0;
     let mut run_good: u8 = 0;
     let mut try_run:bool = false;
+    let mut player_health: u8 = 4;
     //todo: multithreading to have game thinking and rendering at same time
     //loop that runs program
     event_loop.run(move |event, _, control_flow| {
@@ -318,9 +319,14 @@ fn main() -> Result<(), pixels::Error> {
                     last_scr = screen.scr.clone();
                     x_save = screen.player.x_pos;
                     y_save = screen.player.y_pos;
-                    screen = Screen::new("pause-menu/pause-menu-a");
+                    screen = Screen::new("LibraryLoungeBattleScene/Full-Health/Select/Fight");
                     screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
                     battle = !battle;
+                    screen.player.move_state = 0;
+                    left = false;
+                    right = true;
+                    up = false;
+                    down = false;
                 }
             }
             //after updates happen redraw the screen
@@ -394,6 +400,14 @@ fn main() -> Result<(), pixels::Error> {
             //after updates happen redraw the screen
             window.request_redraw();
         }
+
+        // Use match statements to determine what scenes to load
+        // match last_scr {
+        //      "stoor" =>{
+        //          screen = Screen::new("StoorBattleScene/Full-Health/Select/Fight");
+        //          screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
+        //      }...
+        // }
         if battle && input.update(&event) {
             if input.key_pressed(VirtualKeyCode::Escape) {
                 *control_flow = ControlFlow::Exit;
@@ -402,9 +416,40 @@ fn main() -> Result<(), pixels::Error> {
             match track {
                 0 => {
                     // Fight select
+                    if player_health == 4 {
+                        screen = Screen::new("LibraryLoungeBattleScene/Full-Health/Select/Fight");
+                        screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;      
+                    }
+                    if player_health == 3 {
+                        screen = Screen::new("LibraryLoungeBattleScene/75-Health/Select/Fight");
+                        screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
+                    }
+                    if player_health == 2 {
+                        screen = Screen::new("LibraryLoungeBattleScene/50-Health/Select/Fight");
+                        screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
+                    }
+                    if player_health == 1 {
+                        screen = Screen::new("LibraryLoungeBattleScene/25-Health/Select/Fight");
+                        screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
+                    }
                 }
                 1 => {
-                    // Run Select
+                    if player_health == 4 {
+                        screen = Screen::new("LibraryLoungeBattleScene/Full-Health/Select/Run");
+                        screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
+                    }
+                    if player_health == 3 {
+                        screen = Screen::new("LibraryLoungeBattleScene/75-Health/Select/Run");
+                        screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
+                    }
+                    if player_health == 2 {
+                        screen = Screen::new("LibraryLoungeBattleScene/50-Health/Select/Run");
+                        screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
+                    }
+                    if player_health == 1 {
+                        screen = Screen::new("LibraryLoungeBattleScene/25-Health/Select/Run");
+                        screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
+                    }
                 }
                 _ => {}
             }
@@ -431,90 +476,105 @@ fn main() -> Result<(), pixels::Error> {
                         0 => {
                             fight = true;
                             run = false;
+                            track = 0;
                         }   
                         1 => {
                             run = true;
-                            fight = false
+                            fight = false;
+                            track = 0;
                         }
                         _ => {}
                     }
                 }
+                if input.key_pressed(VirtualKeyCode::T) {
+                    player_health = player_health - 1;
+                }
             }
 
             if fight {
-                if !generate_problem {
-                    // Generate Problem
-                }
-                if generate_problem {
-                    if input.key_pressed(VirtualKeyCode::A) || input.key_pressed(VirtualKeyCode::Left) {
-                        if track == 0 {
-                            track = 254;
-                        } else {
-                            track = track - 1;
-                        }
-                    }
-                    if input.key_pressed(VirtualKeyCode::D) || input.key_pressed(VirtualKeyCode::Right) {
-                        if track == 254 {
-                            track = 0;
-                        } else {
-                            track = track + 1;
-                        }
-                    }
-                    if input.key_pressed(VirtualKeyCode::Return) {
-                        match {
-                            // answer A
-                            0 => {}
-                            // answer B
-                            1 => {}
-                            // answer C
-                            2 => {}
-                            // answer D
-                            3 => {}
-                            // answer E
-                            4 => {}
-                        }
-                    }
-                }
+                
+            }
 
             if run {
                 if !try_run {
-                    run_good = rng.gen();
+                    run_good = rng.gen_range(0..100);
+                    if run_good > 70 {
+                        run_did = false;
+                    } else {
+                        run_did = true;
+                    }
                     try_run = true;
                 }
-                if run_good > 178 {
-                    if time_count < 100 {
-                        time_count = time_count + 1;
-                        screen.new_dialog("you fail to run".to_string());
-                    } else {
-                        screen = Screen::new("pause-menu/pause-menu-a");
-                        screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
-                        if time_count < 150 {
-                            time_count = time_count + 1;
-                        } else {
-                            // Enemy hits player
-                        }
-                    }
 
-                } else {
-                    screen.new_dialog("you run away".to_string());
-                    if time_count < 100 {
+                if !run_did {
+                    if time_count < 65 {
+                        screen = Screen::new("LibraryLoungeBattleScene/General-Use");
+                        screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
+                        screen.fight_write("Nav cant run".to_string(), 75, 468);
                         time_count = time_count + 1;
-                    } else {
-                        battle = !battle;
+                    }
+                    if time_count < 130 && time_count >= 65 {
+                        screen = Screen::new("LibraryLoungeBattleScene/General-Use");
+                        screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
+                        screen.fight_write("Nav is hit".to_string(), 75, 468);
+                        time_count = time_count + 1;
+                    }
+                    if time_count >= 130 {
+                        run = false;
+                        time_count = 0;
+                        player_health = player_health - 1;
+                        track = 0;
+                    }
+                }
+
+                if run_did {
+                    if time_count < 65 {
+                        screen = Screen::new("LibraryLoungeBattleScene/General-Use");
+                        screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
+                        screen.fight_write("Nav runs away".to_string(), 75, 468);
+                        time_count = time_count + 1;
+                    }
+                    if time_count >= 65 {
+                        player_health = 4;
+                        run = false;
+                        try_run = false;
+                        run_did = false;
+                        fight = false;
+                        time_count = 0;
+                        battle = false;
+                        up = false;
+                        left = false;
+                        right = false;
+                        down = false;
                         screen = Screen::new(&last_scr);
                         screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
                         screen.player.x_pos = x_save;
                         screen.player.y_pos = y_save;
                         track = 0;
-                        try_run = false;
-                        run = false;
-                        fight = false;
-                        time_count = 0;
-                        
                     }
-                    // Don't kill Nav (He get away, just a little)
                 }
             }
+            if player_health == 0 {
+                screen = Screen::new("LibraryLoungeBattleScene/General-Use");
+                screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
+                screen.fight_write("you lost".to_string(), 90, 468);
+                if time_count < 100 {
+                    time_count = time_count + 1;
+                } else {
+                    battle = !battle;
+                    screen = Screen::new(&last_scr);
+                    screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
+                    screen.player.x_pos = x_save;
+                    screen.player.y_pos = y_save;
+                    track = 0;
+                    try_run = false;
+                    run = false;
+                    fight = false;
+                    time_count = 0;
+                    player_health = 4;
+                }
+            }
+            window.request_redraw();
         }
     });
     //Ok(())
@@ -984,6 +1044,34 @@ impl Screen {
     fn new_dialog(&mut self, text: String) {
         let mut x:u16 = 30;
         let mut y:u16 = 360;
+        let mut lett: Entity;
+        for letter in text.chars() {
+            x += 38;
+            if x >=630 {
+                x = 68;
+                y += 40;
+            }
+            if letter == ' '{
+                continue
+            } else {
+                println!("{}",format!("{}{}", "letras/", letter));
+                lett = Entity::new(
+                    &format!("{}{}{}{}.txt", "SpriteData/letras/", letter, "/", letter),
+                    &format!("{}{}{}{}.txt", "SpriteData/letras/", letter, "/", letter),
+                    &format!("{}{}{}{}.txt", "SpriteData/letras/", letter, "/", letter),
+                    &format!("{}{}{}{}.txt", "SpriteData/letras/", letter, "/", letter),
+                    &format!("{}{}{}{}.txt", "SpriteData/letras/", letter, "/", letter),
+                    &format!("{}{}", "letras/", letter,),
+                );
+                lett.x_pos = x;
+                lett.y_pos = y;
+                self.entities.push(lett);
+            }
+        }
+    }
+    fn fight_write(&mut self, text: String, x_pos: u16, y_pos: u16) {
+        let mut x:u16 = x_pos;
+        let mut y:u16 = y_pos;
         let mut lett: Entity;
         for letter in text.chars() {
             x += 38;
