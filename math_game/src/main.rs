@@ -78,13 +78,21 @@ fn main() -> Result<(), pixels::Error> {
 
     //music initialization
     let (_stream, stream_handle) = OutputStream::try_default().unwrap();
-    let file = File::open("music/Stroll_Around_Town.wav").unwrap();
-    let source = Decoder::new(BufReader::new(file)).unwrap().repeat_infinite();
+    let mut music_name = "music/Stroll_Around_Town.wav";
+    let source =
+        Decoder::new(
+        BufReader::new(
+            File::open(music_name)
+                .unwrap()))
+            .unwrap()
+            .repeat_infinite();
     let sink = Sink::try_new(&stream_handle).unwrap();
     sink.append(source);
     sink.play();
+
     //setting the distance to be the correct value (add in to new() function later)
     screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
+
     //declaring the direction moved values with initial value of false
     let mut up: bool = false;
     let mut left: bool = false;
@@ -99,11 +107,12 @@ fn main() -> Result<(), pixels::Error> {
     let mut last_scroll: u16 = 0;
     let mut track: u8 = 0;
 
+    //battle variables
     let mut battle:bool = false;
     let mut fight:bool = false;
     let mut run:bool = false;
     let mut run_did:bool = false;
-    //todo: multithreading to have game thinking and rendering at same time
+
     //loop that runs program
     event_loop.run(move |event, _, control_flow| {
         //When it wants to redraw do this
@@ -127,9 +136,14 @@ fn main() -> Result<(), pixels::Error> {
 
             //debug key
             if input.key_pressed(VirtualKeyCode::U) {
-                if Decoder::new(BufReader::new(File::open(format!("music/{}",screen.music)).unwrap())).unwrap().repeat_infinite() != source {
+                if format!("music/{}",screen.music) != music_name {
                     sink.clear();
-                    sink.append(Decoder::new(BufReader::new(File::open(format!("music/{}",screen.music)).unwrap())).unwrap().repeat_infinite());
+                    source =
+                        Decoder::new(
+                        BufReader::new(
+                            File::open(screen.music)))
+                        .unwrap()
+                        .repeat_infinite();
                 }
             }
 
@@ -137,10 +151,10 @@ fn main() -> Result<(), pixels::Error> {
             if input.key_pressed(VirtualKeyCode::M) {
                 match sink.is_paused() {
                     true => {
-                        sink.play();
+                        sink.set_volume(1.0);
                     }
                     false => {
-                        sink.pause();
+                        sink.set_volume(0.0);
                     }
                 }
             }
