@@ -79,7 +79,7 @@ fn main() -> Result<(), pixels::Error> {
     //music initialization
     let (_stream, stream_handle) = OutputStream::try_default().unwrap();
     let mut music_name = "music/Stroll_Around_Town.wav";
-    let source =
+    let mut source =
         Decoder::new(
         BufReader::new(
             File::open(music_name)
@@ -87,7 +87,7 @@ fn main() -> Result<(), pixels::Error> {
             .unwrap()
             .repeat_infinite();
     let sink = Sink::try_new(&stream_handle).unwrap();
-    sink.append(source);
+    sink.append(source.clone());
     sink.play();
 
     //setting the distance to be the correct value (add in to new() function later)
@@ -140,22 +140,23 @@ fn main() -> Result<(), pixels::Error> {
                     sink.clear();
                     source =
                         Decoder::new(
-                        BufReader::new(
-                            File::open(screen.music)))
-                        .unwrap()
-                        .repeat_infinite();
+                            BufReader::new(
+                                File::open(screen.music.clone())
+                                    .unwrap()))
+                            .unwrap()
+                            .repeat_infinite();
+                    music_name = screen.music.clone().as_str();
+                    sink.append(source.clone());
+                    sink.play();
                 }
             }
 
             //mute/unmute sound
             if input.key_pressed(VirtualKeyCode::M) {
-                match sink.is_paused() {
-                    true => {
-                        sink.set_volume(1.0);
-                    }
-                    false => {
-                        sink.set_volume(0.0);
-                    }
+                if sink.volume() == 0.0 {
+                    sink.set_volume(1.0);
+                }else{
+                    sink.set_volume(0.0);
                 }
             }
 
