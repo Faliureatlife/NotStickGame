@@ -1,0 +1,12 @@
+{
+	"start_x": 53,
+	"start_y": 350,
+	"default_scroll": 0,
+	"collision": [],
+	"mvmt_dest": ["null","null","null","null"],
+	"entities": [],
+	"interact": [],
+	"interact_actions": [],
+	"interact_pos": []
+}
+	
