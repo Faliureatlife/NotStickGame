@@ -112,14 +112,15 @@ fn main() -> Result<(), pixels::Error> {
     let mut try_run:bool = false;
 
     // Fight Variables
-    let options: [[String; 3]; 1] = [["(x + 3)(x - 5)".to_string(), "(x + 2)(x - 2)".to_string(), "(x + 2)(x + 2)".to_string()]];
-    let answer: [String; 1] = ["(x + 2)(x + 2)".to_string()];
     
     let task = vec!["Factor"];
     let problems = vec!["x"];
+    let options = vec![vec!["(x+3)(x-5)".to_string(), "(x + 2)(x - 2)".to_string(), "(x + 2)(x + 2)".to_string(), "3".to_string(), "4".to_string()]];
+    let answer = vec!["(x+2)(x+2)"];
     let mut problem_choose: usize = 0;
     let mut problem_generate: bool = false;
     let mut submit: bool = false;
+    let mut fight_tracker: usize = 0;
     //todo: multithreading to have game thinking and rendering at same time
     //loop that runs program
     event_loop.run(move |event, _, control_flow| {
@@ -375,7 +376,7 @@ fn main() -> Result<(), pixels::Error> {
                 0 => {
                     screen = Screen::new("pause-menu/pause-menu-a");
                     screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
-                    screen.fight_write("abcdefghijklmnopqr".to_string(), 54, 232);
+                    screen.fight_write(options[0][0].to_string(),30,399);
                 }
                 1 => {
                     screen = Screen::new("pause-menu/pause-menu-b");
@@ -699,11 +700,12 @@ fn main() -> Result<(), pixels::Error> {
                         _ => {}
                     }
                     screen.fight_write(task[problem_choose].to_string() + ";" + problems[problem_choose], 75, 468);
+                    screen.fight_write(options[problem_choose][fight_tracker].to_string(),30,399);
                     if input.key_pressed(VirtualKeyCode::A) {
-                        if track == 0 {
-                            track = 4;
+                        if fight_tracker == 0 {
+                            fight_tracker = 4;
                         } else {
-                            track = track - 1;
+                            fight_tracker = fight_tracker - 1;
                         }
                     }
                     if input.key_pressed(VirtualKeyCode::D) {
@@ -714,7 +716,74 @@ fn main() -> Result<(), pixels::Error> {
                         }
                     }
                     if input.key_pressed(VirtualKeyCode::Return) {
-                        
+                        submit = true;
+                    }
+                }
+                if submit {
+                    if options[problem_choose][fight_tracker] != answer[problem_choose] {
+                        match last_scr.as_str() {
+                            "house" => {}
+                            "stoor" => {}
+                            "school-cafeteria" => {}
+                            "school-math" => {}
+                            "school-english" => {}
+                            "pond" => {}
+                            "library-tables" => {
+                                screen = Screen::new("BattleScene/General-Use/library");
+                                screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
+                            }
+                            "house-living" => {}
+                            "school-hall" => {}
+                            "school" => {
+                                screen = Screen::new("BattleScene/General-Use/school");
+                                screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
+                            }
+                            "lhouses" => {}
+                            _ => {}
+                        }
+                        screen.fight_write("You are incorrect".to_string(), 75, 468);
+                        if time_count <= 60 {
+                            time_count = time_count + 1;
+                        } else {
+                            player_health = player_health - 1;
+                            fight = false;
+                            time_count = 0;
+                            submit = false;
+                            problem_generate = false;
+                        }
+                    } else {
+                        match last_scr.as_str() {
+                            "house" => {}
+                            "stoor" => {}
+                            "school-cafeteria" => {}
+                            "school-math" => {}
+                            "school-english" => {}
+                            "pond" => {}
+                            "library-tables" => {
+                                screen = Screen::new("BattleScene/General-Use/library");
+                                screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
+                            }
+                            "house-living" => {}
+                            "school-hall" => {}
+                            "school" => {
+                                screen = Screen::new("BattleScene/General-Use/school");
+                                screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
+                            }
+                            "lhouses" => {}
+                            _ => {}
+                        }
+                        if time_count <= 60 {
+                            screen.fight_write("You are correct".to_string(), 75, 468);
+                            time_count = time_count + 1;
+                        } else if time_count <= 120 {
+                            screen.fight_write("You attack the enemy".to_string(),75, 468);
+                            time_count = time_count + 1;
+                        } else {
+                            time_count = 0;
+                            fight = false;
+                            submit = false;
+                            problem_generate = false;
+                        }
                     }
                 }
             }
