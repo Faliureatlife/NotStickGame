@@ -78,11 +78,11 @@ fn main() -> Result<(), pixels::Error> {
 
     //music initialization
     let (_stream, stream_handle) = OutputStream::try_default().unwrap();
-    let mut music_name = "music/Stroll_Around_Town.wav";
+    let mut music_name = "music/Stroll_Around_Town.wav".to_owned();
     let mut source =
         Decoder::new(
         BufReader::new(
-            File::open(music_name)
+            File::open(music_name.clone())
                 .unwrap()))
             .unwrap()
             .repeat_infinite();
@@ -136,7 +136,7 @@ fn main() -> Result<(), pixels::Error> {
 
             //debug key
             if input.key_pressed(VirtualKeyCode::U) {
-                if format!("music/{}",screen.music) != music_name {
+                if format!("music/{}",screen.music) != music_name.clone() {
                     sink.clear();
                     source =
                         Decoder::new(
@@ -145,7 +145,7 @@ fn main() -> Result<(), pixels::Error> {
                                     .unwrap()))
                             .unwrap()
                             .repeat_infinite();
-                    music_name = screen.music.clone().as_str();
+                    music_name = screen.music.clone();
                     sink.append(source.clone());
                     sink.play();
                 }
@@ -228,7 +228,19 @@ fn main() -> Result<(), pixels::Error> {
                         match screen.interact[i].as_str() {
                             "move" => {
                                 screen = Screen::new(&screen.interact_action[i]);
-
+                                if format!("music/{}",screen.music) != music_name.clone() {
+                                    sink.clear();
+                                    source =
+                                        Decoder::new(
+                                            BufReader::new(
+                                                File::open(screen.music.clone())
+                                                    .unwrap()))
+                                            .unwrap()
+                                            .repeat_infinite();
+                                    music_name = screen.music.clone();
+                                    sink.append(source.clone());
+                                    sink.play();
+                                }
                                 screen.screen_len =
                                     screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
                                 last_scr = screen.scr.clone();
@@ -249,7 +261,19 @@ fn main() -> Result<(), pixels::Error> {
                     // println!("up");
                     let x = screen.player.x_pos;
                     screen = Screen::new(&screen.player.mvmt_destinations[0]);
-
+                    if format!("music/{}",screen.music) != music_name.clone() {
+                        sink.clear();
+                        source =
+                            Decoder::new(
+                                BufReader::new(
+                                    File::open(screen.music.clone())
+                                        .unwrap()))
+                                .unwrap()
+                                .repeat_infinite();
+                        music_name = screen.music.clone();
+                        sink.append(source.clone());
+                        sink.play();
+                    }
                     screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
                     screen.player.x_pos = x;
                     //bottom of screen offset by player height + mvmt distance
@@ -259,7 +283,19 @@ fn main() -> Result<(), pixels::Error> {
                 2 => {
                     let y = screen.player.y_pos;
                     screen = Screen::new(&screen.player.mvmt_destinations[1]);
-
+                    if format!("music/{}",screen.music) != music_name.clone() {
+                        sink.clear();
+                        source =
+                            Decoder::new(
+                                BufReader::new(
+                                    File::open(screen.music.clone())
+                                        .unwrap()))
+                                .unwrap()
+                                .repeat_infinite();
+                        music_name = screen.music.clone();
+                        sink.append(source.clone());
+                        sink.play();
+                    }
                     screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
                     screen.player.y_pos = y;
                     //left side of screen offset by player height + mvmt distance
@@ -271,7 +307,19 @@ fn main() -> Result<(), pixels::Error> {
                     let x = screen.player.x_pos;
                     let scroll = screen.scroll_dist;
                     screen = Screen::new(&screen.player.mvmt_destinations[2]);
-
+                    if format!("music/{}",screen.music) != music_name.clone() {
+                        sink.clear();
+                        source =
+                            Decoder::new(
+                                BufReader::new(
+                                    File::open(screen.music.clone())
+                                        .unwrap()))
+                                .unwrap()
+                                .repeat_infinite();
+                        music_name = screen.music.clone();
+                        sink.append(source.clone());
+                        sink.play();
+                    }
                     screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
                     screen.player.x_pos = x;
                     screen.scroll_dist = scroll;
@@ -281,7 +329,19 @@ fn main() -> Result<(), pixels::Error> {
                 4 => {
                     let y = screen.player.y_pos;
                     screen = Screen::new(&screen.player.mvmt_destinations[3]);
-
+                    if format!("music/{}",screen.music) != music_name.clone() {
+                        sink.clear();
+                        source =
+                            Decoder::new(
+                                BufReader::new(
+                                    File::open(screen.music.clone())
+                                        .unwrap()))
+                                .unwrap()
+                                .repeat_infinite();
+                        music_name = screen.music.clone();
+                        sink.append(source.clone());
+                        sink.play();
+                    }
                     screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
                     screen.player.y_pos = y;
                     screen.player.x_pos = 0 + (mvmt_dist + 1);
@@ -406,7 +466,19 @@ fn main() -> Result<(), pixels::Error> {
             if input.key_pressed(VirtualKeyCode::Tab) && !input.key_held(VirtualKeyCode::Tab) {
                 println!("AAAAAAAAAAAAA");
                 screen = Screen::new(&last_scr);
-
+                if format!("music/{}",screen.music) != music_name.clone() {
+                    sink.clear();
+                    source =
+                        Decoder::new(
+                            BufReader::new(
+                                File::open(screen.music.clone())
+                                    .unwrap()))
+                            .unwrap()
+                            .repeat_infinite();
+                    music_name = screen.music.clone();
+                    sink.append(source.clone());
+                    sink.play();
+                }
                 screen.scroll_dist = last_scroll;
                 screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
                 screen.player.x_pos = x_save;
@@ -420,7 +492,19 @@ fn main() -> Result<(), pixels::Error> {
                 match track % 5 {
                     4 => {
                         screen = Screen::new(&last_scr);
-
+                        if format!("music/{}",screen.music) != music_name.clone() {
+                            sink.clear();
+                            source =
+                                Decoder::new(
+                                    BufReader::new(
+                                        File::open(screen.music.clone())
+                                            .unwrap()))
+                                    .unwrap()
+                                    .repeat_infinite();
+                            music_name = screen.music.clone();
+                            sink.append(source.clone());
+                            sink.play();
+                        }
                         screen.scroll_dist = last_scroll;
                         screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
                         screen.player.x_pos = x_save;

@@ -17,7 +17,21 @@ What workn't?
 What learn?
 What next?
 To be Continued.....                                                                                                Jojo
+5/10
+allow new music on screen change
+changing desired var to be a String instead of &str
+using the &str and cloning into
+just change the variable type instead of fixing
+making it work with no audio out(maybe)
 
+5/9
+work on changing music
+clearing and replacing sink
+
+5/8
+5/5
+5/4
+5/2
 4/26
 fixed interactions and worked on fixing the dialog
 adjusting the position to the scroll
