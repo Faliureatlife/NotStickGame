@@ -98,6 +98,7 @@ fn main() -> Result<(), pixels::Error> {
     let mut left: bool = false;
     let mut down: bool = false;
     let mut right: bool = false;
+    let mut night: bool = false;
 
     // Pause menu variables
     let mut x_save: u16 = screen.player.x_pos;
@@ -112,7 +113,6 @@ fn main() -> Result<(), pixels::Error> {
     let mut fight:bool = false;
     let mut run:bool = false;
     let mut run_did:bool = false;
-
     //loop that runs program
     event_loop.run(move |event, _, control_flow| {
         //When it wants to redraw do this
@@ -246,9 +246,26 @@ fn main() -> Result<(), pixels::Error> {
                                 last_scr = screen.scr.clone();
                             }
                              "dialogue" => {
-
                                  screen.new_dialog(screen.interact_action[i].clone());
                              }
+                            "sleep" => {
+                                night = !night;
+                                screen = Screen::new("WorldData/house-room/picture.txt_night.txt");
+                                screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
+                                if format!("music/{}",screen.music) != music_name.clone() {
+                                    sink.clear();
+                                    source =
+                                        Decoder::new(
+                                            BufReader::new(
+                                                File::open(screen.music.clone())
+                                                    .unwrap()))
+                                            .unwrap()
+                                            .repeat_infinite();
+                                    music_name = screen.music.clone();
+                                    sink.append(source.clone());
+                                    sink.play();
+                                }
+                            }
                              //add new dialogue section, take string and turn into csv of each char which are gotten from the premade alphabet
                             _ => {}
                         }
@@ -260,6 +277,11 @@ fn main() -> Result<(), pixels::Error> {
                 1 => {
                     // println!("up");
                     let x = screen.player.x_pos;
+                    if night {
+                        screen = Screen::new(&format!("{}{}",&screen.player.mvmt_destinations[0],"_night.txt"))
+                    } else {
+                        screen= Screen::new(&screen.player.mvmt_destinations[0])
+                    }
                     screen = Screen::new(&screen.player.mvmt_destinations[0]);
                     if format!("music/{}",screen.music) != music_name.clone() {
                         sink.clear();
@@ -354,10 +376,12 @@ fn main() -> Result<(), pixels::Error> {
             if up {
                 screen.player.mov(1, screen.scroll_dist,mvmt_dist);
             }
+
             //move down if down using the mov function
             if down {
                 screen.player.mov(3, screen.scroll_dist,mvmt_dist);
             }
+
             //move left or scroll if the updated position will be past the bounds
             if left {
                 if screen.player.x_pos < 360 && screen.scroll_dist > 0 + mvmt_dist + 1 {
@@ -368,6 +392,7 @@ fn main() -> Result<(), pixels::Error> {
                     screen.player.mov(2, screen.scroll_dist,mvmt_dist);
                 }
             }
+
             //move right or scroll right if moved pos would be past the bounds
             if right {
                 //first checking where player will be next move
@@ -382,15 +407,18 @@ fn main() -> Result<(), pixels::Error> {
                     screen.player.mov(4, screen.scroll_dist,mvmt_dist);
                 }
             }
+
             //delay the player movement to every three ticks
             if screen.player.move_delay >= 2 {
                 screen.player.move_delay -= 2;
                 screen.player.move_state += 1;
             }
+
             //reset player movement state if at max
             if screen.player.move_state == 4 {
                 screen.player.move_state -= 4;
             }
+
             //upon stopping movement reset the delay and move state to return to neutral
             if input.key_released(VirtualKeyCode::W)
                 || input.key_released(VirtualKeyCode::A)
@@ -442,11 +470,13 @@ fn main() -> Result<(), pixels::Error> {
                 }
                 _ => {}
             }
+
             // Closes program on Escape
             if input.key_pressed(VirtualKeyCode::Escape) || input.quit() {
                 *control_flow = ControlFlow::Exit;
                 return;
             }
+
             // Moves option selected to previous option
             if input.key_pressed(VirtualKeyCode::A) || input.key_pressed(VirtualKeyCode::Left) {
                 if track == 0 {
@@ -455,6 +485,7 @@ fn main() -> Result<(), pixels::Error> {
                     track = track - 1;
                 }
             }
+
             // Moves option selected to following option
             if input.key_pressed(VirtualKeyCode::D) || input.key_pressed(VirtualKeyCode::Right) {
                 if track == 254 {
@@ -463,8 +494,8 @@ fn main() -> Result<(), pixels::Error> {
                     track = track + 1;
                 }
             }
+
             if input.key_pressed(VirtualKeyCode::Tab) && !input.key_held(VirtualKeyCode::Tab) {
-                println!("AAAAAAAAAAAAA");
                 screen = Screen::new(&last_scr);
                 if format!("music/{}",screen.music) != music_name.clone() {
                     sink.clear();
