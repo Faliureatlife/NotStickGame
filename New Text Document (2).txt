@@ -16,7 +16,16 @@ What work?
 What workn't?
 What learn?
 What next?
-To be Continued.....                                                                                                Jojo
+To be Continued.....
+
+                                                                                               Jojo
+5/11
+add in option to change to night
+add new interact and make night picture.txt_night.txt
+using the old code
+sometimes fixes have to look weird
+extending it to the rest of the screens
+
 5/10
 allow new music on screen change
 changing desired var to be a String instead of &str
