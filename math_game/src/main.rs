@@ -256,9 +256,7 @@ fn main() -> Result<(), pixels::Error> {
         if input.update(&event) && !paused && !battle {
             //make into a match statement at some point maybe
             //close on pressing esc
-            if input.key_pressed(VirtualKeyCode::U) {
-                println!("{:?}", screen.interact_pos);
-            }
+
             if input.key_pressed(VirtualKeyCode::Escape) || input.quit() {
                 *control_flow = ControlFlow::Exit;
                 return;
@@ -316,8 +314,7 @@ fn main() -> Result<(), pixels::Error> {
                     4 => check_x += 30 + CHAR_HEIGHT,
                     _ => {}
                 }
-                println!("checking for x {},{}", check_x, check_x + CHAR_WIDTH);
-                println!("checking for y {},{}", check_y, check_y + CHAR_HEIGHT);
+
                 for (i, it) in screen.interact_pos.clone().chunks_exact(2).enumerate() {
                     if check_x < it[0]
                         && it[0] < check_x + CHAR_WIDTH
@@ -374,7 +371,6 @@ fn main() -> Result<(), pixels::Error> {
 
             match screen.player.change_screen {
                 1 => {
-                    // println!("up");
                     let x = screen.player.x_pos;
                     if night {
                         screen = Screen::new(&format!("{}{}",&screen.player.mvmt_destinations[0],"_night.txt"))
@@ -1326,14 +1322,14 @@ fn main() -> Result<(), pixels::Error> {
                     screen.fight_write(options[problem_choose][1].to_string(), 150, 150);
                     screen.fight_write(options[problem_choose][2].to_string(), 150, 234);
                     screen.fight_write(options[problem_choose][3].to_string(), 150, 318);
-                    if input.key_pressed(VirtualKeyCode::W) {
+                    if input.key_pressed(VirtualKeyCode::W) || input.key_pressed(VirtualKeyCode::Up) {
                         if fight_tracker == 0 {
                             fight_tracker = 3;
                         } else {
                             fight_tracker = fight_tracker - 1;
                         }
                     }
-                    if input.key_pressed(VirtualKeyCode::S) {
+                    if input.key_pressed(VirtualKeyCode::S) || input.key_pressed(VirtualKeyCode::Down) {
                         if fight_tracker == 3 {
                             fight_tracker = 0;
                         } else {
@@ -1626,7 +1622,7 @@ fn main() -> Result<(), pixels::Error> {
                         screen.fight_write("Nav runs away".to_string(), 75, 455);
                         time_count = time_count + 1;
                     }
-
+                    println!("{}",time_count);
                     if time_count >= 65 {
                         player_health = 4;
                         run = false;
@@ -1703,6 +1699,10 @@ fn main() -> Result<(), pixels::Error> {
                     time_count = 0;
                     player_health = 4;
                     submit = false;
+                    left = false;
+                    right = false;
+                    up = false;
+                    down = false;
                 }
             }
             if total_correct == 3 {
@@ -1759,6 +1759,10 @@ fn main() -> Result<(), pixels::Error> {
                     time_count = 0;
                     player_health = 4;
                     submit = false;
+                    left = false;
+                    right = false;
+                    up = false;
+                    down = false;
                 }
             }
             window.request_redraw();
@@ -2295,7 +2299,6 @@ impl Screen {
             if letter == ' ' {
                 continue;
             } else {
-                println!("{}", format!("{}{}", "letras/", letter));
                 lett = Entity::new(
                     &format!("{}{}{}{}.txt", "SpriteData/letras/", letter, "/", letter),
                     &format!("{}{}{}{}.txt", "SpriteData/letras/", letter, "/", letter),
@@ -2323,11 +2326,6 @@ impl Screen {
             if letter == ' ' {
                 continue;
             } else {
-                println!("{}", format!(
-                    "{}{}{}{}.txt",
-                    "SpriteData/battle letras/", letter, "/", letter
-                ));
-
                 lett = Entity::new(
                     &format!(
                         "{}{}{}{}.txt",
