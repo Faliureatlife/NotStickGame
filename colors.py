@@ -92,7 +92,7 @@ def rgb_to_hex(red, green, blue):
 # Loads Image
 
 print("test")
-img = Image.open("math_game/WorldData/school-hall/pixil-frame-0 (6).png")
+img = Image.open("math_game/WorldData/library/pixil-frame-0(2) lib.png")
 width, height = img.size
 pixels = img.load()
 allColors = ""
@@ -105,7 +105,7 @@ for y in range(height):
         allColors = allColors + rgb_to_hex(r, g, b)
 
 # open text file
-text_file = open("collision_gen/skewl_hall.txt", "w+")
+text_file = open("collision_gen/lib_dots.txt", "w+")
 # write string to file
 text_file.write(allColors)
 print("done")

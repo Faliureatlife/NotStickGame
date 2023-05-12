@@ -377,7 +377,6 @@ fn main() -> Result<(), pixels::Error> {
                     } else {
                         screen= Screen::new(&screen.player.mvmt_destinations[0])
                     }
-                    screen = Screen::new(&screen.player.mvmt_destinations[0]);
                     if format!("music/{}",screen.music) != music_name.clone() {
                         sink.clear();
                         source =
@@ -524,8 +523,8 @@ fn main() -> Result<(), pixels::Error> {
             }
 
             if screen.player.move_state != 0 {
-                let encounter: u16 = rng.gen_range(0..500);
-                if encounter <= 2 {
+                let encounter: u16 = rng.gen_range(0..300);
+                if encounter <= 0 {
                     track = 0;
                     last_scr = screen.scr.clone();
                     x_save = screen.player.x_pos;
@@ -1622,7 +1621,6 @@ fn main() -> Result<(), pixels::Error> {
                         screen.fight_write("Nav runs away".to_string(), 75, 455);
                         time_count = time_count + 1;
                     }
-                    println!("{}",time_count);
                     if time_count >= 65 {
                         player_health = 4;
                         run = false;
@@ -1687,22 +1685,25 @@ fn main() -> Result<(), pixels::Error> {
                 if time_count < 100 {
                     time_count = time_count + 1;
                 } else {
-                    battle = !battle;
+                    player_health = 4;
+                    run = false;
+                    try_run = false;
+                    run_did = false;
+                    fight = false;
+                    time_count = 0;
+                    battle = false;
+                    up = false;
+                    left = false;
+                    right = false;
+                    down = false;
+                    submit = false;
                     screen = Screen::new(&last_scr);
                     screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
                     screen.player.x_pos = x_save;
                     screen.player.y_pos = y_save;
                     fight_tracker = 0;
-                    try_run = false;
-                    run = false;
-                    fight = false;
-                    time_count = 0;
-                    player_health = 4;
-                    submit = false;
-                    left = false;
-                    right = false;
-                    up = false;
-                    down = false;
+                    total_correct = 0;
+
                 }
             }
             if total_correct == 3 {
@@ -1747,22 +1748,24 @@ fn main() -> Result<(), pixels::Error> {
                     screen.fight_write("Nav wins the".to_string(), 75, 455);
                     screen.fight_write("battle".to_string(), 75, 490);
                 } else {
-                    battle = !battle;
+                    player_health = 4;
+                    run = false;
+                    try_run = false;
+                    run_did = false;
+                    fight = false;
+                    time_count = 0;
+                    battle = false;
+                    up = false;
+                    left = false;
+                    right = false;
+                    down = false;
+                    submit = false;
                     screen = Screen::new(&last_scr);
                     screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
                     screen.player.x_pos = x_save;
                     screen.player.y_pos = y_save;
                     fight_tracker = 0;
-                    try_run = false;
-                    run = false;
-                    fight = false;
-                    time_count = 0;
-                    player_health = 4;
-                    submit = false;
-                    left = false;
-                    right = false;
-                    up = false;
-                    down = false;
+                    total_correct = 0;
                 }
             }
             window.request_redraw();
