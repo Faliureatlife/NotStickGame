@@ -1,37 +1,29 @@
 //extra functions for idiomatic code or wtv
 //todo: make moving work
-//todo: replace serde with miniserde (maybe)
-//todo: multithreading
-//todo: pause when move off tab
+
+//jacob cringe rust book import
 use rand::prelude::*;
+//screen access
 use pixels::{
-    wgpu::{PowerPreference, PresentMode, RequestAdapterOptions},
+    wgpu::{PowerPreference, RequestAdapterOptions,PresentMode},
     PixelsBuilder,
 };
-//Dont just import all of pixels at some point
+//audio
+use rodio::{Decoder, OutputStream, source::Source, Sink};
+//deserialize json files
 use serde_json::{de, value::Value};
+//whatever i need from the std library atm
 use std::{
     env,
     fs::*,
-    // time::SystemTime,
-    // mem,
-    // io::Write,
-    // time::Duration,
+    io::BufReader
     // thread::sleep,
-    // u8,
-    // error::Error;
 };
+//window management and input
 use winit::event::VirtualKeyCode;
-use winit::{
-    dpi::PhysicalSize,
-    event::*,
-    event_loop::*,
-    window::Window,
-    //dpi::PhysicalSize,
-};
+use winit::{dpi::PhysicalSize, event::*, event_loop::*, window::Window, };
 use winit_input_helper::WinitInputHelper;
 // use pixels::wgpu::Color;
-// use rayon::prelude::*;
 
 // unused constants
 // const START_Y: u16 = 10;
@@ -83,6 +75,20 @@ fn main() -> Result<(), pixels::Error> {
     let mut screen = Screen::new("houses");
     let mut mvmt_dist: u16 = 5;
 
+    //music initialization
+    let (_stream, stream_handle) = OutputStream::try_default().unwrap();
+    let mut music_name = "music/Stroll_Around_Town.wav".to_owned();
+    let mut source =
+        Decoder::new(
+        BufReader::new(
+            File::open(music_name.clone())
+                .unwrap()))
+            .unwrap()
+            .repeat_infinite();
+    let sink = Sink::try_new(&stream_handle).unwrap();
+    sink.append(source.clone());
+    sink.play();
+
     //setting the distance to be the correct value (add in to new() function later)
     screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
     //declaring the direction moved values with initial value of false
@@ -90,12 +96,14 @@ fn main() -> Result<(), pixels::Error> {
     let mut left: bool = false;
     let mut down: bool = false;
     let mut right: bool = false;
+    let mut night: bool = false;
 
     // Pause menu variables
     let mut x_save: u16 = screen.player.x_pos;
     let mut y_save: u16 = screen.player.y_pos;
-    let mut paused: bool = false;
+    let mut paused:bool = false;
     let mut last_scr: String = format!("houses");
+    let mut last_scroll: u16 = 0;
     let mut track: u8 = 0;
 
     // Battle Variables
@@ -232,7 +240,6 @@ fn main() -> Result<(), pixels::Error> {
         if let Event::RedrawRequested(_) = event {
             //framebuffer that we shall mut
             screen.draw(pixels.get_frame());
-            //screen.draw_dialog(pix.get_frane());
             //do the thinking for the drawing process
             //render the frame buffer and panic if it has something passed to it
             if pixels
@@ -259,9 +266,11 @@ fn main() -> Result<(), pixels::Error> {
             if input.key_pressed(VirtualKeyCode::Tab) {
                 track = 0;
                 last_scr = screen.scr.clone();
+                last_scroll = screen.scroll_dist;
                 x_save = screen.player.x_pos;
                 y_save = screen.player.y_pos;
                 screen = Screen::new("pause-menu/pause-menu-a");
+
                 screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
                 paused = !paused;
             }
@@ -318,12 +327,43 @@ fn main() -> Result<(), pixels::Error> {
                         match screen.interact[i].as_str() {
                             "move" => {
                                 screen = Screen::new(&screen.interact_action[i]);
+                                if format!("music/{}",screen.music) != music_name.clone() {
+                                    sink.clear();
+                                    source =
+                                        Decoder::new(
+                                            BufReader::new(
+                                                File::open(screen.music.clone())
+                                                    .unwrap()))
+                                            .unwrap()
+                                            .repeat_infinite();
+                                    music_name = screen.music.clone();
+                                    sink.append(source.clone());
+                                    sink.play();
+                                }
                                 screen.screen_len =
                                     screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
                                 last_scr = screen.scr.clone();
                             }
-                            "dialogue" => {
-                                screen.new_dialog(screen.interact_action[i].clone());
+                             "dialogue" => {
+                                 screen.new_dialog(screen.interact_action[i].clone());
+                             }
+                            "sleep" => {
+                                night = !night;
+                                screen = Screen::new("WorldData/house-room/picture.txt_night.txt");
+                                screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
+                                if format!("music/{}",screen.music) != music_name.clone() {
+                                    sink.clear();
+                                    source =
+                                        Decoder::new(
+                                            BufReader::new(
+                                                File::open(screen.music.clone())
+                                                    .unwrap()))
+                                            .unwrap()
+                                            .repeat_infinite();
+                                    music_name = screen.music.clone();
+                                    sink.append(source.clone());
+                                    sink.play();
+                                }
                             }
                             //add new dialogue section, take string and turn into csv of each char which are gotten from the premade alphabet
                             _ => {}
@@ -336,7 +376,25 @@ fn main() -> Result<(), pixels::Error> {
                 1 => {
                     // println!("up");
                     let x = screen.player.x_pos;
+                    if night {
+                        screen = Screen::new(&format!("{}{}",&screen.player.mvmt_destinations[0],"_night.txt"))
+                    } else {
+                        screen= Screen::new(&screen.player.mvmt_destinations[0])
+                    }
                     screen = Screen::new(&screen.player.mvmt_destinations[0]);
+                    if format!("music/{}",screen.music) != music_name.clone() {
+                        sink.clear();
+                        source =
+                            Decoder::new(
+                                BufReader::new(
+                                    File::open(screen.music.clone())
+                                        .unwrap()))
+                                .unwrap()
+                                .repeat_infinite();
+                        music_name = screen.music.clone();
+                        sink.append(source.clone());
+                        sink.play();
+                    }
                     screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
                     screen.player.x_pos = x;
                     //bottom of screen offset by player height + mvmt distance
@@ -346,6 +404,19 @@ fn main() -> Result<(), pixels::Error> {
                 2 => {
                     let y = screen.player.y_pos;
                     screen = Screen::new(&screen.player.mvmt_destinations[1]);
+                    if format!("music/{}",screen.music) != music_name.clone() {
+                        sink.clear();
+                        source =
+                            Decoder::new(
+                                BufReader::new(
+                                    File::open(screen.music.clone())
+                                        .unwrap()))
+                                .unwrap()
+                                .repeat_infinite();
+                        music_name = screen.music.clone();
+                        sink.append(source.clone());
+                        sink.play();
+                    }
                     screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
                     screen.player.y_pos = y;
                     //left side of screen offset by player height + mvmt distance
@@ -357,6 +428,19 @@ fn main() -> Result<(), pixels::Error> {
                     let x = screen.player.x_pos;
                     let scroll = screen.scroll_dist;
                     screen = Screen::new(&screen.player.mvmt_destinations[2]);
+                    if format!("music/{}",screen.music) != music_name.clone() {
+                        sink.clear();
+                        source =
+                            Decoder::new(
+                                BufReader::new(
+                                    File::open(screen.music.clone())
+                                        .unwrap()))
+                                .unwrap()
+                                .repeat_infinite();
+                        music_name = screen.music.clone();
+                        sink.append(source.clone());
+                        sink.play();
+                    }
                     screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
                     screen.player.x_pos = x;
                     screen.scroll_dist = scroll;
@@ -366,6 +450,19 @@ fn main() -> Result<(), pixels::Error> {
                 4 => {
                     let y = screen.player.y_pos;
                     screen = Screen::new(&screen.player.mvmt_destinations[3]);
+                    if format!("music/{}",screen.music) != music_name.clone() {
+                        sink.clear();
+                        source =
+                            Decoder::new(
+                                BufReader::new(
+                                    File::open(screen.music.clone())
+                                        .unwrap()))
+                                .unwrap()
+                                .repeat_infinite();
+                        music_name = screen.music.clone();
+                        sink.append(source.clone());
+                        sink.play();
+                    }
                     screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
                     screen.player.y_pos = y;
                     screen.player.x_pos = 0 + (mvmt_dist + 1);
@@ -1919,6 +2016,7 @@ struct Screen {
     interact: Vec<String>,
     interact_pos: Vec<u16>,
     interact_action: Vec<String>,
+    music: String,
 }
 impl Screen {
     fn new(place: &str) -> Self {
@@ -2007,6 +2105,13 @@ impl Screen {
                 "interact_actions",
             )
             .expect("Failed to read interaction types"),
+
+            music: {
+                Screen::read_from_file_str(
+                    format!("{}{}{}", WORLD, place, "/data.json"),
+                    "music",
+                ).expect("Failed to read background music")
+            }
         }
     }
     fn read_from_file_u16(path: String, get: &str) -> Result<u16, std::io::Error> {
@@ -2051,6 +2156,25 @@ impl Screen {
         //returns as result
         Ok(e)
     }
+
+    fn read_from_file_str(path: String, get: &str) -> Result<String, std::io::Error> {
+        //opens the json file
+        let a = File::open(path)?;
+        //makes the file a buffered reader
+        let b = std::io::BufReader::new(a);
+        //reads from file into Value enum
+        let c: Value = serde_json::from_reader(b).expect("File not a valid .json");
+        //gets the list from the overall value
+        let d = c
+            .get(get)
+            .expect("read_from_file_vec failed to get value")
+            .as_str()
+            .expect("read_from_file_vec failed to convert to array")
+            .to_string();
+        //returns as result
+        Ok(d)
+    }
+
     fn read_from_file_vecu16(path: String, get: &str) -> Result<Vec<u16>, std::io::Error> {
         //opens the json file
         let a = File::open(path)?;
@@ -2101,7 +2225,8 @@ impl Screen {
 
     //not getting comments because it works
     fn draw(&self, pix: &mut [u8]) {
-        for (it, pixel) in pix.chunks_exact_mut(4).enumerate() {
+        //draw bg
+        for (it,pixel) in pix.chunks_exact_mut(4).enumerate() {
             pixel[0] = self.area[3 * self.scroll_dist as usize
                 + (3 * self.screen_len * ((3 * it) / (3 * SCREEN_WIDTH) as usize))
                 + ((it * 3) % (3 * SCREEN_WIDTH as usize))];
@@ -2259,12 +2384,12 @@ impl Entity {
                 format!("{}{}{}", "SpriteData/", idd, "/data.json"),
                 "height",
             )
-            .expect("failed to get height"),
+                .expect("failed to get height"),
             width: Entity::read_from_file_u8(
                 format!("{}{}{}", "SpriteData/", idd, "/data.json"),
                 "width",
             )
-            .unwrap(),
+                .unwrap(),
             x_pos: 1,
             y_pos: 1,
             move_state: 0,
@@ -2290,7 +2415,7 @@ impl Entity {
                     std::str::from_utf8(pix).expect("Failed to convert to utf8"),
                     16,
                 )
-                .expect("Failed to convert to hex value"),
+                    .expect("Failed to convert to hex value"),
             );
         }
         //return the vector with the info
@@ -2313,8 +2438,3 @@ impl Entity {
         Ok(d)
     }
 }
-
-// fn _update(&mut self, sc) -> std::io::Result <()> {
-//     std::fs::copy(self.place,"screen.txt");
-//
-// }

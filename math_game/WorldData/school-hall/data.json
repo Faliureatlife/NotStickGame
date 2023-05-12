@@ -7,6 +7,7 @@
 	"entities": [""],
 	"interact": ["move","move","move"],
 	"interact_actions": ["school-english","school-science","school-math"],
-	"interact_pos": [545,475,417,139,138,139]
+	"interact_pos": [545,475,417,139,138,139],
+	"music": "music/Stroll_Around_Town.wav"
 }
 	

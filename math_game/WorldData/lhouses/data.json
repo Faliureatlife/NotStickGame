@@ -7,6 +7,7 @@
 	"entities": [],
 	"interact": ["move"],
 	"interact_actions": ["dots"],
-	"interact_pos": [588,180]
+	"interact_pos": [588,180],
+	"music": "music/Stroll_Around_Town.wav"
 }
 	

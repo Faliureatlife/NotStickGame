@@ -7,5 +7,6 @@
   "entities": [],
   "interact": ["move"],
   "interact_actions": ["library-enterance"],
-  "interact_pos": [452,140,496,140]
+  "interact_pos": [452,140,496,140],
+  "music": "music/Stroll_Around_Town.wav"
 }
