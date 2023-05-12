@@ -1073,7 +1073,7 @@ fn main() -> Result<(), pixels::Error> {
                         }
                         _ => {}
                     }
-                    screen.fight_write(task[problem_choose].to_string() + ";" + problems[problem_choose], 75, 455);
+                    screen.fight_write(task[problem_choose].to_string() + ";" + problems[problem_choose], 55, 455);
                     screen.fight_write(options[problem_choose][0].to_string(), 150, 66);
                     screen.fight_write(options[problem_choose][1].to_string(), 150, 150);
                     screen.fight_write(options[problem_choose][2].to_string(), 150, 234);
@@ -1192,7 +1192,7 @@ fn main() -> Result<(), pixels::Error> {
                         }
                         screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
                         if time_count <= 60 {
-                            screen.fight_write("You are enemy".to_string(), 75, 450);
+                            screen.fight_write("You are correct".to_string(), 75, 450);
                             time_count = time_count + 1;
                         } else if time_count <= 120 {
                             screen.fight_write("You attack the".to_string(),75, 450);
@@ -2011,7 +2011,7 @@ impl Screen {
         let mut y:u16 = y_pos;
         let mut lett: Entity;
         for letter in text.chars() {
-            x += 30;
+            x += 25;
             if x >=630 {
                 x = 68;
                 y += 40;
