@@ -3,11 +3,11 @@
 //todo: replace serde with miniserde (maybe)
 //todo: multithreading
 //todo: pause when move off tab
-use rand::prelude::*;
 use pixels::{
-    wgpu::{PowerPreference, RequestAdapterOptions,PresentMode},
+    wgpu::{PowerPreference, PresentMode, RequestAdapterOptions},
     PixelsBuilder,
 };
+use rand::prelude::*;
 //Dont just import all of pixels at some point
 use serde_json::{de, value::Value};
 use std::{
@@ -94,43 +94,131 @@ fn main() -> Result<(), pixels::Error> {
     // Pause menu variables
     let mut x_save: u16 = screen.player.x_pos;
     let mut y_save: u16 = screen.player.y_pos;
-    let mut paused:bool = false;
+    let mut paused: bool = false;
     let mut last_scr: String = format!("houses");
     let mut track: u8 = 0;
 
     // Battle Variables
-    let mut battle:bool = false;
-    let mut fight:bool = false;
+    let mut battle: bool = false;
+    let mut fight: bool = false;
     let mut time_count: u16 = 0;
     let mut player_health: u8 = 4;
 
     // Run Variables
-    let mut run:bool = false;
-    let mut run_did:bool = false;
+    let mut run: bool = false;
+    let mut run_did: bool = false;
     let mut rng = rand::thread_rng();
     let mut run_good: u8 = 0;
-    let mut try_run:bool = false;
+    let mut try_run: bool = false;
 
     // Fight Variables
-    
-    let task = vec!["Expand", "Expand", "Expand", "Expand", "Expand", "Expand", "Expand", "Expand", 
-                    "Simplify", "Simplify", "Simplify", "Simplify"];
-    let problems = vec!["x@+4x+4", "6x@+5x+1", "12x@+4x-1", "4x@+9x-9", "x@-49", "x@-25", "x@+2x-80", "9x@+6x-80", 
-                    "(4x+7)(2x+3)", "(-5y-5)(4y-2)", "(3l-7)(3l-5)", "(j+7)(j-7)"];
-    let options = vec![vec!["(x+3)(x-5)".to_string(), "(x+2)(x-2)".to_string(), "(x+2)(x+2)".to_string(), "(x+2)(x+1)".to_string()], 
-                       vec!["(3x+1)(2x+1)".to_string(), "(3x-1)(2x-1)".to_string(), "(3x+1)(2x-1)".to_string(), "(3x-1)(2x+1)".to_string()],
-                       vec!["(6x-1)(2x-1)".to_string(), "(6x+1)(2x-1)".to_string(), "(6x+1)(2x+1)".to_string(), "(6x-1)(2x+1)".to_string()],
-                       vec!["(4x-3)(x-3)".to_string(), "(4x-3)(x+3)".to_string(), "(4x+3)(x+3)".to_string(), "(4x+3)(x-3)".to_string()],
-                       vec!["(x+7)(x+7)".to_string(), "(x-7)(x+9)".to_string(), "(x-7)(x-7)".to_string(), "(x-7)(x+7)".to_string()],
-                       vec!["(x-5)(x-5)".to_string(), "(x-5)(x+7)".to_string(), "(x-5)(x+5)".to_string(), "(x+5)(x+5)".to_string()],
-                       vec!["(x-10)(x-8)".to_string(), "(x+10)(x+8)".to_string(), "(x-10)(x+8)".to_string(), "(x+10)(x-8)".to_string()],
-                       vec!["(3x-8)(3x+10)".to_string(), "(3x+8)(3x-10)".to_string(), "(-3x-8)(-3x-10)".to_string(), "(3x-3)(3x+10)".to_string()],
-                       vec!["8x@+2x-21".to_string(), "8x@-26x+21".to_string(), "8x@-2x-21".to_string(), "8x@+26x+21".to_string()],
-                       vec!["-20y@-30y-10".to_string(), "-20y@+30y-10".to_string(), "-20y@-10y+10".to_string(), "-20y@+10y+10".to_string()],
-                       vec!["9l@-36l-35".to_string(), "9l@+36l+35".to_string(), "9l@-36l+35".to_string(), "9l@+6l+35".to_string()],
-                       vec!["j@-14j-49".to_string(), "j@+14j-49".to_string(), "j@-49".to_string(), "j@+14j-49".to_string()]];
-    let answer = vec!["(x+2)(x+2)", "(3x+1)(2x+1)", "(6x-1)(2x+1)", "(4x-3)(g+3)", "(x-7)(x+7)", "(x-5)(x+5)", "(x+10)(x-8)", "(3x-8)(3x+10)", 
-                      "8x@+26x+21", "-20y@-10y+10", "9l@-36l+35", "j@-49"];
+
+    let task = vec![
+        "Expand", "Expand", "Expand", "Expand", "Expand", "Expand", "Expand", "Expand", "Simplify",
+        "Simplify", "Simplify", "Simplify",
+    ];
+    let problems = vec![
+        "x@+4x+4",
+        "6x@+5x+1",
+        "12x@+4x-1",
+        "4x@+9x-9",
+        "x@-49",
+        "x@-25",
+        "x@+2x-80",
+        "9x@+6x-80",
+        "(4x+7)(2x+3)",
+        "(-5y-5)(4y-2)",
+        "(3l-7)(3l-5)",
+        "(j+7)(j-7)",
+    ];
+    let options = vec![
+        vec![
+            "(x+3)(x-5)".to_string(),
+            "(x+2)(x-2)".to_string(),
+            "(x+2)(x+2)".to_string(),
+            "(x+2)(x+1)".to_string(),
+        ],
+        vec![
+            "(3x+1)(2x+1)".to_string(),
+            "(3x-1)(2x-1)".to_string(),
+            "(3x+1)(2x-1)".to_string(),
+            "(3x-1)(2x+1)".to_string(),
+        ],
+        vec![
+            "(6x-1)(2x-1)".to_string(),
+            "(6x+1)(2x-1)".to_string(),
+            "(6x+1)(2x+1)".to_string(),
+            "(6x-1)(2x+1)".to_string(),
+        ],
+        vec![
+            "(4x-3)(x-3)".to_string(),
+            "(4x-3)(x+3)".to_string(),
+            "(4x+3)(x+3)".to_string(),
+            "(4x+3)(x-3)".to_string(),
+        ],
+        vec![
+            "(x+7)(x+7)".to_string(),
+            "(x-7)(x+9)".to_string(),
+            "(x-7)(x-7)".to_string(),
+            "(x-7)(x+7)".to_string(),
+        ],
+        vec![
+            "(x-5)(x-5)".to_string(),
+            "(x-5)(x+7)".to_string(),
+            "(x-5)(x+5)".to_string(),
+            "(x+5)(x+5)".to_string(),
+        ],
+        vec![
+            "(x-10)(x-8)".to_string(),
+            "(x+10)(x+8)".to_string(),
+            "(x-10)(x+8)".to_string(),
+            "(x+10)(x-8)".to_string(),
+        ],
+        vec![
+            "(3x-8)(3x+10)".to_string(),
+            "(3x+8)(3x-10)".to_string(),
+            "(-3x-8)(-3x-10)".to_string(),
+            "(3x-3)(3x+10)".to_string(),
+        ],
+        vec![
+            "8x@+2x-21".to_string(),
+            "8x@-26x+21".to_string(),
+            "8x@-2x-21".to_string(),
+            "8x@+26x+21".to_string(),
+        ],
+        vec![
+            "-20y@-30y-10".to_string(),
+            "-20y@+30y-10".to_string(),
+            "-20y@-10y+10".to_string(),
+            "-20y@+10y+10".to_string(),
+        ],
+        vec![
+            "9l@-36l-35".to_string(),
+            "9l@+36l+35".to_string(),
+            "9l@-36l+35".to_string(),
+            "9l@+6l+35".to_string(),
+        ],
+        vec![
+            "j@-14j-49".to_string(),
+            "j@+14j-49".to_string(),
+            "j@-49".to_string(),
+            "j@+14j-49".to_string(),
+        ],
+    ];
+    let answer = vec![
+        "(x+2)(x+2)",
+        "(3x+1)(2x+1)",
+        "(6x-1)(2x+1)",
+        "(4x-3)(g+3)",
+        "(x-7)(x+7)",
+        "(x-5)(x+5)",
+        "(x+10)(x-8)",
+        "(3x-8)(3x+10)",
+        "8x@+26x+21",
+        "-20y@-10y+10",
+        "9l@-36l+35",
+        "j@-49",
+    ];
     let mut problem_choose: usize = 0;
     let mut problem_generate: bool = false;
     let mut submit: bool = false;
@@ -158,7 +246,7 @@ fn main() -> Result<(), pixels::Error> {
             }
         }
         //update part of code that handles key-presses and simple window things
-        if input.update(&event) && !paused && !battle{
+        if input.update(&event) && !paused && !battle {
             //make into a match statement at some point maybe
             //close on pressing esc
             if input.key_pressed(VirtualKeyCode::U) {
@@ -219,8 +307,8 @@ fn main() -> Result<(), pixels::Error> {
                     4 => check_x += 30 + CHAR_HEIGHT,
                     _ => {}
                 }
-                println!("checking for x {},{}",check_x,check_x + CHAR_WIDTH);
-                println!("checking for y {},{}",check_y,check_y + CHAR_HEIGHT);
+                println!("checking for x {},{}", check_x, check_x + CHAR_WIDTH);
+                println!("checking for y {},{}", check_y, check_y + CHAR_HEIGHT);
                 for (i, it) in screen.interact_pos.clone().chunks_exact(2).enumerate() {
                     if check_x < it[0]
                         && it[0] < check_x + CHAR_WIDTH
@@ -234,11 +322,10 @@ fn main() -> Result<(), pixels::Error> {
                                     screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
                                 last_scr = screen.scr.clone();
                             }
-                             "dialogue" => {
-
-                                 screen.new_dialog(screen.interact_action[i].clone());
-                             }
-                             //add new dialogue section, take string and turn into csv of each char which are gotten from the premade alphabet
+                            "dialogue" => {
+                                screen.new_dialog(screen.interact_action[i].clone());
+                            }
+                            //add new dialogue section, take string and turn into csv of each char which are gotten from the premade alphabet
                             _ => {}
                         }
                     }
@@ -289,11 +376,11 @@ fn main() -> Result<(), pixels::Error> {
             }
 
             if up {
-                screen.player.mov(1, screen.scroll_dist,mvmt_dist);
+                screen.player.mov(1, screen.scroll_dist, mvmt_dist);
             }
             //move down if down using the mov function
             if down {
-                screen.player.mov(3, screen.scroll_dist,mvmt_dist);
+                screen.player.mov(3, screen.scroll_dist, mvmt_dist);
             }
             //move left or scroll if the updated position will be past the bounds
             if left {
@@ -302,21 +389,22 @@ fn main() -> Result<(), pixels::Error> {
                     screen.player.move_delay += 1;
                     screen.player.direction = 2;
                 } else {
-                    screen.player.mov(2, screen.scroll_dist,mvmt_dist);
+                    screen.player.mov(2, screen.scroll_dist, mvmt_dist);
                 }
             }
             //move right or scroll right if moved pos would be past the bounds
             if right {
                 //first checking where player will be next move
                 //second checking to make sure no bad negative overflows
-                if screen.player.x_pos + mvmt_dist > 360 && screen.screen_len > 720
+                if screen.player.x_pos + mvmt_dist > 360
+                    && screen.screen_len > 720
                     && screen.scroll_dist + mvmt_dist < (screen.screen_len - 720) as u16
                 {
                     screen.scroll_dist += mvmt_dist;
                     screen.player.move_delay += 1;
                     screen.player.direction = 3;
                 } else {
-                    screen.player.mov(4, screen.scroll_dist,mvmt_dist);
+                    screen.player.mov(4, screen.scroll_dist, mvmt_dist);
                 }
             }
             //delay the player movement to every three ticks
@@ -343,7 +431,7 @@ fn main() -> Result<(), pixels::Error> {
             }
 
             if screen.player.move_state != 0 {
-                let encounter:u16 = rng.gen_range(0..500);
+                let encounter: u16 = rng.gen_range(0..500);
                 if encounter <= 2 {
                     track = 0;
                     last_scr = screen.scr.clone();
@@ -466,324 +554,398 @@ fn main() -> Result<(), pixels::Error> {
                 *control_flow = ControlFlow::Exit;
                 return;
             }
-            
+
             if !fight && !run {
                 match track {
                     0 => {
                         // Fight select
                         match player_health {
-                            4 => {
-                                match last_scr.as_str() {
-                                    "houses" => {
-                                        screen = Screen::new("BattleScene/Full-Health/Select/Fight/houses");
-                                    }
-                                    "stoor" => {
-                                        screen = Screen::new("BattleScene/Full-Health/Select/Fight/stoor");
-                                    }
-                                    "school-cafeteria" => {
-                                        screen = Screen::new("BattleScene/Full-Health/Select/Fight/school-cafeteria");
-                                    }
-                                    "school-math" => {
-                                        screen = Screen::new("BattleScene/Full-Health/Select/Fight/school-math");
-                                    }
-                                    "school-english" => {
-                                        screen = Screen::new("BattleScene/Full-Health/Select/Fight/school-english");
-                                    }
-                                    "pond" => {
-                                        screen = Screen::new("BattleScene/Full-Health/Select/Fight/pond");
-                                    }
-                                    "library-tables" => {
-                                        screen = Screen::new("BattleScene/Full-Health/Select/Fight/library");
-                                    }
-                                    "house-living" => {
-                                        screen = Screen::new("BattleScene/Full-Health/Select/Fight/house-living");
-                                    }
-                                    "school-hall" => {
-                                        screen = Screen::new("BattleScene/Full-Health/Select/Fight/school-hall");
-                                    }
-                                    "school" => {
-                                        screen = Screen::new("BattleScene/Full-Health/Select/Fight/school");
-                                    }
-                                    "lhouses" => {
-                                        screen = Screen::new("BattleScene/Full-Health/Select/Fight/lhouses");
-                                    }
-                                    _ => {}
+                            4 => match last_scr.as_str() {
+                                "houses" => {
+                                    screen =
+                                        Screen::new("BattleScene/Full-Health/Select/Fight/houses");
                                 }
-                            }
-                            3 => {
-                                match last_scr.as_str() {
-                                    "houses" => {
-                                        screen = Screen::new("BattleScene/75-Health/Select/Fight/houses");
-                                    }
-                                    "stoor" => {
-                                        screen = Screen::new("BattleScene/75-Health/Select/Fight/stoor");
-                                    }
-                                    "school-cafeteria" => {
-                                        screen = Screen::new("BattleScene/75-Health/Select/Fight/school-cafeteria");
-                                    }
-                                    "school-math" => {
-                                        screen = Screen::new("BattleScene/75-Health/Select/Fight/school-math");
-                                    }
-                                    "school-english" => {
-                                        screen = Screen::new("BattleScene/75-Health/Select/Fight/school-english");
-                                    }
-                                    "pond" => {
-                                        screen = Screen::new("BattleScene/75-Health/Select/Fight/pond");
-                                    }
-                                    "library-tables" => {
-                                        screen = Screen::new("BattleScene/75-Health/Select/Fight/library-tables");
-                                    }
-                                    "house-living" => {
-                                        screen = Screen::new("BattleScene/75-Health/Select/Fight/house-living");
-                                    }
-                                    "school-hall" => {
-                                        screen = Screen::new("BattleScene/75-Health/Select/Fight/school-hall");
-                                    }
-                                    "school" => {
-                                        screen = Screen::new("BattleScene/75-Health/Select/Fight/school");
-                                    }
-                                    "lhouses" => {
-                                        screen = Screen::new("BattleScene/75-Health/Select/Fight/lhouses");
-                                    }
-                                    _ => {}
+                                "stoor" => {
+                                    screen =
+                                        Screen::new("BattleScene/Full-Health/Select/Fight/stoor");
                                 }
-                            }
-                            2 => {
-                                match last_scr.as_str() {
-                                    "houses" => {
-                                        screen = Screen::new("BattleScene/50-Health/Select/Fight/houses");
-                                    }
-                                    "stoor" => {
-                                        screen = Screen::new("BattleScene/50-Health/Select/Fight/stoor");
-                                    }
-                                    "school-cafeteria" => {
-                                        screen = Screen::new("BattleScene/50-Health/Select/Fight/school-cafeteria");
-                                    }
-                                    "school-math" => {
-                                        screen = Screen::new("BattleScene/50-Health/Select/Fight/school-math");
-                                    }
-                                    "school-english" => {
-                                        screen = Screen::new("BattleScene/50-Health/Select/Fight/school-english");
-                                    }
-                                    "pond" => {
-                                        screen = Screen::new("BattleScene/50-Health/Select/Fight/pond");
-                                    }
-                                    "library-tables" => {
-                                        screen = Screen::new("BattleScene/50-Health/Select/Fight/library-tables");
-                                    }
-                                    "house-living" => {
-                                        screen = Screen::new("BattleScene/50-Health/Select/Fight/house-living");
-                                    }
-                                    "school-hall" => {
-                                        screen = Screen::new("BattleScene/50-Health/Select/Fight/school-hall");
-                                    }
-                                    "school" => {
-                                        screen = Screen::new("BattleScene/50-Health/Select/Fight/school");
-                                    }
-                                    "lhouses" => {
-                                        screen = Screen::new("BattleScene/50-Health/Select/Fight/lhouses");
-                                    }
-                                    _ => {}
+                                "school-cafeteria" => {
+                                    screen = Screen::new(
+                                        "BattleScene/Full-Health/Select/Fight/school-cafeteria",
+                                    );
                                 }
-                            }
-                            1 => {
-                                match last_scr.as_str() {
-                                    "houses" => {
-                                        screen = Screen::new("BattleScene/25-Health/Select/Fight/houses");
-                                    }
-                                    "stoor" => {
-                                        screen = Screen::new("BattleScene/25-Health/Select/Fight/stoor");
-                                    }
-                                    "school-cafeteria" => {
-                                        screen = Screen::new("BattleScene/25-Health/Select/Fight/school-cafeteria");
-                                    }
-                                    "school-math" => {
-                                        screen = Screen::new("BattleScene/25-Health/Select/Fight/school-math");
-                                    }
-                                    "school-english" => {
-                                        screen = Screen::new("BattleScene/25-Health/Select/Fight/school-english");
-                                    }
-                                    "pond" => {
-                                        screen = Screen::new("BattleScene/25-Health/Select/Fight/pond");
-                                    }
-                                    "library-tables" => {
-                                        screen = Screen::new("BattleScene/25-Health/Select/Fight/library-tables");
-                                    }
-                                    "house-living" => {
-                                        screen = Screen::new("BattleScene/25-Health/Select/Fight/house-living");
-                                    }
-                                    "school-hall" => {
-                                        screen = Screen::new("BattleScene/25-Health/Select/Fight/school-hall");
-                                    }
-                                    "school" => {
-                                        screen = Screen::new("BattleScene/25-Health/Select/Fight/school");
-                                    }
-                                    "lhouses" => {
-                                        screen = Screen::new("BattleScene/25-Health/Select/Fight/lhouses");
-                                    }
-                                    _ => {}
+                                "school-math" => {
+                                    screen = Screen::new(
+                                        "BattleScene/Full-Health/Select/Fight/school-math",
+                                    );
                                 }
-                            }
+                                "school-english" => {
+                                    screen = Screen::new(
+                                        "BattleScene/Full-Health/Select/Fight/school-english",
+                                    );
+                                }
+                                "pond" => {
+                                    screen =
+                                        Screen::new("BattleScene/Full-Health/Select/Fight/pond");
+                                }
+                                "library-tables" => {
+                                    screen =
+                                        Screen::new("BattleScene/Full-Health/Select/Fight/library");
+                                }
+                                "house-living" => {
+                                    screen = Screen::new(
+                                        "BattleScene/Full-Health/Select/Fight/house-living",
+                                    );
+                                }
+                                "school-hall" => {
+                                    screen = Screen::new(
+                                        "BattleScene/Full-Health/Select/Fight/school-hall",
+                                    );
+                                }
+                                "school" => {
+                                    screen =
+                                        Screen::new("BattleScene/Full-Health/Select/Fight/school");
+                                }
+                                "lhouses" => {
+                                    screen =
+                                        Screen::new("BattleScene/Full-Health/Select/Fight/lhouses");
+                                }
+                                _ => {}
+                            },
+                            3 => match last_scr.as_str() {
+                                "houses" => {
+                                    screen =
+                                        Screen::new("BattleScene/75-Health/Select/Fight/houses");
+                                }
+                                "stoor" => {
+                                    screen =
+                                        Screen::new("BattleScene/75-Health/Select/Fight/stoor");
+                                }
+                                "school-cafeteria" => {
+                                    screen = Screen::new(
+                                        "BattleScene/75-Health/Select/Fight/school-cafeteria",
+                                    );
+                                }
+                                "school-math" => {
+                                    screen = Screen::new(
+                                        "BattleScene/75-Health/Select/Fight/school-math",
+                                    );
+                                }
+                                "school-english" => {
+                                    screen = Screen::new(
+                                        "BattleScene/75-Health/Select/Fight/school-english",
+                                    );
+                                }
+                                "pond" => {
+                                    screen = Screen::new("BattleScene/75-Health/Select/Fight/pond");
+                                }
+                                "library-tables" => {
+                                    screen = Screen::new(
+                                        "BattleScene/75-Health/Select/Fight/library-tables",
+                                    );
+                                }
+                                "house-living" => {
+                                    screen = Screen::new(
+                                        "BattleScene/75-Health/Select/Fight/house-living",
+                                    );
+                                }
+                                "school-hall" => {
+                                    screen = Screen::new(
+                                        "BattleScene/75-Health/Select/Fight/school-hall",
+                                    );
+                                }
+                                "school" => {
+                                    screen =
+                                        Screen::new("BattleScene/75-Health/Select/Fight/school");
+                                }
+                                "lhouses" => {
+                                    screen =
+                                        Screen::new("BattleScene/75-Health/Select/Fight/lhouses");
+                                }
+                                _ => {}
+                            },
+                            2 => match last_scr.as_str() {
+                                "houses" => {
+                                    screen =
+                                        Screen::new("BattleScene/50-Health/Select/Fight/houses");
+                                }
+                                "stoor" => {
+                                    screen =
+                                        Screen::new("BattleScene/50-Health/Select/Fight/stoor");
+                                }
+                                "school-cafeteria" => {
+                                    screen = Screen::new(
+                                        "BattleScene/50-Health/Select/Fight/school-cafeteria",
+                                    );
+                                }
+                                "school-math" => {
+                                    screen = Screen::new(
+                                        "BattleScene/50-Health/Select/Fight/school-math",
+                                    );
+                                }
+                                "school-english" => {
+                                    screen = Screen::new(
+                                        "BattleScene/50-Health/Select/Fight/school-english",
+                                    );
+                                }
+                                "pond" => {
+                                    screen = Screen::new("BattleScene/50-Health/Select/Fight/pond");
+                                }
+                                "library-tables" => {
+                                    screen = Screen::new(
+                                        "BattleScene/50-Health/Select/Fight/library-tables",
+                                    );
+                                }
+                                "house-living" => {
+                                    screen = Screen::new(
+                                        "BattleScene/50-Health/Select/Fight/house-living",
+                                    );
+                                }
+                                "school-hall" => {
+                                    screen = Screen::new(
+                                        "BattleScene/50-Health/Select/Fight/school-hall",
+                                    );
+                                }
+                                "school" => {
+                                    screen =
+                                        Screen::new("BattleScene/50-Health/Select/Fight/school");
+                                }
+                                "lhouses" => {
+                                    screen =
+                                        Screen::new("BattleScene/50-Health/Select/Fight/lhouses");
+                                }
+                                _ => {}
+                            },
+                            1 => match last_scr.as_str() {
+                                "houses" => {
+                                    screen =
+                                        Screen::new("BattleScene/25-Health/Select/Fight/houses");
+                                }
+                                "stoor" => {
+                                    screen =
+                                        Screen::new("BattleScene/25-Health/Select/Fight/stoor");
+                                }
+                                "school-cafeteria" => {
+                                    screen = Screen::new(
+                                        "BattleScene/25-Health/Select/Fight/school-cafeteria",
+                                    );
+                                }
+                                "school-math" => {
+                                    screen = Screen::new(
+                                        "BattleScene/25-Health/Select/Fight/school-math",
+                                    );
+                                }
+                                "school-english" => {
+                                    screen = Screen::new(
+                                        "BattleScene/25-Health/Select/Fight/school-english",
+                                    );
+                                }
+                                "pond" => {
+                                    screen = Screen::new("BattleScene/25-Health/Select/Fight/pond");
+                                }
+                                "library-tables" => {
+                                    screen = Screen::new(
+                                        "BattleScene/25-Health/Select/Fight/library-tables",
+                                    );
+                                }
+                                "house-living" => {
+                                    screen = Screen::new(
+                                        "BattleScene/25-Health/Select/Fight/house-living",
+                                    );
+                                }
+                                "school-hall" => {
+                                    screen = Screen::new(
+                                        "BattleScene/25-Health/Select/Fight/school-hall",
+                                    );
+                                }
+                                "school" => {
+                                    screen =
+                                        Screen::new("BattleScene/25-Health/Select/Fight/school");
+                                }
+                                "lhouses" => {
+                                    screen =
+                                        Screen::new("BattleScene/25-Health/Select/Fight/lhouses");
+                                }
+                                _ => {}
+                            },
                             _ => {}
                         }
                     }
-                    1 => {
-                        match player_health {
-                            4 => {
-                                match last_scr.as_str() {
-                                    "houses" => {
-                                        screen = Screen::new("BattleScene/Full-Health/Select/Run/houses");
-                                    }
-                                    "stoor" => {
-                                        screen = Screen::new("BattleScene/Full-Health/Select/Run/stoor");
-                                    }
-                                    "school-cafeteria" => {
-                                        screen = Screen::new("BattleScene/Full-Health/Select/Run/school-cafeteria");
-                                    }
-                                    "school-math" => {
-                                        screen = Screen::new("BattleScene/Full-Health/Select/Run/school-math");
-                                    }
-                                    "school-english" => {
-                                        screen = Screen::new("BattleScene/Full-Health/Select/Run/school-english");
-                                    }
-                                    "pond" => {
-                                        screen = Screen::new("BattleScene/Full-Health/Select/Run/pond");
-                                    }
-                                    "library-tables" => {
-                                        screen = Screen::new("BattleScene/Full-Health/Select/Run/library");
-                                    }
-                                    "house-living" => {
-                                        screen = Screen::new("BattleScene/Full-Health/Select/Run/house-living");
-                                    }
-                                    "school-hall" => {
-                                        screen = Screen::new("BattleScene/Full-Health/Select/Run/school-hall");
-                                    }
-                                    "school" => {
-                                        screen = Screen::new("BattleScene/Full-Health/Select/Run/school");
-                                    }
-                                    "lhouses" => {
-                                        screen = Screen::new("BattleScene/Full-Health/Select/Run/lhouses");
-                                    }
-                                    _ => {}
-                                }
+                    1 => match player_health {
+                        4 => match last_scr.as_str() {
+                            "houses" => {
+                                screen = Screen::new("BattleScene/Full-Health/Select/Run/houses");
                             }
-                            3 => {
-                                match last_scr.as_str() {
-                                    "houses" => {
-                                        screen = Screen::new("BattleScene/75-Health/Select/Run/houses");
-                                    }
-                                    "stoor" => {
-                                        screen = Screen::new("BattleScene/75-Health/Select/Run/stoor");
-                                    }
-                                    "school-cafeteria" => {
-                                        screen = Screen::new("BattleScene/75-Health/Select/Run/school-cafeteria");
-                                    }
-                                    "school-math" => {
-                                        screen = Screen::new("BattleScene/75-Health/Select/Run/school-math");
-                                    }
-                                    "school-english" => {
-                                        screen = Screen::new("BattleScene/75-Health/Select/Run/school-english");
-                                    }
-                                    "pond" => {
-                                        screen = Screen::new("BattleScene/75-Health/Select/Run/pond");
-                                    }
-                                    "library-tables" => {
-                                        screen = Screen::new("BattleScene/75-Health/Select/Run/library-tables");
-                                    }
-                                    "house-living" => {
-                                        screen = Screen::new("BattleScene/75-Health/Select/Run/house-living");
-                                    }
-                                    "school-hall" => {
-                                        screen = Screen::new("BattleScene/75-Health/Select/Run/school-hall");
-                                    }
-                                    "school" => {
-                                        screen = Screen::new("BattleScene/75-Health/Select/Run/school");
-                                    }
-                                    "lhouses" => {
-                                        screen = Screen::new("BattleScene/75-Health/Select/Run/lhouses");
-                                    }
-                                    _ => {}
-                                }
+                            "stoor" => {
+                                screen = Screen::new("BattleScene/Full-Health/Select/Run/stoor");
                             }
-                            2 => {
-                                match last_scr.as_str() {
-                                    "houses" => {
-                                        screen = Screen::new("BattleScene/50-Health/Select/Run/houses");
-                                    }
-                                    "stoor" => {
-                                        screen = Screen::new("BattleScene/50-Health/Select/Run/stoor");
-                                    }
-                                    "school-cafeteria" => {
-                                        screen = Screen::new("BattleScene/50-Health/Select/Run/school-cafeteria");
-                                    }
-                                    "school-math" => {
-                                        screen = Screen::new("BattleScene/50-Health/Select/Run/school-math");
-                                    }
-                                    "school-english" => {
-                                        screen = Screen::new("BattleScene/50-Health/Select/Run/school-english");
-                                    }
-                                    "pond" => {
-                                        screen = Screen::new("BattleScene/50-Health/Select/Run/pond");
-                                    }
-                                    "library-tables" => {
-                                        screen = Screen::new("BattleScene/50-Health/Select/Run/library-tables");
-                                    }
-                                    "house-living" => {
-                                        screen = Screen::new("BattleScene/50-Health/Select/Run/house-living");
-                                    }
-                                    "school-hall" => {
-                                        screen = Screen::new("BattleScene/50-Health/Select/Run/school-hall");
-                                    }
-                                    "school" => {
-                                        screen = Screen::new("BattleScene/50-Health/Select/Run/school");
-                                    }
-                                    "lhouses" => {
-                                        screen = Screen::new("BattleScene/50-Health/Select/Run/lhouses");
-                                    }
-                                    _ => {}
-                                }
+                            "school-cafeteria" => {
+                                screen = Screen::new(
+                                    "BattleScene/Full-Health/Select/Run/school-cafeteria",
+                                );
                             }
-                            1 => {
-                                match last_scr.as_str() {
-                                    "houses" => {
-                                        screen = Screen::new("BattleScene/25-Health/Select/Run/houses");
-                                    }
-                                    "stoor" => {
-                                        screen = Screen::new("BattleScene/25-Health/Select/Run/stoor");
-                                    }
-                                    "school-cafeteria" => {
-                                        screen = Screen::new("BattleScene/25-Health/Select/Run/school-cafeteria");
-                                    }
-                                    "school-math" => {
-                                        screen = Screen::new("BattleScene/25-Health/Select/Run/school-math");
-                                    }
-                                    "school-english" => {
-                                        screen = Screen::new("BattleScene/25-Health/Select/Run/school-english");
-                                    }
-                                    "pond" => {
-                                        screen = Screen::new("BattleScene/25-Health/Select/Run/pond");
-                                    }
-                                    "library-tables" => {
-                                        screen = Screen::new("BattleScene/25-Health/Select/Run/library-tables");
-                                    }
-                                    "house-living" => {
-                                        screen = Screen::new("BattleScene/25-Health/Select/Run/house-living");
-                                    }
-                                    "school-hall" => {
-                                        screen = Screen::new("BattleScene/25-Health/Select/Run/school-hall");
-                                    }
-                                    "school" => {
-                                        screen = Screen::new("BattleScene/25-Health/Select/Run/school");
-                                    }
-                                    "lhouses" => {
-                                        screen = Screen::new("BattleScene/25-Health/Select/Run/lhouses");
-                                    }
-                                    _ => {}
-                                }
+                            "school-math" => {
+                                screen =
+                                    Screen::new("BattleScene/Full-Health/Select/Run/school-math");
+                            }
+                            "school-english" => {
+                                screen = Screen::new(
+                                    "BattleScene/Full-Health/Select/Run/school-english",
+                                );
+                            }
+                            "pond" => {
+                                screen = Screen::new("BattleScene/Full-Health/Select/Run/pond");
+                            }
+                            "library-tables" => {
+                                screen = Screen::new("BattleScene/Full-Health/Select/Run/library");
+                            }
+                            "house-living" => {
+                                screen =
+                                    Screen::new("BattleScene/Full-Health/Select/Run/house-living");
+                            }
+                            "school-hall" => {
+                                screen =
+                                    Screen::new("BattleScene/Full-Health/Select/Run/school-hall");
+                            }
+                            "school" => {
+                                screen = Screen::new("BattleScene/Full-Health/Select/Run/school");
+                            }
+                            "lhouses" => {
+                                screen = Screen::new("BattleScene/Full-Health/Select/Run/lhouses");
                             }
                             _ => {}
-                        }
-                    }
+                        },
+                        3 => match last_scr.as_str() {
+                            "houses" => {
+                                screen = Screen::new("BattleScene/75-Health/Select/Run/houses");
+                            }
+                            "stoor" => {
+                                screen = Screen::new("BattleScene/75-Health/Select/Run/stoor");
+                            }
+                            "school-cafeteria" => {
+                                screen = Screen::new(
+                                    "BattleScene/75-Health/Select/Run/school-cafeteria",
+                                );
+                            }
+                            "school-math" => {
+                                screen =
+                                    Screen::new("BattleScene/75-Health/Select/Run/school-math");
+                            }
+                            "school-english" => {
+                                screen =
+                                    Screen::new("BattleScene/75-Health/Select/Run/school-english");
+                            }
+                            "pond" => {
+                                screen = Screen::new("BattleScene/75-Health/Select/Run/pond");
+                            }
+                            "library-tables" => {
+                                screen =
+                                    Screen::new("BattleScene/75-Health/Select/Run/library-tables");
+                            }
+                            "house-living" => {
+                                screen =
+                                    Screen::new("BattleScene/75-Health/Select/Run/house-living");
+                            }
+                            "school-hall" => {
+                                screen =
+                                    Screen::new("BattleScene/75-Health/Select/Run/school-hall");
+                            }
+                            "school" => {
+                                screen = Screen::new("BattleScene/75-Health/Select/Run/school");
+                            }
+                            "lhouses" => {
+                                screen = Screen::new("BattleScene/75-Health/Select/Run/lhouses");
+                            }
+                            _ => {}
+                        },
+                        2 => match last_scr.as_str() {
+                            "houses" => {
+                                screen = Screen::new("BattleScene/50-Health/Select/Run/houses");
+                            }
+                            "stoor" => {
+                                screen = Screen::new("BattleScene/50-Health/Select/Run/stoor");
+                            }
+                            "school-cafeteria" => {
+                                screen = Screen::new(
+                                    "BattleScene/50-Health/Select/Run/school-cafeteria",
+                                );
+                            }
+                            "school-math" => {
+                                screen =
+                                    Screen::new("BattleScene/50-Health/Select/Run/school-math");
+                            }
+                            "school-english" => {
+                                screen =
+                                    Screen::new("BattleScene/50-Health/Select/Run/school-english");
+                            }
+                            "pond" => {
+                                screen = Screen::new("BattleScene/50-Health/Select/Run/pond");
+                            }
+                            "library-tables" => {
+                                screen =
+                                    Screen::new("BattleScene/50-Health/Select/Run/library-tables");
+                            }
+                            "house-living" => {
+                                screen =
+                                    Screen::new("BattleScene/50-Health/Select/Run/house-living");
+                            }
+                            "school-hall" => {
+                                screen =
+                                    Screen::new("BattleScene/50-Health/Select/Run/school-hall");
+                            }
+                            "school" => {
+                                screen = Screen::new("BattleScene/50-Health/Select/Run/school");
+                            }
+                            "lhouses" => {
+                                screen = Screen::new("BattleScene/50-Health/Select/Run/lhouses");
+                            }
+                            _ => {}
+                        },
+                        1 => match last_scr.as_str() {
+                            "houses" => {
+                                screen = Screen::new("BattleScene/25-Health/Select/Run/houses");
+                            }
+                            "stoor" => {
+                                screen = Screen::new("BattleScene/25-Health/Select/Run/stoor");
+                            }
+                            "school-cafeteria" => {
+                                screen = Screen::new(
+                                    "BattleScene/25-Health/Select/Run/school-cafeteria",
+                                );
+                            }
+                            "school-math" => {
+                                screen =
+                                    Screen::new("BattleScene/25-Health/Select/Run/school-math");
+                            }
+                            "school-english" => {
+                                screen =
+                                    Screen::new("BattleScene/25-Health/Select/Run/school-english");
+                            }
+                            "pond" => {
+                                screen = Screen::new("BattleScene/25-Health/Select/Run/pond");
+                            }
+                            "library-tables" => {
+                                screen =
+                                    Screen::new("BattleScene/25-Health/Select/Run/library-tables");
+                            }
+                            "house-living" => {
+                                screen =
+                                    Screen::new("BattleScene/25-Health/Select/Run/house-living");
+                            }
+                            "school-hall" => {
+                                screen =
+                                    Screen::new("BattleScene/25-Health/Select/Run/school-hall");
+                            }
+                            "school" => {
+                                screen = Screen::new("BattleScene/25-Health/Select/Run/school");
+                            }
+                            "lhouses" => {
+                                screen = Screen::new("BattleScene/25-Health/Select/Run/lhouses");
+                            }
+                            _ => {}
+                        },
+                        _ => {}
+                    },
                     _ => {}
                 }
                 screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
@@ -796,7 +958,8 @@ fn main() -> Result<(), pixels::Error> {
                     }
                 }
                 // Moves option selected to following option
-                if input.key_pressed(VirtualKeyCode::D) || input.key_pressed(VirtualKeyCode::Right) {
+                if input.key_pressed(VirtualKeyCode::D) || input.key_pressed(VirtualKeyCode::Right)
+                {
                     if track == 1 {
                         track = 0;
                     } else {
@@ -804,12 +967,12 @@ fn main() -> Result<(), pixels::Error> {
                     }
                 }
                 if input.key_pressed(VirtualKeyCode::Return) {
-                    match track{
+                    match track {
                         0 => {
                             fight = true;
                             run = false;
                             track = 0;
-                        }   
+                        }
                         1 => {
                             run = true;
                             fight = false;
@@ -827,241 +990,307 @@ fn main() -> Result<(), pixels::Error> {
                 }
 
                 if !submit {
-                    match last_scr.as_str(){
-                        "houses" => {
-                            match fight_tracker {
-                                0 => {
-                                    screen = Screen::new("BattleScene/General-Use/houses/fight/fight1");
-                                    screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
-                                }
-                                1 => {
-                                    screen = Screen::new("BattleScene/General-Use/houses/fight/fight2");
-                                    screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
-                                }
-                                2 => {
-                                    screen = Screen::new("BattleScene/General-Use/houses/fight/fight3");
-                                    screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
-                                }
-                                3 => {
-                                    screen = Screen::new("BattleScene/General-Use/houses/fight/fight4");
-                                    screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
-                                }
-                                _ => {}
+                    match last_scr.as_str() {
+                        "houses" => match fight_tracker {
+                            0 => {
+                                screen = Screen::new("BattleScene/General-Use/houses/fight/fight1");
+                                screen.screen_len =
+                                    screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
                             }
-                        }
-                        "stoor" => {
-                            match fight_tracker {
-                                0 => {
-                                    screen = Screen::new("BattleScene/General-Use/stoor/fight/fight1");
-                                    screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
-                                }
-                                1 => {
-                                    screen = Screen::new("BattleScene/General-Use/stoor/fight/fight2");
-                                    screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
-                                }
-                                2 => {
-                                    screen = Screen::new("BattleScene/General-Use/stoor/fight/fight3");
-                                    screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
-                                }
-                                3 => {
-                                    screen = Screen::new("BattleScene/General-Use/stoor/fight/fight4");
-                                    screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
-                                }
-                                _ => {}
+                            1 => {
+                                screen = Screen::new("BattleScene/General-Use/houses/fight/fight2");
+                                screen.screen_len =
+                                    screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
                             }
-                        }
-                        "school-cafeteria" => {
-                            match fight_tracker {
-                                0 => {
-                                    screen = Screen::new("BattleScene/General-Use/school-cafeteria/fight/fight1");
-                                    screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
-                                }
-                                1 => {
-                                    screen = Screen::new("BattleScene/General-Use/school-cafeteria/fight/fight2");
-                                    screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
-                                }
-                                2 => {
-                                    screen = Screen::new("BattleScene/General-Use/school-cafeteria/fight/fight3");
-                                    screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
-                                }
-                                3 => {
-                                    screen = Screen::new("BattleScene/General-Use/school-cafeteria/fight/fight4");
-                                    screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
-                                }
-                                _ => {}
+                            2 => {
+                                screen = Screen::new("BattleScene/General-Use/houses/fight/fight3");
+                                screen.screen_len =
+                                    screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
                             }
-                        }
-                        "school-math" => {
-                            match fight_tracker {
-                                0 => {
-                                    screen = Screen::new("BattleScene/General-Use/school-math/fight/fight1");
-                                    screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
-                                }
-                                1 => {
-                                    screen = Screen::new("BattleScene/General-Use/school-math/fight/fight2");
-                                    screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
-                                }
-                                2 => {
-                                    screen = Screen::new("BattleScene/General-Use/school-math/fight/fight3");
-                                    screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
-                                }
-                                3 => {
-                                    screen = Screen::new("BattleScene/General-Use/school-math/fight/fight4");
-                                    screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
-                                }
-                                _ => {}
+                            3 => {
+                                screen = Screen::new("BattleScene/General-Use/houses/fight/fight4");
+                                screen.screen_len =
+                                    screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
                             }
-                        }
-                        "school-english" => {
-                            match fight_tracker {
-                                0 => {
-                                    screen = Screen::new("BattleScene/General-Use/school-english/fight/fight1");
-                                    screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
-                                }
-                                1 => {
-                                    screen = Screen::new("BattleScene/General-Use/school-english/fight/fight2");
-                                    screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
-                                }
-                                2 => {
-                                    screen = Screen::new("BattleScene/General-Use/school-english/fight/fight3");
-                                    screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
-                                }
-                                3 => {
-                                    screen = Screen::new("BattleScene/General-Use/school-english/fight/fight4");
-                                    screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
-                                }
-                                _ => {}
+                            _ => {}
+                        },
+                        "stoor" => match fight_tracker {
+                            0 => {
+                                screen = Screen::new("BattleScene/General-Use/stoor/fight/fight1");
+                                screen.screen_len =
+                                    screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
                             }
-                        }
-                        "pond" => {
-                            match fight_tracker {
-                                0 => {
-                                    screen = Screen::new("BattleScene/General-Use/pond/fight/fight1");
-                                    screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
-                                }
-                                1 => {
-                                    screen = Screen::new("BattleScene/General-Use/pond/fight/fight2");
-                                    screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
-                                }
-                                2 => {
-                                    screen = Screen::new("BattleScene/General-Use/pond/fight/fight3");
-                                    screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
-                                }
-                                3 => {
-                                    screen = Screen::new("BattleScene/General-Use/pond/fight/fight4");
-                                    screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
-                                }
-                                _ => {}
+                            1 => {
+                                screen = Screen::new("BattleScene/General-Use/stoor/fight/fight2");
+                                screen.screen_len =
+                                    screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
                             }
-                        }
-                        "library-tables" => {
-                            match fight_tracker {
-                                0 => {
-                                    screen = Screen::new("BattleScene/General-Use/library/fight/fight1");
-                                    screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
-                                }
-                                1 => {
-                                    screen = Screen::new("BattleScene/General-Use/library/fight/fight2");
-                                    screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
-                                }
-                                2 => {
-                                    screen = Screen::new("BattleScene/General-Use/library/fight/fight3");
-                                    screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
-                                }
-                                3 => {
-                                    screen = Screen::new("BattleScene/General-Use/library/fight/fight4");
-                                    screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
-                                }
-                                _ => {}
+                            2 => {
+                                screen = Screen::new("BattleScene/General-Use/stoor/fight/fight3");
+                                screen.screen_len =
+                                    screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
                             }
-                        }
-                        "house-living" => {
-                            match fight_tracker {
-                                0 => {
-                                    screen = Screen::new("BattleScene/General-Use/house-living/fight/fight1");
-                                    screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
-                                }
-                                1 => {
-                                    screen = Screen::new("BattleScene/General-Use/house-living/fight/fight2");
-                                    screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
-                                }
-                                2 => {
-                                    screen = Screen::new("BattleScene/General-Use/house-living/fight/fight3");
-                                    screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
-                                }
-                                3 => {
-                                    screen = Screen::new("BattleScene/General-Use/house-living/fight/fight4");
-                                    screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
-                                }
-                                _ => {}
+                            3 => {
+                                screen = Screen::new("BattleScene/General-Use/stoor/fight/fight4");
+                                screen.screen_len =
+                                    screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
                             }
-                        }
-                        "school-hall" => {
-                            match fight_tracker {
-                                0 => {
-                                    screen = Screen::new("BattleScene/General-Use/school-hall/fight/fight1");
-                                    screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
-                                }
-                                1 => {
-                                    screen = Screen::new("BattleScene/General-Use/school-hall/fight/fight2");
-                                    screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
-                                }
-                                2 => {
-                                    screen = Screen::new("BattleScene/General-Use/school-hall/fight/fight3");
-                                    screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
-                                }
-                                3 => {
-                                    screen = Screen::new("BattleScene/General-Use/school-hall/fight/fight4");
-                                    screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
-                                }
-                                _ => {}
+                            _ => {}
+                        },
+                        "school-cafeteria" => match fight_tracker {
+                            0 => {
+                                screen = Screen::new(
+                                    "BattleScene/General-Use/school-cafeteria/fight/fight1",
+                                );
+                                screen.screen_len =
+                                    screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
                             }
-                        }
-                        "school" => {
-                            match fight_tracker {
-                                0 => {
-                                    screen = Screen::new("BattleScene/General-Use/school/fight/fight1");
-                                    screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
-                                }
-                                1 => {
-                                    screen = Screen::new("BattleScene/General-Use/school/fight/fight2");
-                                    screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
-                                }
-                                2 => {
-                                    screen = Screen::new("BattleScene/General-Use/school/fight/fight3");
-                                    screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
-                                }
-                                3 => {
-                                    screen = Screen::new("BattleScene/General-Use/school/fight/fight4");
-                                    screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
-                                }
-                                _ => {}
+                            1 => {
+                                screen = Screen::new(
+                                    "BattleScene/General-Use/school-cafeteria/fight/fight2",
+                                );
+                                screen.screen_len =
+                                    screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
                             }
-                        }
-                        "lhouses" => {
-                            match fight_tracker {
-                                0 => {
-                                    screen = Screen::new("BattleScene/General-Use/lhouses/fight/fight1");
-                                    screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
-                                }
-                                1 => {
-                                    screen = Screen::new("BattleScene/General-Use/lhouses/fight/fight2");
-                                    screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
-                                }
-                                2 => {
-                                    screen = Screen::new("BattleScene/General-Use/lhouses/fight/fight3");
-                                    screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
-                                }
-                                3 => {
-                                    screen = Screen::new("BattleScene/General-Use/lhouses/fight/fight4");
-                                    screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
-                                }
-                                _ => {}
+                            2 => {
+                                screen = Screen::new(
+                                    "BattleScene/General-Use/school-cafeteria/fight/fight3",
+                                );
+                                screen.screen_len =
+                                    screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
                             }
-                        }
+                            3 => {
+                                screen = Screen::new(
+                                    "BattleScene/General-Use/school-cafeteria/fight/fight4",
+                                );
+                                screen.screen_len =
+                                    screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
+                            }
+                            _ => {}
+                        },
+                        "school-math" => match fight_tracker {
+                            0 => {
+                                screen =
+                                    Screen::new("BattleScene/General-Use/school-math/fight/fight1");
+                                screen.screen_len =
+                                    screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
+                            }
+                            1 => {
+                                screen =
+                                    Screen::new("BattleScene/General-Use/school-math/fight/fight2");
+                                screen.screen_len =
+                                    screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
+                            }
+                            2 => {
+                                screen =
+                                    Screen::new("BattleScene/General-Use/school-math/fight/fight3");
+                                screen.screen_len =
+                                    screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
+                            }
+                            3 => {
+                                screen =
+                                    Screen::new("BattleScene/General-Use/school-math/fight/fight4");
+                                screen.screen_len =
+                                    screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
+                            }
+                            _ => {}
+                        },
+                        "school-english" => match fight_tracker {
+                            0 => {
+                                screen = Screen::new(
+                                    "BattleScene/General-Use/school-english/fight/fight1",
+                                );
+                                screen.screen_len =
+                                    screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
+                            }
+                            1 => {
+                                screen = Screen::new(
+                                    "BattleScene/General-Use/school-english/fight/fight2",
+                                );
+                                screen.screen_len =
+                                    screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
+                            }
+                            2 => {
+                                screen = Screen::new(
+                                    "BattleScene/General-Use/school-english/fight/fight3",
+                                );
+                                screen.screen_len =
+                                    screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
+                            }
+                            3 => {
+                                screen = Screen::new(
+                                    "BattleScene/General-Use/school-english/fight/fight4",
+                                );
+                                screen.screen_len =
+                                    screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
+                            }
+                            _ => {}
+                        },
+                        "pond" => match fight_tracker {
+                            0 => {
+                                screen = Screen::new("BattleScene/General-Use/pond/fight/fight1");
+                                screen.screen_len =
+                                    screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
+                            }
+                            1 => {
+                                screen = Screen::new("BattleScene/General-Use/pond/fight/fight2");
+                                screen.screen_len =
+                                    screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
+                            }
+                            2 => {
+                                screen = Screen::new("BattleScene/General-Use/pond/fight/fight3");
+                                screen.screen_len =
+                                    screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
+                            }
+                            3 => {
+                                screen = Screen::new("BattleScene/General-Use/pond/fight/fight4");
+                                screen.screen_len =
+                                    screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
+                            }
+                            _ => {}
+                        },
+                        "library-tables" => match fight_tracker {
+                            0 => {
+                                screen =
+                                    Screen::new("BattleScene/General-Use/library/fight/fight1");
+                                screen.screen_len =
+                                    screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
+                            }
+                            1 => {
+                                screen =
+                                    Screen::new("BattleScene/General-Use/library/fight/fight2");
+                                screen.screen_len =
+                                    screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
+                            }
+                            2 => {
+                                screen =
+                                    Screen::new("BattleScene/General-Use/library/fight/fight3");
+                                screen.screen_len =
+                                    screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
+                            }
+                            3 => {
+                                screen =
+                                    Screen::new("BattleScene/General-Use/library/fight/fight4");
+                                screen.screen_len =
+                                    screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
+                            }
+                            _ => {}
+                        },
+                        "house-living" => match fight_tracker {
+                            0 => {
+                                screen = Screen::new(
+                                    "BattleScene/General-Use/house-living/fight/fight1",
+                                );
+                                screen.screen_len =
+                                    screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
+                            }
+                            1 => {
+                                screen = Screen::new(
+                                    "BattleScene/General-Use/house-living/fight/fight2",
+                                );
+                                screen.screen_len =
+                                    screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
+                            }
+                            2 => {
+                                screen = Screen::new(
+                                    "BattleScene/General-Use/house-living/fight/fight3",
+                                );
+                                screen.screen_len =
+                                    screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
+                            }
+                            3 => {
+                                screen = Screen::new(
+                                    "BattleScene/General-Use/house-living/fight/fight4",
+                                );
+                                screen.screen_len =
+                                    screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
+                            }
+                            _ => {}
+                        },
+                        "school-hall" => match fight_tracker {
+                            0 => {
+                                screen =
+                                    Screen::new("BattleScene/General-Use/school-hall/fight/fight1");
+                                screen.screen_len =
+                                    screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
+                            }
+                            1 => {
+                                screen =
+                                    Screen::new("BattleScene/General-Use/school-hall/fight/fight2");
+                                screen.screen_len =
+                                    screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
+                            }
+                            2 => {
+                                screen =
+                                    Screen::new("BattleScene/General-Use/school-hall/fight/fight3");
+                                screen.screen_len =
+                                    screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
+                            }
+                            3 => {
+                                screen =
+                                    Screen::new("BattleScene/General-Use/school-hall/fight/fight4");
+                                screen.screen_len =
+                                    screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
+                            }
+                            _ => {}
+                        },
+                        "school" => match fight_tracker {
+                            0 => {
+                                screen = Screen::new("BattleScene/General-Use/school/fight/fight1");
+                                screen.screen_len =
+                                    screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
+                            }
+                            1 => {
+                                screen = Screen::new("BattleScene/General-Use/school/fight/fight2");
+                                screen.screen_len =
+                                    screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
+                            }
+                            2 => {
+                                screen = Screen::new("BattleScene/General-Use/school/fight/fight3");
+                                screen.screen_len =
+                                    screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
+                            }
+                            3 => {
+                                screen = Screen::new("BattleScene/General-Use/school/fight/fight4");
+                                screen.screen_len =
+                                    screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
+                            }
+                            _ => {}
+                        },
+                        "lhouses" => match fight_tracker {
+                            0 => {
+                                screen =
+                                    Screen::new("BattleScene/General-Use/lhouses/fight/fight1");
+                                screen.screen_len =
+                                    screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
+                            }
+                            1 => {
+                                screen =
+                                    Screen::new("BattleScene/General-Use/lhouses/fight/fight2");
+                                screen.screen_len =
+                                    screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
+                            }
+                            2 => {
+                                screen =
+                                    Screen::new("BattleScene/General-Use/lhouses/fight/fight3");
+                                screen.screen_len =
+                                    screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
+                            }
+                            3 => {
+                                screen =
+                                    Screen::new("BattleScene/General-Use/lhouses/fight/fight4");
+                                screen.screen_len =
+                                    screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
+                            }
+                            _ => {}
+                        },
                         _ => {}
                     }
-                    screen.fight_write(task[problem_choose].to_string() + ";" + problems[problem_choose], 75, 455);
+                    screen.fight_write(
+                        task[problem_choose].to_string() + ";" + problems[problem_choose],
+                        75,
+                        455,
+                    );
                     screen.fight_write(options[problem_choose][0].to_string(), 150, 66);
                     screen.fight_write(options[problem_choose][1].to_string(), 150, 150);
                     screen.fight_write(options[problem_choose][2].to_string(), 150, 234);
@@ -1082,7 +1311,7 @@ fn main() -> Result<(), pixels::Error> {
                         }
                         println!("{}", fight_tracker);
                     }
-                    if input.key_pressed(VirtualKeyCode::Return) && time_count > 5{
+                    if input.key_pressed(VirtualKeyCode::Return) && time_count > 5 {
                         submit = true;
                         time_count = 0;
                         println!("{}", options[problem_choose][fight_tracker].to_string());
@@ -1101,7 +1330,8 @@ fn main() -> Result<(), pixels::Error> {
                                 screen = Screen::new("BattleScene/General-Use/stoor/end");
                             }
                             "school-cafeteria" => {
-                                screen = Screen::new("BattleScene/General-Use/school-cafeteria/end");
+                                screen =
+                                    Screen::new("BattleScene/General-Use/school-cafeteria/end");
                             }
                             "school-math" => {
                                 screen = Screen::new("BattleScene/General-Use/school-math/end");
@@ -1134,7 +1364,7 @@ fn main() -> Result<(), pixels::Error> {
                             screen.fight_write("Your answer is".to_string(), 75, 455);
                             screen.fight_write("incorrect".to_string(), 75, 490);
                             time_count = time_count + 1;
-                        } else if time_count <= 110{
+                        } else if time_count <= 110 {
                             screen.fight_write("Nav is hit".to_string(), 75, 455);
                             time_count = time_count + 1;
                         } else {
@@ -1143,7 +1373,7 @@ fn main() -> Result<(), pixels::Error> {
                             time_count = 0;
                             submit = false;
                             problem_generate = false;
-                            fight_tracker = 0; 
+                            fight_tracker = 0;
                         }
                     } else {
                         match last_scr.as_str() {
@@ -1154,7 +1384,8 @@ fn main() -> Result<(), pixels::Error> {
                                 screen = Screen::new("BattleScene/General-Use/stoor/end");
                             }
                             "school-cafeteria" => {
-                                screen = Screen::new("BattleScene/General-Use/school-cafeteria/end");
+                                screen =
+                                    Screen::new("BattleScene/General-Use/school-cafeteria/end");
                             }
                             "school-math" => {
                                 screen = Screen::new("BattleScene/General-Use/school-math/end");
@@ -1187,28 +1418,28 @@ fn main() -> Result<(), pixels::Error> {
                             screen.fight_write("You are enemy".to_string(), 75, 450);
                             time_count = time_count + 1;
                         } else if time_count <= 120 {
-                            screen.fight_write("You attack the".to_string(),75, 450);
+                            screen.fight_write("You attack the".to_string(), 75, 450);
                             screen.fight_write("enemy".to_string(), 75, 490);
                             time_count = time_count + 1;
                         } else if time_count <= 175 {
                             match total_correct {
                                 0 => {
-                                    screen.fight_write("The enemy has been".to_string(),75, 450);
+                                    screen.fight_write("The enemy has been".to_string(), 75, 450);
                                     screen.fight_write("injured".to_string(), 75, 490);
                                 }
                                 1 => {
-                                    screen.fight_write("The enemy is nearly".to_string(),75, 450);
+                                    screen.fight_write("The enemy is nearly".to_string(), 75, 450);
                                     screen.fight_write("defeated".to_string(), 75, 490);
                                 }
                                 2 => {
-                                    screen.fight_write("The enemy faints".to_string(),75, 450);
+                                    screen.fight_write("The enemy faints".to_string(), 75, 450);
                                 }
                                 _ => {}
                             }
                             time_count = time_count + 1;
                         } else {
                             total_correct = total_correct + 1;
-                            if total_correct == 3{
+                            if total_correct == 3 {
                                 battle_won = true;
                             }
                             time_count = 0;
@@ -1242,7 +1473,8 @@ fn main() -> Result<(), pixels::Error> {
                                 screen = Screen::new("BattleScene/General-Use/stoor/end");
                             }
                             "school-cafeteria" => {
-                                screen = Screen::new("BattleScene/General-Use/school-cafeteria/end");
+                                screen =
+                                    Screen::new("BattleScene/General-Use/school-cafeteria/end");
                             }
                             "school-math" => {
                                 screen = Screen::new("BattleScene/General-Use/school-math/end");
@@ -1283,7 +1515,8 @@ fn main() -> Result<(), pixels::Error> {
                                 screen = Screen::new("BattleScene/General-Use/stoor/end");
                             }
                             "school-cafeteria" => {
-                                screen = Screen::new("BattleScene/General-Use/school-cafeteria/end");
+                                screen =
+                                    Screen::new("BattleScene/General-Use/school-cafeteria/end");
                             }
                             "school-math" => {
                                 screen = Screen::new("BattleScene/General-Use/school-math/end");
@@ -1324,7 +1557,6 @@ fn main() -> Result<(), pixels::Error> {
                 }
 
                 if run_did {
-                    
                     if time_count < 65 {
                         match last_scr.as_str() {
                             "houses" => {
@@ -1334,7 +1566,8 @@ fn main() -> Result<(), pixels::Error> {
                                 screen = Screen::new("BattleScene/General-Use/stoor/end");
                             }
                             "school-cafeteria" => {
-                                screen = Screen::new("BattleScene/General-Use/school-cafeteria/end");
+                                screen =
+                                    Screen::new("BattleScene/General-Use/school-cafeteria/end");
                             }
                             "school-math" => {
                                 screen = Screen::new("BattleScene/General-Use/school-math/end");
@@ -1443,7 +1676,6 @@ fn main() -> Result<(), pixels::Error> {
                     time_count = 0;
                     player_health = 4;
                     submit = false;
-
                 }
             }
             if total_correct == 3 {
@@ -1500,7 +1732,6 @@ fn main() -> Result<(), pixels::Error> {
                     time_count = 0;
                     player_health = 4;
                     submit = false;
-                    
                 }
             }
             window.request_redraw();
@@ -1940,7 +2171,7 @@ impl Screen {
 
     //not getting comments because it works
     fn draw(&self, pix: &mut [u8]) {
-        for (it,pixel) in pix.chunks_exact_mut(4).enumerate() {
+        for (it, pixel) in pix.chunks_exact_mut(4).enumerate() {
             pixel[0] = self.area[3 * self.scroll_dist as usize
                 + (3 * self.screen_len * ((3 * it) / (3 * SCREEN_WIDTH) as usize))
                 + ((it * 3) % (3 * SCREEN_WIDTH as usize))];
@@ -1952,38 +2183,64 @@ impl Screen {
                 + ((it * 3 + 2) % (3 * SCREEN_WIDTH as usize))];
         }
         //find a way to not have to cast to u16 if i ever care
-        for (it, pixel) in self.player.sprite[self.player.direction as usize][self.player.move_state as usize].chunks_exact(3).enumerate() {
+        for (it, pixel) in self.player.sprite[self.player.direction as usize]
+            [self.player.move_state as usize]
+            .chunks_exact(3)
+            .enumerate()
+        {
             if pixel[0] as u16 + pixel[1] as u16 + pixel[2] as u16 != 0 {
-                pix[(((self.player.y_pos as usize + (it / (CHAR_WIDTH - 1) as usize)) * SCREEN_WIDTH as usize) + (self.player.x_pos as usize + (it % (CHAR_WIDTH - 1) as usize))) * 4] = pixel[0];
-                pix[(((self.player.y_pos as usize + (it / (CHAR_WIDTH - 1) as usize)) * SCREEN_WIDTH as usize) + (self.player.x_pos as usize + (it % (CHAR_WIDTH - 1) as usize))) * 4 + 1] = pixel[1];
-                pix[(((self.player.y_pos as usize + (it / (CHAR_WIDTH - 1) as usize)) * SCREEN_WIDTH as usize) + (self.player.x_pos as usize + (it % (CHAR_WIDTH - 1) as usize))) * 4 + 2] = pixel[2];
+                pix[(((self.player.y_pos as usize + (it / (CHAR_WIDTH - 1) as usize))
+                    * SCREEN_WIDTH as usize)
+                    + (self.player.x_pos as usize + (it % (CHAR_WIDTH - 1) as usize)))
+                    * 4] = pixel[0];
+                pix[(((self.player.y_pos as usize + (it / (CHAR_WIDTH - 1) as usize))
+                    * SCREEN_WIDTH as usize)
+                    + (self.player.x_pos as usize + (it % (CHAR_WIDTH - 1) as usize)))
+                    * 4
+                    + 1] = pixel[1];
+                pix[(((self.player.y_pos as usize + (it / (CHAR_WIDTH - 1) as usize))
+                    * SCREEN_WIDTH as usize)
+                    + (self.player.x_pos as usize + (it % (CHAR_WIDTH - 1) as usize)))
+                    * 4
+                    + 2] = pixel[2];
             }
         }
         for a in &self.entities {
-            for (it,pixel) in a.sprite[a.move_state as usize].chunks_exact(3).enumerate(){
+            for (it, pixel) in a.sprite[a.move_state as usize].chunks_exact(3).enumerate() {
                 if pixel[0] as u16 + pixel[1] as u16 + pixel[2] as u16 != 0 {
-                    pix[(((a.y_pos as usize + (it / (a.width) as usize)) * SCREEN_WIDTH as usize) + (a.x_pos as usize + (it % (a.width) as usize))) * 4] = pixel[0];
-                    pix[(((a.y_pos as usize + (it / (a.width) as usize)) * SCREEN_WIDTH as usize) + (a.x_pos as usize + (it % (a.width) as usize))) * 4 + 1] = pixel[1];
-                    pix[(((a.y_pos as usize + (it / (a.width) as usize)) * SCREEN_WIDTH as usize) + (a.x_pos as usize + (it % (a.width) as usize))) * 4 + 2] = pixel[2];
+                    pix[(((a.y_pos as usize + (it / (a.width) as usize))
+                        * SCREEN_WIDTH as usize)
+                        + (a.x_pos as usize + (it % (a.width) as usize)))
+                        * 4] = pixel[0];
+                    pix[(((a.y_pos as usize + (it / (a.width) as usize))
+                        * SCREEN_WIDTH as usize)
+                        + (a.x_pos as usize + (it % (a.width) as usize)))
+                        * 4
+                        + 1] = pixel[1];
+                    pix[(((a.y_pos as usize + (it / (a.width) as usize))
+                        * SCREEN_WIDTH as usize)
+                        + (a.x_pos as usize + (it % (a.width) as usize)))
+                        * 4
+                        + 2] = pixel[2];
                 }
             }
         }
     }
 
     fn new_dialog(&mut self, text: String) {
-        let mut x:u16 = 30;
-        let mut y:u16 = 360;
+        let mut x: u16 = 30;
+        let mut y: u16 = 360;
         let mut lett: Entity;
         for letter in text.chars() {
             x += 38;
-            if x >=630 {
+            if x >= 630 {
                 x = 68;
                 y += 40;
             }
-            if letter == ' '{
-                continue
+            if letter == ' ' {
+                continue;
             } else {
-                println!("{}",format!("{}{}", "letras/", letter));
+                println!("{}", format!("{}{}", "letras/", letter));
                 lett = Entity::new(
                     &format!("{}{}{}{}.txt", "SpriteData/letras/", letter, "/", letter),
                     &format!("{}{}{}{}.txt", "SpriteData/letras/", letter, "/", letter),
@@ -1999,24 +2256,39 @@ impl Screen {
         }
     }
     fn fight_write(&mut self, text: String, x_pos: u16, y_pos: u16) {
-        let mut x:u16 = x_pos;
-        let mut y:u16 = y_pos;
+        let mut x: u16 = x_pos;
+        let mut y: u16 = y_pos;
         let mut lett: Entity;
         for letter in text.chars() {
             x += 30;
-            if x >=630 {
+            if x >= 630 {
                 x = 68;
                 y += 40;
             }
-            if letter == ' '{
-                continue
+            if letter == ' ' {
+                continue;
             } else {
                 lett = Entity::new(
-                    &format!("{}{}{}{}.txt", "SpriteData/battle letras/", letter, "/", letter),
-                    &format!("{}{}{}{}.txt", "SpriteData/battle letras/", letter, "/", letter),
-                    &format!("{}{}{}{}.txt", "SpriteData/battle letras/", letter, "/", letter),
-                    &format!("{}{}{}{}.txt", "SpriteData/battle letras/", letter, "/", letter),
-                    &format!("{}{}{}{}.txt", "SpriteData/battle letras/", letter, "/", letter),
+                    &format!(
+                        "{}{}{}{}.txt",
+                        "SpriteData/battle letras/", letter, "/", letter
+                    ),
+                    &format!(
+                        "{}{}{}{}.txt",
+                        "SpriteData/battle letras/", letter, "/", letter
+                    ),
+                    &format!(
+                        "{}{}{}{}.txt",
+                        "SpriteData/battle letras/", letter, "/", letter
+                    ),
+                    &format!(
+                        "{}{}{}{}.txt",
+                        "SpriteData/battle letras/", letter, "/", letter
+                    ),
+                    &format!(
+                        "{}{}{}{}.txt",
+                        "SpriteData/battle letras/", letter, "/", letter
+                    ),
                     &format!("{}{}", "battle letras/", letter,),
                 );
                 lett.x_pos = x;
@@ -2057,12 +2329,12 @@ impl Entity {
                 format!("{}{}{}", "SpriteData/", idd, "/data.json"),
                 "height",
             )
-                .expect("failed to get height"),
+            .expect("failed to get height"),
             width: Entity::read_from_file_u8(
                 format!("{}{}{}", "SpriteData/", idd, "/data.json"),
                 "width",
             )
-                .unwrap(),
+            .unwrap(),
             x_pos: 1,
             y_pos: 1,
             move_state: 0,
@@ -2088,7 +2360,7 @@ impl Entity {
                     std::str::from_utf8(pix).expect("Failed to convert to utf8"),
                     16,
                 )
-                    .expect("Failed to convert to hex value"),
+                .expect("Failed to convert to hex value"),
             );
         }
         //return the vector with the info
