@@ -1747,6 +1747,7 @@ fn main() -> Result<(), pixels::Error> {
                 if time_count < 50 {
                     screen.fight_write("Nav wins the".to_string(), 75, 455);
                     screen.fight_write("battle".to_string(), 75, 490);
+                    time_count = time_count + 1;
                 } else {
                     player_health = 4;
                     run = false;
