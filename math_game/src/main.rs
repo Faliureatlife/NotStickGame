@@ -2314,7 +2314,7 @@ impl Screen {
         let mut x: u16 = x_pos;
         let mut y: u16 = y_pos;
         let mut lett: Entity;
-        for letter in text.chars() {
+        for letter in text.to_lowercase().chars() {
             x += 25;
             if x >=630 {
                 x = 68;
@@ -2323,6 +2323,11 @@ impl Screen {
             if letter == ' ' {
                 continue;
             } else {
+                println!("{}", format!(
+                    "{}{}{}{}.txt",
+                    "SpriteData/battle letras/", letter, "/", letter
+                ));
+
                 lett = Entity::new(
                     &format!(
                         "{}{}{}{}.txt",
