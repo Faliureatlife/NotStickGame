@@ -2167,9 +2167,9 @@ impl Screen {
         //gets the list from the overall value
         let d = c
             .get(get)
-            .expect("read_from_file_vec failed to get value")
+            .expect("read_from_file_str failed to get value")
             .as_str()
-            .expect("read_from_file_vec failed to convert to array")
+            .expect("read_from_file_str failed to convert to array")
             .to_string();
         //returns as result
         Ok(d)
