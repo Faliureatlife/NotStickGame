@@ -123,7 +123,7 @@ fn main() -> Result<(), pixels::Error> {
 
     let task = vec![
         "Expand", "Expand", "Expand", "Expand", "Expand", "Expand", "Expand", "Expand", "Simplify",
-        "Simplify", "Simplify", "Simplify",
+        "Simplify", "Simplify", "Simplify", "Find x", "Find x", "Find x", "Find x",
     ];
     let problems = vec![
         "x@+4x+4",
@@ -138,6 +138,10 @@ fn main() -> Result<(), pixels::Error> {
         "(-5y-5)(4y-2)",
         "(3l-7)(3l-5)",
         "(j+7)(j-7)",
+        "x@+6x+9 = 0",
+        "-x@-2x+1 = 0",
+        "(x-1)@ = 0",
+        "(2x-2)(x+5) = 0",
     ];
     let options = vec![
         vec![
@@ -212,6 +216,30 @@ fn main() -> Result<(), pixels::Error> {
             "j@-49".to_string(),
             "j@+14j-49".to_string(),
         ],
+        vec![
+            "x = 3".to_string(),
+            "x = -3".to_string(),
+            "x = 0".to_string(),
+            "x = 9".to_string()
+        ],
+        vec![
+            "x = -1".to_string(),
+            "x = 1 and x = -1".to_string(),
+            "x = 1".to_string(),
+            "x = 3".to_string(),
+        ],
+        vec![
+            "x = 1".to_string(),
+            "x = 1 and x = -1".to_string(),
+            "x = 3".to_string(),
+            "x = -1".to_string(),
+        ],
+        vec![
+            "x = 1".to_string(),
+            "x = 5".to_string(),
+            "x = -5".to_string(),
+            "x = -5 and x = 1".to_string(),
+        ]
     ];
     let answer = vec![
         "(x+2)(x+2)",
@@ -226,6 +254,10 @@ fn main() -> Result<(), pixels::Error> {
         "-20y@-10y+10",
         "9l@-36l+35",
         "j@-49",
+        "x = 3",
+        "x = 1",
+        "x = 1",
+        "x = -5 and x = 1",
     ];
     let mut problem_choose: usize = 0;
     let mut problem_generate: bool = false;
@@ -1015,7 +1047,7 @@ fn main() -> Result<(), pixels::Error> {
 
             if fight {
                 if !problem_generate {
-                    problem_choose = rng.gen_range(0..12);
+                    problem_choose = rng.gen_range(0..16);
                     problem_generate = true;
                 }
 
