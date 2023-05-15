@@ -16,7 +16,14 @@ What work?
 What workn't?
 What learn?
 What next?
-To be Continued.....                                                                                                Jojo
+To be Continued.....
+                                                                                              Jojo
+5/15
+work on adding stuff for entities in battle
+finding places on the screen
+using the screen to decide it
+ownership is annoying
+random gen of sprite
 
 4/26
 fixed interactions and worked on fixing the dialog
