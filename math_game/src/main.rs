@@ -653,6 +653,46 @@ fn main() -> Result<(), pixels::Error> {
         //      }...
         // }
         if battle && input.update(&event) {
+            let enemy = {
+                match rng.gen_range(0..3){
+                    0 => {
+                        Entity::new(&format!("SpriteData/Death/0.txt"),
+                                    &format!("SpriteData/Death/0.txt"),
+                                    &format!("SpriteData/Death/0.txt"),
+                                    &format!("SpriteData/Death/0.txt"),
+                                    &format!("SpriteData/Death/0.txt"),
+                                    &format!("Death")
+                        )
+                    }
+                    1 => {
+                        Entity::new(&format!("SpriteData/nuggiesaurus/0.txt"),
+                                    &format!("SpriteData/nuggiesaurus/0.txt"),
+                                    &format!("SpriteData/nuggiesaurus/0.txt"),
+                                    &format!("SpriteData/nuggiesaurus/0.txt"),
+                                    &format!("SpriteData/nuggiesaurus/0.txt"),
+                                    &format!("nuggiesaurus")
+                        )
+                    }
+                    2 => {
+                        Entity::new(&format!("SpriteData/parasite/0.txt"),
+                                    &format!("SpriteData/parasite/0.txt"),
+                                    &format!("SpriteData/parasite/0.txt"),
+                                    &format!("SpriteData/parasite/0.txt"),
+                                    &format!("SpriteData/parasite/0.txt"),
+                                    &format!("parasite")
+                        )
+                    }
+                    _ => {
+                        Entity::new(&format!("SpriteData/Turtle/0.txt"),
+                                    &format!("SpriteData/Turtle/0.txt"),
+                                    &format!("SpriteData/Turtle/0.txt"),
+                                    &format!("SpriteData/Turtle/0.txt"),
+                                    &format!("SpriteData/Turtle/0.txt"),
+                                    &format!("Turtle")
+                        )
+                    }
+                }
+            };
             if input.key_pressed(VirtualKeyCode::Escape) {
                 *control_flow = ControlFlow::Exit;
                 return;
@@ -698,6 +738,7 @@ fn main() -> Result<(), pixels::Error> {
                     _ => {}
                 }
                 screen = Screen::new(&battle_scene);
+                screen.entities.push(enemy.clone());
                 screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
                 // Moves option selected to previous option
                 if input.key_pressed(VirtualKeyCode::A) || input.key_pressed(VirtualKeyCode::Left) {
@@ -742,6 +783,7 @@ fn main() -> Result<(), pixels::Error> {
                 if !submit {
                     battle_scene = format!("{}{}{}{}", "BattleScene/General-Use/", last_scr, "/fight/fight", fight_tracker + 1);
                     screen = Screen::new(&battle_scene);
+                    screen.entities.push(enemy.clone());
                     screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
                     
                     screen.fight_write(task[problem_choose].to_string() + ";" + problems[problem_choose], 55, 455);
