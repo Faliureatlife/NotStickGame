@@ -98,6 +98,10 @@ fn main() -> Result<(), pixels::Error> {
     let mut right: bool = false;
     let mut night: bool = false;
 
+
+    // Start menu variables 
+    let mut math_type: String = "Algebra".to_string();
+    let mut start_screen: bool = false;
     // Pause menu variables
     let mut x_save: u16 = screen.player.x_pos;
     let mut y_save: u16 = screen.player.y_pos;
@@ -286,7 +290,10 @@ fn main() -> Result<(), pixels::Error> {
             }
         }
         //update part of code that handles key-presses and simple window things
-        if input.update(&event) && !paused && !battle {
+        if input.update(&event) && start_screen {
+
+        }
+        if input.update(&event) && !paused && !battle && !start_screen {
             //make into a match statement at some point maybe
             //close on pressing esc
 
@@ -815,7 +822,7 @@ fn main() -> Result<(), pixels::Error> {
                                     screen.fight_write("defeated".to_string(), 75, 490);
                                 }
                                 2 => {
-                                    screen.fight_write("The enemy faints".to_string(), 75, 450);
+                                    screen.fight_write("The enemy vanished".to_string(), 75, 450);
                                 }
                                 _ => {}
                             }
