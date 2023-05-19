@@ -669,41 +669,57 @@ fn main() -> Result<(), pixels::Error> {
         //      }...
         // }
         if battle && input.update(&event) {
-            let enemy = {
+            let mut enemy = {
                 match rng.gen_range(0..3){
                     0 => {
+                        Entity::new(&format!("SpriteData/parasite/0.txt"),
+                                    &format!("SpriteData/parasite/1.txt"),
+                                    &format!("SpriteData/parasite/2.txt"),
+                                    &format!("SpriteData/parasite/3.txt"),
+                                    &format!("SpriteData/parasite/4.txt"),
+                                    &format!("parasite")
+                        )
+                        /*
                         Entity::new(&format!("SpriteData/Death/0.txt"),
+                                    &format!("SpriteData/Death/1.txt"),
                                     &format!("SpriteData/Death/0.txt"),
-                                    &format!("SpriteData/Death/0.txt"),
-                                    &format!("SpriteData/Death/0.txt"),
+                                    &format!("SpriteData/Death/1.txt"),
                                     &format!("SpriteData/Death/0.txt"),
                                     &format!("Death")
-                        )
+                        )*/
                     }
                     1 => {
+                        Entity::new(&format!("SpriteData/parasite/0.txt"),
+                                    &format!("SpriteData/parasite/1.txt"),
+                                    &format!("SpriteData/parasite/2.txt"),
+                                    &format!("SpriteData/parasite/3.txt"),
+                                    &format!("SpriteData/parasite/4.txt"),
+                                    &format!("parasite")
+                        )
+                        /*
                         Entity::new(&format!("SpriteData/nuggiesaurus/0.txt"),
                                     &format!("SpriteData/nuggiesaurus/0.txt"),
                                     &format!("SpriteData/nuggiesaurus/0.txt"),
                                     &format!("SpriteData/nuggiesaurus/0.txt"),
                                     &format!("SpriteData/nuggiesaurus/0.txt"),
                                     &format!("nuggiesaurus")
-                        )
+                        )*/
                     }
                     2 => {
                         Entity::new(&format!("SpriteData/parasite/0.txt"),
-                                    &format!("SpriteData/parasite/0.txt"),
-                                    &format!("SpriteData/parasite/0.txt"),
-                                    &format!("SpriteData/parasite/0.txt"),
-                                    &format!("SpriteData/parasite/0.txt"),
+                                    &format!("SpriteData/parasite/1.txt"),
+                                    &format!("SpriteData/parasite/2.txt"),
+                                    &format!("SpriteData/parasite/3.txt"),
+                                    &format!("SpriteData/parasite/4.txt"),
                                     &format!("parasite")
                         )
                     }
                     _ => {
                         Entity::new(&format!("SpriteData/Turtle/0.txt"),
-                                    &format!("SpriteData/Turtle/0.txt"),
-                                    &format!("SpriteData/Turtle/0.txt"),
-                                    &format!("SpriteData/Turtle/0.txt"),
-                                    &format!("SpriteData/Turtle/0.txt"),
+                                    &format!("SpriteData/Turtle/1.txt"),
+                                    &format!("SpriteData/Turtle/2.txt"),
+                                    &format!("SpriteData/Turtle/3.txt"),
+                                    &format!("SpriteData/Turtle/4.txt"),
                                     &format!("Turtle")
                         )
                     }
@@ -754,6 +770,12 @@ fn main() -> Result<(), pixels::Error> {
                     _ => {}
                 }
                 screen = Screen::new(&battle_scene);
+                enemy.x_pos = 650;
+                enemy.y_pos = Screen::read_from_file_u16(
+                    format!("{}{}{}", WORLD, &battle_scene, "/data.json"),
+                    "start_y",
+                )
+                    .expect("Failed to read y value from file");
                 screen.entities.push(enemy.clone());
                 screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
                 // Moves option selected to previous option
@@ -1611,7 +1633,7 @@ impl Screen {
         }
     }
 }
-
+#[derive(Clone)]
 struct Entity {
     //horizontal position from right of screen to left of player
     x_pos: u16,
