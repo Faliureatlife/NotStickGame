@@ -1,0 +1,12 @@
+{
+	"start_x": 360,
+	"start_y": 221,
+	"default_scroll": 0,
+	"collision": [],
+	"mvmt_dest": ["null","null","null","null"],
+	"entities": [],
+	"interact": [],
+	"interact_actions": [],
+	"interact_pos": [],
+	"music": "music/Stroll_Around_Town.wav"
+}

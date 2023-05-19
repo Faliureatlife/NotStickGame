@@ -291,7 +291,16 @@ fn main() -> Result<(), pixels::Error> {
         }
         //update part of code that handles key-presses and simple window things
         if input.update(&event) && start_screen {
+            match track {
+                0 => {
 
+                }
+                1 => {}
+                2 => {}
+                3 => {}
+                4 => {}
+                _ => {}
+            }
         }
         if input.update(&event) && !paused && !battle && !start_screen {
             //make into a match statement at some point maybe
