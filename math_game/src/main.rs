@@ -270,7 +270,6 @@ fn main() -> Result<(), pixels::Error> {
     let mut fight_tracker: usize = 0;
     let mut total_correct: u8 = 0;
     let mut battle_won: bool = false;
-    //todo: multithreading to have game thinking and rendering at same time
     //loop that runs program
     event_loop.run(move |event, _, control_flow| {
         //When it wants to redraw do this
@@ -310,6 +309,11 @@ fn main() -> Result<(), pixels::Error> {
                 *control_flow = ControlFlow::Exit;
                 return;
             }
+
+            if input.key_pressed(VirtualKeyCode::M) {
+                sink.set_volume(0.0);
+            }
+
             if input.key_pressed(VirtualKeyCode::Tab) {
                 track = 0;
                 last_scr = screen.scr.clone();
@@ -424,7 +428,7 @@ fn main() -> Result<(), pixels::Error> {
                     if night {
                         screen = Screen::new(&format!("{}{}",&screen.player.mvmt_destinations[0],"_night.txt"))
                     } else {
-                        screen= Screen::new(&screen.player.mvmt_destinations[0])
+                        screen = Screen::new(&screen.player.mvmt_destinations[0])
                     }
                     if format!("music/{}",screen.music) != music_name.clone() {
                         sink.clear();
@@ -447,7 +451,11 @@ fn main() -> Result<(), pixels::Error> {
                 }
                 2 => {
                     let y = screen.player.y_pos;
-                    screen = Screen::new(&screen.player.mvmt_destinations[1]);
+                    if night {
+                        screen = Screen::new(&format!("{}{}",&screen.player.mvmt_destinations[1],"_night.txt"))
+                    } else {
+                        screen = Screen::new(&screen.player.mvmt_destinations[1])
+                    }
                     if format!("music/{}",screen.music) != music_name.clone() {
                         sink.clear();
                         source =
@@ -471,7 +479,11 @@ fn main() -> Result<(), pixels::Error> {
                 3 => {
                     let x = screen.player.x_pos;
                     let scroll = screen.scroll_dist;
-                    screen = Screen::new(&screen.player.mvmt_destinations[2]);
+                    if night {
+                        screen = Screen::new(&format!("{}{}",&screen.player.mvmt_destinations[2],"_night.txt"))
+                    } else {
+                        screen= Screen::new(&screen.player.mvmt_destinations[2])
+                    }
                     if format!("music/{}",screen.music) != music_name.clone() {
                         sink.clear();
                         source =
@@ -493,7 +505,11 @@ fn main() -> Result<(), pixels::Error> {
                 }
                 4 => {
                     let y = screen.player.y_pos;
-                    screen = Screen::new(&screen.player.mvmt_destinations[3]);
+                    if night {
+                        screen = Screen::new(&format!("{}{}",&screen.player.mvmt_destinations[3],"_night.txt"))
+                    } else {
+                        screen= Screen::new(&screen.player.mvmt_destinations[3])
+                    }
                     if format!("music/{}",screen.music) != music_name.clone() {
                         sink.clear();
                         source =
@@ -580,6 +596,19 @@ fn main() -> Result<(), pixels::Error> {
                     y_save = screen.player.y_pos;
                     battle_scene = format!("{}{}", "BattleScene/Full-Health/Fight/", last_scr);
                     screen = Screen::new(&battle_scene);
+                    if format!("music/{}",screen.music) != music_name.clone() {
+                        sink.clear();
+                        source =
+                            Decoder::new(
+                                BufReader::new(
+                                    File::open(screen.music.clone())
+                                        .unwrap()))
+                                .unwrap()
+                                .repeat_infinite();
+                        music_name = screen.music.clone();
+                        sink.append(source.clone());
+                        sink.play();
+                    }
                     screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
                     battle = !battle;
                     screen.player.move_state = 0;
@@ -661,13 +690,6 @@ fn main() -> Result<(), pixels::Error> {
             window.request_redraw();
         }
 
-        // Use match statements to determine what scenes to load
-        // match last_scr {
-        //      "stoor" =>{
-        //          screen = Screen::new("StoorBattleScene/Full-Health/Select/Fight");
-        //          screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
-        //      }...
-        // }
         if battle && input.update(&event) {
             let mut enemy = {
                 match rng.gen_range(0..3){
@@ -770,6 +792,20 @@ fn main() -> Result<(), pixels::Error> {
                     _ => {}
                 }
                 screen = Screen::new(&battle_scene);
+                if format!("music/{}",screen.music) != music_name.clone() {
+                    sink.clear();
+                    source =
+                        Decoder::new(
+                            BufReader::new(
+                                File::open(screen.music.clone())
+                                    .unwrap()))
+                            .unwrap()
+                            .repeat_infinite();
+                    music_name = screen.music.clone();
+                    sink.append(source.clone());
+                    sink.set_volume(1.3);
+                    sink.play();
+                }
                 enemy.x_pos = 650;
                 enemy.y_pos = Screen::read_from_file_u16(
                     format!("{}{}{}", WORLD, &battle_scene, "/data.json"),
