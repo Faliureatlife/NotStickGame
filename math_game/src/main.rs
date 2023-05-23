@@ -385,7 +385,6 @@ fn main() -> Result<(), pixels::Error> {
                 }
 
                 for (i, it) in screen.interact_pos.clone().chunks_exact(2).enumerate() {
-                    println!("{:.?},{:?}", screen.interact_pos,i);
                     if check_x < it[0]
                         && it[0] < check_x + CHAR_WIDTH
                         && check_y < it[1]
