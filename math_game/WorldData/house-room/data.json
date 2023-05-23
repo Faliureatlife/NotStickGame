@@ -6,7 +6,7 @@
 	"mvmt_dest": ["","","",""],
 	"entities": [],
 	"interact": [""],
-	"interact_actions": [""],
+	"interact_actions": ["night"],
 	"interact_pos": [],
 	"music": "music/Stroll_Around_Town.wav"
 }

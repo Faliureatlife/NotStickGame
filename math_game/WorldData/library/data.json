@@ -5,8 +5,8 @@
   "default_scroll": 0,
   "mvmt_dest": ["null","school","pond","null"],
   "entities": [],
-  "interact": ["move"],
-  "interact_actions": ["library-enterance"],
+  "interact": ["move","move"],
+  "interact_actions": ["library-enterance","library-enterance"],
   "interact_pos": [452,140,496,140],
   "music": "music/Stroll_Around_Town.wav"
 }

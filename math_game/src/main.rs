@@ -314,6 +314,16 @@ fn main() -> Result<(), pixels::Error> {
                 sink.set_volume(0.0);
             }
 
+            if input.key_pressed(VirtualKeyCode::U) {
+                night = !night;
+                if night {
+                    screen = Screen::new(&format!("{}{}",&screen.player.mvmt_destinations[0],"_night.txt"))
+                } else {
+                    screen = Screen::new(&screen.player.mvmt_destinations[0])
+                }
+                screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
+            }
+
             if input.key_pressed(VirtualKeyCode::Tab) {
                 track = 0;
                 last_scr = screen.scr.clone();
@@ -369,6 +379,7 @@ fn main() -> Result<(), pixels::Error> {
                 }
 
                 for (i, it) in screen.interact_pos.clone().chunks_exact(2).enumerate() {
+                    println!("{:.?},{:?}", screen.interact_pos,i);
                     if check_x < it[0]
                         && it[0] < check_x + CHAR_WIDTH
                         && check_y < it[1]
@@ -390,8 +401,7 @@ fn main() -> Result<(), pixels::Error> {
                                     sink.append(source.clone());
                                     sink.play();
                                 }
-                                screen.screen_len =
-                                    screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
+                                screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
                                 last_scr = screen.scr.clone();
                             }
                              "dialogue" => {
