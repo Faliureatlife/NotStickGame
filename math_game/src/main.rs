@@ -97,11 +97,12 @@ fn main() -> Result<(), pixels::Error> {
     let mut down: bool = false;
     let mut right: bool = false;
     let mut night: bool = false;
-
+    let mut muted:bool = false;
 
     // Start menu variables 
     let mut math_type: String = "Algebra".to_string();
     let mut start_screen: bool = false;
+
     // Pause menu variables
     let mut x_save: u16 = screen.player.x_pos;
     let mut y_save: u16 = screen.player.y_pos;
@@ -123,6 +124,7 @@ fn main() -> Result<(), pixels::Error> {
     let mut rng = rand::thread_rng();
     let mut run_good: u8 = 0;
     let mut try_run: bool = false;
+
 
     // Fight Variables
 
@@ -311,7 +313,11 @@ fn main() -> Result<(), pixels::Error> {
             }
 
             if input.key_pressed(VirtualKeyCode::M) {
-                sink.set_volume(0.0);
+                if !muted {
+                    sink.set_volume(0.0);
+                } else {
+                    sink.set_volume(1.0);
+                }
             }
 
             if input.key_pressed(VirtualKeyCode::U) {
