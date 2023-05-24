@@ -286,14 +286,128 @@ fn main() -> Result<(), pixels::Error> {
         }
         //update part of code that handles key-presses and simple window things
         if input.update(&event) && start_screen {
-            match track {
-                0 => {}
-                1 => {}
-                2 => {}
-                3 => {}
-                4 => {}
-                _ => {}
+            if !selecting_mode {
+                match track {
+                    0 => {
+                        screen = Screen::new("start-menu/start-menu-a");
+                    }
+                    1 => {
+                        screen = Screen::new("start-menu/start-menu-b");
+                    }
+                    2 => {
+                        screen = Screen::new("start-menu/mode");
+                    }
+                    3 => {
+                        screen = Screen::new("start-menu/start-menu-d");
+                    }
+                    4 => {
+                        screen = Screen::new("start-menu/start-menu-e");
+                    }
+                    _ => {}
+                }
+                screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
+
+                if input.key_pressed(VirtualKeyCode::Return) {
+                    match track{
+                        0 => {
+                            start_screen = !start_screen;
+                            track = 0;
+                        }
+                        1 => {
+                            start_screen = !start_screen;
+                            screen = Screen::new(&last_scr);
+                            screen.x_pos = x_save;
+                            screen.y_pos = y_save;
+                            track = 0;
+                        }
+                        2 => {
+                            selecting_mode = !selecting_mode;
+                            track = 0;
+                        }
+                        3 => {
+
+                        }
+                        4 => {
+                           *control_flow = ControlFlow::Exit;
+                            return; 
+                        }
+                        _ => {}
+                    }
+                }
+                if input.key_pressed(VirtualKeyCode::Up) || input.key_pressed(VirtualKeyCode::W) {
+                    if track == 0 {
+                        track = 4;
+                    } else {
+                        track = track - 1;
+                    }
+                }
+
+                if input.key_pressed(VirtualKeyCode::Down) || input.key_pressed(VirtualKeyCode::S) {
+                    if track == 4 {
+                        track = 0;
+                    } else {
+                        track = track + 1;
+                    }
+                }
+                
+                if input.key_pressed(VirtualKeyCode::Escape) || input.quit() {
+                    *control_flow = ControlFlow::Exit;
+                    return;
+                }
             }
+
+            if selecting_mode {
+                match track {
+                    0 => {
+                        screen = Screen::new("start-menu/mode/calculus");
+                    }
+                    1 => {
+                        screen = Screen::new("start-menu/mode/algebra");
+                    }
+                    2 => {
+                        screen = Screen::new("start-menu/mode/trigonometry");
+                    }
+                    _ => {}
+                }
+                if input.key_pressed(VirtualKeyCode::Up) || input.key_pressed(VirtualKeyCode::W) {
+                    if track == 0 {
+                        track = 2;
+                    } else {
+                        track = track - 1;
+                    }
+                }
+
+                if input.key_pressed(VirtualKeyCode::Down) || input.key_pressed(VirtualKeyCode::S) {
+                    if track == 2 {
+                        track = 0;
+                    } else {
+                        track = track + 1;
+                    }
+                }
+                
+                if input.key_pressed(VirtualKeyCode::Escape) || input.quit() {
+                    *control_flow = ControlFlow::Exit;
+                    return;
+                }
+
+                if input.key_pressed(VirtualKeyCode::Return) {
+                    match track {
+                        0 => {
+                            math_type = format!("Calculus");
+                            selecting_mode = !selecting_mode;
+                        }
+                        1 = > {
+                            math_type = format!("Algebra");
+                            selecting_mode = !selecting_mode;
+                        }
+                        2 => {
+                            math_type = format!("Trigonometry");
+                            selecting_mode = !selecting_mode;
+                        }
+                        _ => {}
+                    }
+                }
+            }         
         }
         if input.update(&event) && !paused && !battle && !start_screen {
             //make into a match statement at some point maybe
