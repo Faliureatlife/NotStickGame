@@ -71,7 +71,7 @@ fn main() -> Result<(), pixels::Error> {
     }
 
     //screen object made from the house page
-    let mut screen = Screen::new("library");
+    let mut screen = Screen::new("house-living","");
     let mut mvmt_dist: u16 = 5;
 
     //music initialization
@@ -295,19 +295,19 @@ fn main() -> Result<(), pixels::Error> {
             if !selecting_mode {
                 match track {
                     0 => {
-                        screen = Screen::new("start-menu/start-menu-a");
+                        screen = Screen::new("start-menu/start-menu-a","");
                     }
                     1 => {
-                        screen = Screen::new("start-menu/start-menu-b");
+                        screen = Screen::new("start-menu/start-menu-b","");
                     }
                     2 => {
-                        screen = Screen::new("start-menu/mode");
+                        screen = Screen::new("start-menu/mode","");
                     }
                     3 => {
-                        screen = Screen::new("start-menu/start-menu-d");
+                        screen = Screen::new("start-menu/start-menu-d","");
                     }
                     4 => {
-                        screen = Screen::new("start-menu/start-menu-e");
+                        screen = Screen::new("start-menu/start-menu-e","");
                     }
                     _ => {}
                 }
@@ -321,7 +321,7 @@ fn main() -> Result<(), pixels::Error> {
                         }
                         1 => {
                             start_screen = !start_screen;
-                            screen = Screen::new(&last_scr);
+                            screen = Screen::new(&last_scr,"");
                             screen.player.x_pos = x_save;
                             screen.player.y_pos = y_save;
                             track = 0;
@@ -363,13 +363,13 @@ fn main() -> Result<(), pixels::Error> {
             if selecting_mode {
                 match track {
                     0 => {
-                        screen = Screen::new("start-menu/mode/calculus");
+                        screen = Screen::new("start-menu/mode/calculus","");
                     }
                     1 => {
-                        screen = Screen::new("start-menu/mode/algebra");
+                        screen = Screen::new("start-menu/mode/algebra","");
                     }
                     2 => {
-                        screen = Screen::new("start-menu/mode/trigonometry");
+                        screen = Screen::new("start-menu/mode/trigonometry","");
                     }
                     _ => {}
                 }
@@ -433,12 +433,11 @@ fn main() -> Result<(), pixels::Error> {
             if input.key_pressed(VirtualKeyCode::U) {
                 night = !night;
                 if night {
-                    screen = Screen::new(&format!(
-                        "{}{}",
+                    screen = Screen::new(
                         &screen.player.mvmt_destinations[0], "_night.txt"
-                    ))
+                    )
                 } else {
-                    screen = Screen::new(&screen.player.mvmt_destinations[0])
+                    screen = Screen::new(&screen.player.mvmt_destinations[0],"")
                 }
                 screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
             }
@@ -449,7 +448,7 @@ fn main() -> Result<(), pixels::Error> {
                 last_scroll = screen.scroll_dist;
                 x_save = screen.player.x_pos;
                 y_save = screen.player.y_pos;
-                screen = Screen::new("pause-menu/pause-menu-a");
+                screen = Screen::new("pause-menu/pause-menu-a","");
 
                 screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
                 paused = !paused;
@@ -490,14 +489,17 @@ fn main() -> Result<(), pixels::Error> {
                 let mut check_x = screen.player.x_pos + screen.scroll_dist;
                 let mut check_y = screen.player.y_pos;
                 match screen.player.direction {
-                    1 => check_y -= 30,
-                    2 => check_x -= 30,
+                    1 if screen.player.y_pos > 30 => check_y -= 30,
+                    1 => check_y -= screen.player.y_pos - 1,
+                    2 if screen.player.x_pos > 30 => check_x -= 30,
+                    2 => check_x -= screen.player.x_pos - 1,
                     3 => check_y += 30 + CHAR_WIDTH,
                     4 => check_x += 30 + CHAR_HEIGHT,
                     _ => {}
                 }
 
                 for (i, it) in screen.interact_pos.clone().chunks_exact(2).enumerate() {
+                    println!("checking x from {check_x} to {}, and checking y from {check_y} to {}",check_x + CHAR_WIDTH, check_y +CHAR_HEIGHT);
                     if check_x < it[0]
                         && it[0] < check_x + CHAR_WIDTH
                         && check_y < it[1]
@@ -505,7 +507,7 @@ fn main() -> Result<(), pixels::Error> {
                     {
                         match screen.interact[i].as_str() {
                             "move" => {
-                                screen = Screen::new(&screen.interact_action[i]);
+                                screen = Screen::new(&screen.interact_action[i],"");
                                 if screen.music != music_name.clone() {
                                     println!("{}{}",screen.music, music_name.clone());
                                     sink.clear();
@@ -527,7 +529,8 @@ fn main() -> Result<(), pixels::Error> {
                             }
                             "sleep" => {
                                 night = !night;
-                                screen = Screen::new("WorldData/house-room/picture.txt_night.txt");
+                                println!("{night}");
+                                screen = Screen::new("house-room","_night.txt");
                                 screen.screen_len =
                                     screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
                                 if screen.music != music_name.clone() {
@@ -553,12 +556,11 @@ fn main() -> Result<(), pixels::Error> {
                 1 => {
                     let x = screen.player.x_pos;
                     if night {
-                        screen = Screen::new(&format!(
-                            "{}{}",
+                        screen = Screen::new(
                             &screen.player.mvmt_destinations[0], "_night.txt"
-                        ))
+                        )
                     } else {
-                        screen = Screen::new(&screen.player.mvmt_destinations[0])
+                        screen = Screen::new(&screen.player.mvmt_destinations[0],"")
                     }
                     if screen.music != music_name.clone() {
                         sink.clear();
@@ -579,13 +581,15 @@ fn main() -> Result<(), pixels::Error> {
                 2 => {
                     let y = screen.player.y_pos;
                     if night {
-                        screen = Screen::new(&format!(
-                            "{}{}",
+                        screen = Screen::new(
                             &screen.player.mvmt_destinations[1], "_night.txt"
-                        ))
+                        );
+                        println!("{}", screen.area.len() / (SCREEN_HEIGHT * 3) as usize)
                     } else {
-                        screen = Screen::new(&screen.player.mvmt_destinations[1])
+                        screen = Screen::new(&screen.player.mvmt_destinations[1],"")
                     }
+                    screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
+                    println!("aasd");
                     if screen.music != music_name.clone() {
                         sink.clear();
                         source =
@@ -596,7 +600,6 @@ fn main() -> Result<(), pixels::Error> {
                         sink.append(source.clone());
                         sink.play();
                     }
-                    screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
                     screen.player.y_pos = y;
                     //left side of screen offset by player height + mvmt distance
                     screen.player.x_pos = 720 - (CHAR_WIDTH + mvmt_dist + 1);
@@ -607,12 +610,11 @@ fn main() -> Result<(), pixels::Error> {
                     let x = screen.player.x_pos;
                     let scroll = screen.scroll_dist;
                     if night {
-                        screen = Screen::new(&format!(
-                            "{}{}",
+                        screen = Screen::new(
                             &screen.player.mvmt_destinations[2], "_night.txt"
-                        ))
+                        )
                     } else {
-                        screen = Screen::new(&screen.player.mvmt_destinations[2])
+                        screen = Screen::new(&screen.player.mvmt_destinations[2],"")
                     }
                     if screen.music != music_name.clone() {
                         sink.clear();
@@ -633,12 +635,11 @@ fn main() -> Result<(), pixels::Error> {
                 4 => {
                     let y = screen.player.y_pos;
                     if night {
-                        screen = Screen::new(&format!(
-                            "{}{}",
+                        screen = Screen::new(
                             &screen.player.mvmt_destinations[3], "_night.txt"
-                        ))
+                        )
                     } else {
-                        screen = Screen::new(&screen.player.mvmt_destinations[3])
+                        screen = Screen::new(&screen.player.mvmt_destinations[3],"")
                     }
                     if screen.music != music_name.clone() {
                         sink.clear();
@@ -716,13 +717,17 @@ fn main() -> Result<(), pixels::Error> {
 
             if screen.player.move_state != 0 {
                 let encounter: u16 = rng.gen_range(0..300);
-                if encounter <= 0 {
+                //Jacob fix the battle_scene to not crash when they dont exist
+                // house-living house-garage house-room go to house_living fight
+                // library enter and library books into the library lounge
+                //or no fight in those areas
+                if encounter <= 0 && screen.scr.clone() != "house-room"{
                     track = 0;
                     last_scr = screen.scr.clone();
                     x_save = screen.player.x_pos;
                     y_save = screen.player.y_pos;
                     battle_scene = format!("{}{}", "BattleScene/Full-Health/Fight/", last_scr);
-                    screen = Screen::new(&battle_scene);
+                    screen = Screen::new(&battle_scene,"");
                     if screen.music != music_name.clone() {
                         sink.clear();
                         source =
@@ -754,23 +759,23 @@ fn main() -> Result<(), pixels::Error> {
             // 4. Quit Select
             match track % 5 {
                 0 => {
-                    screen = Screen::new("pause-menu/pause-menu-a");
+                    screen = Screen::new("pause-menu/pause-menu-a","");
                     screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
                 }
                 1 => {
-                    screen = Screen::new("pause-menu/pause-menu-b");
+                    screen = Screen::new("pause-menu/pause-menu-b","");
                     screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
                 }
                 2 => {
-                    screen = Screen::new("pause-menu/pause-menu-c");
+                    screen = Screen::new("pause-menu/pause-menu-c","");
                     screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
                 }
                 3 => {
-                    screen = Screen::new("pause-menu/pause-menu-d");
+                    screen = Screen::new("pause-menu/pause-menu-d","");
                     screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
                 }
                 4 => {
-                    screen = Screen::new("pause-menu/pause-menu-e");
+                    screen = Screen::new("pause-menu/pause-menu-e","");
                     screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
                 }
                 _ => {}
@@ -800,7 +805,7 @@ fn main() -> Result<(), pixels::Error> {
             if input.key_pressed(VirtualKeyCode::Return) {
                 match track % 5 {
                     4 => {
-                        screen = Screen::new(&last_scr);
+                        screen = Screen::new(&last_scr,"");
                         screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
                         screen.player.x_pos = x_save;
                         screen.player.y_pos = y_save;
@@ -913,7 +918,7 @@ fn main() -> Result<(), pixels::Error> {
                     },
                     _ => {}
                 }
-                screen = Screen::new(&battle_scene);
+                screen = Screen::new(&battle_scene,"");
                 if screen.music != music_name.clone() {
                     sink.clear();
                     source =
@@ -981,7 +986,7 @@ fn main() -> Result<(), pixels::Error> {
                         "/fight/fight",
                         fight_tracker + 1
                     );
-                    screen = Screen::new(&battle_scene);
+                    screen = Screen::new(&battle_scene,"");
                     screen.entities.push(enemy.clone());
                     screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
 
@@ -1023,7 +1028,7 @@ fn main() -> Result<(), pixels::Error> {
                     if options[problem_choose][fight_tracker] != answer[problem_choose] {
                         battle_scene =
                             format!("{}{}{}", "BattleScene/General-Use/", last_scr, "/end");
-                        screen = Screen::new(&battle_scene);
+                        screen = Screen::new(&battle_scene,"");
                         screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
 
                         if time_count <= 60 {
@@ -1044,7 +1049,7 @@ fn main() -> Result<(), pixels::Error> {
                     } else {
                         battle_scene =
                             format!("{}{}{}", "BattleScene/General-Use/", last_scr, "/end");
-                        screen = Screen::new(&battle_scene);
+                        screen = Screen::new(&battle_scene,"");
                         screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
 
                         if time_count <= 60 {
@@ -1100,7 +1105,7 @@ fn main() -> Result<(), pixels::Error> {
                     if time_count < 65 {
                         battle_scene =
                             format!("{}{}{}", "BattleScene/General-Use/", last_scr, "/end");
-                        screen = Screen::new(&battle_scene);
+                        screen = Screen::new(&battle_scene,"");
                         screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
 
                         screen.fight_write("Nav cant run".to_string(), 75, 455);
@@ -1109,7 +1114,7 @@ fn main() -> Result<(), pixels::Error> {
                     if time_count < 130 && time_count >= 65 {
                         battle_scene =
                             format!("{}{}{}", "BattleScene/General-Use/", last_scr, "/end");
-                        screen = Screen::new(&battle_scene);
+                        screen = Screen::new(&battle_scene,"");
                         screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
 
                         screen.fight_write("Nav is hit".to_string(), 75, 455);
@@ -1127,7 +1132,7 @@ fn main() -> Result<(), pixels::Error> {
                     if time_count < 65 {
                         battle_scene =
                             format!("{}{}{}", "BattleScene/General-Use/", last_scr, "/end");
-                        screen = Screen::new(&battle_scene);
+                        screen = Screen::new(&battle_scene,"");
                         screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
 
                         screen.fight_write("Nav runs away".to_string(), 75, 455);
@@ -1145,7 +1150,7 @@ fn main() -> Result<(), pixels::Error> {
                         left = false;
                         right = false;
                         down = false;
-                        screen = Screen::new(&last_scr);
+                        screen = Screen::new(&last_scr,"");
                         screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
                         screen.player.x_pos = x_save;
                         screen.player.y_pos = y_save;
@@ -1158,7 +1163,7 @@ fn main() -> Result<(), pixels::Error> {
 
             if player_health == 0 {
                 battle_scene = format!("{}{}{}", "BattleScene/General-Use/", last_scr, "/end");
-                screen = Screen::new(&battle_scene);
+                screen = Screen::new(&battle_scene,"");
                 screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
 
                 screen.fight_write("you lost".to_string(), 90, 455);
@@ -1177,7 +1182,7 @@ fn main() -> Result<(), pixels::Error> {
                     right = false;
                     down = false;
                     submit = false;
-                    screen = Screen::new(&last_scr);
+                    screen = Screen::new(&last_scr,"");
                     screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
                     screen.player.x_pos = x_save;
                     screen.player.y_pos = y_save;
@@ -1188,7 +1193,7 @@ fn main() -> Result<(), pixels::Error> {
             }
             if total_correct == 3 {
                 battle_scene = format!("{}{}{}", "BattleScene/General-Use/", last_scr, "/end");
-                screen = Screen::new(&battle_scene);
+                screen = Screen::new(&battle_scene,"");
                 screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
 
                 if time_count < 50 {
@@ -1208,7 +1213,7 @@ fn main() -> Result<(), pixels::Error> {
                     right = false;
                     down = false;
                     submit = false;
-                    screen = Screen::new(&last_scr);
+                    screen = Screen::new(&last_scr,"");
                     screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
                     screen.player.x_pos = x_save;
                     screen.player.y_pos = y_save;
@@ -1475,7 +1480,7 @@ struct Screen {
     music: String,
 }
 impl Screen {
-    fn new(place: &str) -> Self {
+    fn new(place: &str,day:&str) -> Self {
         Self {
             //creating the new player objects
             player: Player::new(
@@ -1536,7 +1541,7 @@ impl Screen {
                 v
             },
             //getting the data for a new screen
-            area: Screen::new_screen(format!("{}{}{}", WORLD, place, "/picture.txt")),
+            area: Screen::new_screen(format!("{}{}/picture.txt{}", WORLD, place,day)),
             //default scroll dist is read from file
             scroll_dist: Screen::read_from_file_u16(
                 format!("{}{}{}", WORLD, place, "/data.json"),
