@@ -5,23 +5,22 @@
 use rand::prelude::*;
 //screen access
 use pixels::{
-    wgpu::{PowerPreference, RequestAdapterOptions,PresentMode},
+    wgpu::{PowerPreference, PresentMode, RequestAdapterOptions},
     PixelsBuilder,
 };
 //audio
-use rodio::{Decoder, OutputStream, source::Source, Sink};
+use rodio::{source::Source, Decoder, OutputStream, Sink};
 //deserialize json files
 use serde_json::{de, value::Value};
 //whatever i need from the std library atm
 use std::{
     env,
     fs::*,
-    io::BufReader
-    // thread::sleep,
+    io::BufReader, // thread::sleep,
 };
 //window management and input
 use winit::event::VirtualKeyCode;
-use winit::{dpi::PhysicalSize, event::*, event_loop::*, window::Window, };
+use winit::{dpi::PhysicalSize, event::*, event_loop::*, window::Window};
 use winit_input_helper::WinitInputHelper;
 // use pixels::wgpu::Color;
 
@@ -78,13 +77,9 @@ fn main() -> Result<(), pixels::Error> {
     //music initialization
     let (_stream, stream_handle) = OutputStream::try_default().unwrap();
     let mut music_name = "music/Stroll_Around_Town.wav".to_owned();
-    let mut source =
-        Decoder::new(
-        BufReader::new(
-            File::open(music_name.clone())
-                .unwrap()))
-            .unwrap()
-            .repeat_infinite();
+    let mut source = Decoder::new(BufReader::new(File::open(music_name.clone()).unwrap()))
+        .unwrap()
+        .repeat_infinite();
     let sink = Sink::try_new(&stream_handle).unwrap();
     sink.append(source.clone());
     sink.play();
@@ -97,15 +92,16 @@ fn main() -> Result<(), pixels::Error> {
     let mut down: bool = false;
     let mut right: bool = false;
     let mut night: bool = false;
+    let mut muted: bool = false;
 
-
-    // Start menu variables 
+    // Start menu variables
     let mut math_type: String = "Algebra".to_string();
     let mut start_screen: bool = false;
+
     // Pause menu variables
     let mut x_save: u16 = screen.player.x_pos;
     let mut y_save: u16 = screen.player.y_pos;
-    let mut paused:bool = false;
+    let mut paused: bool = false;
     let mut last_scr: String = format!("houses");
     let mut last_scroll: u16 = 0;
     let mut track: u8 = 0;
@@ -225,7 +221,7 @@ fn main() -> Result<(), pixels::Error> {
             "x = 3".to_string(),
             "x = -3".to_string(),
             "x = 0".to_string(),
-            "x = 9".to_string()
+            "x = 9".to_string(),
         ],
         vec![
             "x = -1".to_string(),
@@ -244,7 +240,7 @@ fn main() -> Result<(), pixels::Error> {
             "x = 5".to_string(),
             "x = -5".to_string(),
             "x = -5 and x = 1".to_string(),
-        ]
+        ],
     ];
     let answer = vec![
         "(x+2)(x+2)",
@@ -290,16 +286,128 @@ fn main() -> Result<(), pixels::Error> {
         }
         //update part of code that handles key-presses and simple window things
         if input.update(&event) && start_screen {
-            match track {
-                0 => {
-
+            if !selecting_mode {
+                match track {
+                    0 => {
+                        screen = Screen::new("start-menu/start-menu-a");
+                    }
+                    1 => {
+                        screen = Screen::new("start-menu/start-menu-b");
+                    }
+                    2 => {
+                        screen = Screen::new("start-menu/mode");
+                    }
+                    3 => {
+                        screen = Screen::new("start-menu/start-menu-d");
+                    }
+                    4 => {
+                        screen = Screen::new("start-menu/start-menu-e");
+                    }
+                    _ => {}
                 }
-                1 => {}
-                2 => {}
-                3 => {}
-                4 => {}
-                _ => {}
+                screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
+
+                if input.key_pressed(VirtualKeyCode::Return) {
+                    match track{
+                        0 => {
+                            start_screen = !start_screen;
+                            track = 0;
+                        }
+                        1 => {
+                            start_screen = !start_screen;
+                            screen = Screen::new(&last_scr);
+                            screen.x_pos = x_save;
+                            screen.y_pos = y_save;
+                            track = 0;
+                        }
+                        2 => {
+                            selecting_mode = !selecting_mode;
+                            track = 0;
+                        }
+                        3 => {
+
+                        }
+                        4 => {
+                           *control_flow = ControlFlow::Exit;
+                            return; 
+                        }
+                        _ => {}
+                    }
+                }
+                if input.key_pressed(VirtualKeyCode::Up) || input.key_pressed(VirtualKeyCode::W) {
+                    if track == 0 {
+                        track = 4;
+                    } else {
+                        track = track - 1;
+                    }
+                }
+
+                if input.key_pressed(VirtualKeyCode::Down) || input.key_pressed(VirtualKeyCode::S) {
+                    if track == 4 {
+                        track = 0;
+                    } else {
+                        track = track + 1;
+                    }
+                }
+                
+                if input.key_pressed(VirtualKeyCode::Escape) || input.quit() {
+                    *control_flow = ControlFlow::Exit;
+                    return;
+                }
             }
+
+            if selecting_mode {
+                match track {
+                    0 => {
+                        screen = Screen::new("start-menu/mode/calculus");
+                    }
+                    1 => {
+                        screen = Screen::new("start-menu/mode/algebra");
+                    }
+                    2 => {
+                        screen = Screen::new("start-menu/mode/trigonometry");
+                    }
+                    _ => {}
+                }
+                if input.key_pressed(VirtualKeyCode::Up) || input.key_pressed(VirtualKeyCode::W) {
+                    if track == 0 {
+                        track = 2;
+                    } else {
+                        track = track - 1;
+                    }
+                }
+
+                if input.key_pressed(VirtualKeyCode::Down) || input.key_pressed(VirtualKeyCode::S) {
+                    if track == 2 {
+                        track = 0;
+                    } else {
+                        track = track + 1;
+                    }
+                }
+                
+                if input.key_pressed(VirtualKeyCode::Escape) || input.quit() {
+                    *control_flow = ControlFlow::Exit;
+                    return;
+                }
+
+                if input.key_pressed(VirtualKeyCode::Return) {
+                    match track {
+                        0 => {
+                            math_type = format!("Calculus");
+                            selecting_mode = !selecting_mode;
+                        }
+                        1 = > {
+                            math_type = format!("Algebra");
+                            selecting_mode = !selecting_mode;
+                        }
+                        2 => {
+                            math_type = format!("Trigonometry");
+                            selecting_mode = !selecting_mode;
+                        }
+                        _ => {}
+                    }
+                }
+            }         
         }
         if input.update(&event) && !paused && !battle && !start_screen {
             //make into a match statement at some point maybe
@@ -311,13 +419,20 @@ fn main() -> Result<(), pixels::Error> {
             }
 
             if input.key_pressed(VirtualKeyCode::M) {
-                sink.set_volume(0.0);
+                if !muted {
+                    sink.set_volume(0.0);
+                } else {
+                    sink.set_volume(1.0);
+                }
             }
 
             if input.key_pressed(VirtualKeyCode::U) {
                 night = !night;
                 if night {
-                    screen = Screen::new(&format!("{}{}",&screen.player.mvmt_destinations[0],"_night.txt"))
+                    screen = Screen::new(&format!(
+                        "{}{}",
+                        &screen.player.mvmt_destinations[0], "_night.txt"
+                    ))
                 } else {
                     screen = Screen::new(&screen.player.mvmt_destinations[0])
                 }
@@ -379,7 +494,6 @@ fn main() -> Result<(), pixels::Error> {
                 }
 
                 for (i, it) in screen.interact_pos.clone().chunks_exact(2).enumerate() {
-                    println!("{:.?},{:?}", screen.interact_pos,i);
                     if check_x < it[0]
                         && it[0] < check_x + CHAR_WIDTH
                         && check_y < it[1]
@@ -388,38 +502,36 @@ fn main() -> Result<(), pixels::Error> {
                         match screen.interact[i].as_str() {
                             "move" => {
                                 screen = Screen::new(&screen.interact_action[i]);
-                                if format!("music/{}",screen.music) != music_name.clone() {
+                                if format!("music/{}", screen.music) != music_name.clone() {
                                     sink.clear();
-                                    source =
-                                        Decoder::new(
-                                            BufReader::new(
-                                                File::open(screen.music.clone())
-                                                    .unwrap()))
-                                            .unwrap()
-                                            .repeat_infinite();
+                                    source = Decoder::new(BufReader::new(
+                                        File::open(screen.music.clone()).unwrap(),
+                                    ))
+                                    .unwrap()
+                                    .repeat_infinite();
                                     music_name = screen.music.clone();
                                     sink.append(source.clone());
                                     sink.play();
                                 }
-                                screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
+                                screen.screen_len =
+                                    screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
                                 last_scr = screen.scr.clone();
                             }
-                             "dialogue" => {
-                                 screen.new_dialog(screen.interact_action[i].clone());
-                             }
+                            "dialogue" => {
+                                screen.new_dialog(screen.interact_action[i].clone());
+                            }
                             "sleep" => {
                                 night = !night;
                                 screen = Screen::new("WorldData/house-room/picture.txt_night.txt");
-                                screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
-                                if format!("music/{}",screen.music) != music_name.clone() {
+                                screen.screen_len =
+                                    screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
+                                if format!("music/{}", screen.music) != music_name.clone() {
                                     sink.clear();
-                                    source =
-                                        Decoder::new(
-                                            BufReader::new(
-                                                File::open(screen.music.clone())
-                                                    .unwrap()))
-                                            .unwrap()
-                                            .repeat_infinite();
+                                    source = Decoder::new(BufReader::new(
+                                        File::open(screen.music.clone()).unwrap(),
+                                    ))
+                                    .unwrap()
+                                    .repeat_infinite();
                                     music_name = screen.music.clone();
                                     sink.append(source.clone());
                                     sink.play();
@@ -436,17 +548,17 @@ fn main() -> Result<(), pixels::Error> {
                 1 => {
                     let x = screen.player.x_pos;
                     if night {
-                        screen = Screen::new(&format!("{}{}",&screen.player.mvmt_destinations[0],"_night.txt"))
+                        screen = Screen::new(&format!(
+                            "{}{}",
+                            &screen.player.mvmt_destinations[0], "_night.txt"
+                        ))
                     } else {
                         screen = Screen::new(&screen.player.mvmt_destinations[0])
                     }
-                    if format!("music/{}",screen.music) != music_name.clone() {
+                    if format!("music/{}", screen.music) != music_name.clone() {
                         sink.clear();
                         source =
-                            Decoder::new(
-                                BufReader::new(
-                                    File::open(screen.music.clone())
-                                        .unwrap()))
+                            Decoder::new(BufReader::new(File::open(screen.music.clone()).unwrap()))
                                 .unwrap()
                                 .repeat_infinite();
                         music_name = screen.music.clone();
@@ -462,17 +574,17 @@ fn main() -> Result<(), pixels::Error> {
                 2 => {
                     let y = screen.player.y_pos;
                     if night {
-                        screen = Screen::new(&format!("{}{}",&screen.player.mvmt_destinations[1],"_night.txt"))
+                        screen = Screen::new(&format!(
+                            "{}{}",
+                            &screen.player.mvmt_destinations[1], "_night.txt"
+                        ))
                     } else {
                         screen = Screen::new(&screen.player.mvmt_destinations[1])
                     }
-                    if format!("music/{}",screen.music) != music_name.clone() {
+                    if format!("music/{}", screen.music) != music_name.clone() {
                         sink.clear();
                         source =
-                            Decoder::new(
-                                BufReader::new(
-                                    File::open(screen.music.clone())
-                                        .unwrap()))
+                            Decoder::new(BufReader::new(File::open(screen.music.clone()).unwrap()))
                                 .unwrap()
                                 .repeat_infinite();
                         music_name = screen.music.clone();
@@ -490,17 +602,17 @@ fn main() -> Result<(), pixels::Error> {
                     let x = screen.player.x_pos;
                     let scroll = screen.scroll_dist;
                     if night {
-                        screen = Screen::new(&format!("{}{}",&screen.player.mvmt_destinations[2],"_night.txt"))
+                        screen = Screen::new(&format!(
+                            "{}{}",
+                            &screen.player.mvmt_destinations[2], "_night.txt"
+                        ))
                     } else {
-                        screen= Screen::new(&screen.player.mvmt_destinations[2])
+                        screen = Screen::new(&screen.player.mvmt_destinations[2])
                     }
-                    if format!("music/{}",screen.music) != music_name.clone() {
+                    if format!("music/{}", screen.music) != music_name.clone() {
                         sink.clear();
                         source =
-                            Decoder::new(
-                                BufReader::new(
-                                    File::open(screen.music.clone())
-                                        .unwrap()))
+                            Decoder::new(BufReader::new(File::open(screen.music.clone()).unwrap()))
                                 .unwrap()
                                 .repeat_infinite();
                         music_name = screen.music.clone();
@@ -516,17 +628,17 @@ fn main() -> Result<(), pixels::Error> {
                 4 => {
                     let y = screen.player.y_pos;
                     if night {
-                        screen = Screen::new(&format!("{}{}",&screen.player.mvmt_destinations[3],"_night.txt"))
+                        screen = Screen::new(&format!(
+                            "{}{}",
+                            &screen.player.mvmt_destinations[3], "_night.txt"
+                        ))
                     } else {
-                        screen= Screen::new(&screen.player.mvmt_destinations[3])
+                        screen = Screen::new(&screen.player.mvmt_destinations[3])
                     }
-                    if format!("music/{}",screen.music) != music_name.clone() {
+                    if format!("music/{}", screen.music) != music_name.clone() {
                         sink.clear();
                         source =
-                            Decoder::new(
-                                BufReader::new(
-                                    File::open(screen.music.clone())
-                                        .unwrap()))
+                            Decoder::new(BufReader::new(File::open(screen.music.clone()).unwrap()))
                                 .unwrap()
                                 .repeat_infinite();
                         music_name = screen.music.clone();
@@ -606,13 +718,10 @@ fn main() -> Result<(), pixels::Error> {
                     y_save = screen.player.y_pos;
                     battle_scene = format!("{}{}", "BattleScene/Full-Health/Fight/", last_scr);
                     screen = Screen::new(&battle_scene);
-                    if format!("music/{}",screen.music) != music_name.clone() {
+                    if format!("music/{}", screen.music) != music_name.clone() {
                         sink.clear();
                         source =
-                            Decoder::new(
-                                BufReader::new(
-                                    File::open(screen.music.clone())
-                                        .unwrap()))
+                            Decoder::new(BufReader::new(File::open(screen.music.clone()).unwrap()))
                                 .unwrap()
                                 .repeat_infinite();
                         music_name = screen.music.clone();
@@ -702,14 +811,15 @@ fn main() -> Result<(), pixels::Error> {
 
         if battle && input.update(&event) {
             let mut enemy = {
-                match rng.gen_range(0..3){
+                match rng.gen_range(0..3) {
                     0 => {
-                        Entity::new(&format!("SpriteData/parasite/0.txt"),
-                                    &format!("SpriteData/parasite/1.txt"),
-                                    &format!("SpriteData/parasite/2.txt"),
-                                    &format!("SpriteData/parasite/3.txt"),
-                                    &format!("SpriteData/parasite/4.txt"),
-                                    &format!("parasite")
+                        Entity::new(
+                            &format!("SpriteData/parasite/0.txt"),
+                            &format!("SpriteData/parasite/1.txt"),
+                            &format!("SpriteData/parasite/2.txt"),
+                            &format!("SpriteData/parasite/3.txt"),
+                            &format!("SpriteData/parasite/4.txt"),
+                            &format!("parasite"),
                         )
                         /*
                         Entity::new(&format!("SpriteData/Death/0.txt"),
@@ -721,12 +831,13 @@ fn main() -> Result<(), pixels::Error> {
                         )*/
                     }
                     1 => {
-                        Entity::new(&format!("SpriteData/parasite/0.txt"),
-                                    &format!("SpriteData/parasite/1.txt"),
-                                    &format!("SpriteData/parasite/2.txt"),
-                                    &format!("SpriteData/parasite/3.txt"),
-                                    &format!("SpriteData/parasite/4.txt"),
-                                    &format!("parasite")
+                        Entity::new(
+                            &format!("SpriteData/parasite/0.txt"),
+                            &format!("SpriteData/parasite/1.txt"),
+                            &format!("SpriteData/parasite/2.txt"),
+                            &format!("SpriteData/parasite/3.txt"),
+                            &format!("SpriteData/parasite/4.txt"),
+                            &format!("parasite"),
                         )
                         /*
                         Entity::new(&format!("SpriteData/nuggiesaurus/0.txt"),
@@ -737,24 +848,22 @@ fn main() -> Result<(), pixels::Error> {
                                     &format!("nuggiesaurus")
                         )*/
                     }
-                    2 => {
-                        Entity::new(&format!("SpriteData/parasite/0.txt"),
-                                    &format!("SpriteData/parasite/1.txt"),
-                                    &format!("SpriteData/parasite/2.txt"),
-                                    &format!("SpriteData/parasite/3.txt"),
-                                    &format!("SpriteData/parasite/4.txt"),
-                                    &format!("parasite")
-                        )
-                    }
-                    _ => {
-                        Entity::new(&format!("SpriteData/Turtle/0.txt"),
-                                    &format!("SpriteData/Turtle/1.txt"),
-                                    &format!("SpriteData/Turtle/2.txt"),
-                                    &format!("SpriteData/Turtle/3.txt"),
-                                    &format!("SpriteData/Turtle/4.txt"),
-                                    &format!("Turtle")
-                        )
-                    }
+                    2 => Entity::new(
+                        &format!("SpriteData/parasite/0.txt"),
+                        &format!("SpriteData/parasite/1.txt"),
+                        &format!("SpriteData/parasite/2.txt"),
+                        &format!("SpriteData/parasite/3.txt"),
+                        &format!("SpriteData/parasite/4.txt"),
+                        &format!("parasite"),
+                    ),
+                    _ => Entity::new(
+                        &format!("SpriteData/Turtle/0.txt"),
+                        &format!("SpriteData/Turtle/1.txt"),
+                        &format!("SpriteData/Turtle/2.txt"),
+                        &format!("SpriteData/Turtle/3.txt"),
+                        &format!("SpriteData/Turtle/4.txt"),
+                        &format!("Turtle"),
+                    ),
                 }
             };
             if input.key_pressed(VirtualKeyCode::Escape) {
@@ -768,47 +877,47 @@ fn main() -> Result<(), pixels::Error> {
                         // Fight select
                         match player_health {
                             4 => {
-                                battle_scene = format!("{}{}", "BattleScene/Full-Health/Fight/", last_scr);
+                                battle_scene =
+                                    format!("{}{}", "BattleScene/Full-Health/Fight/", last_scr);
                             }
                             3 => {
-                                battle_scene = format!("{}{}", "BattleScene/75-Health/Fight/", last_scr);
+                                battle_scene =
+                                    format!("{}{}", "BattleScene/75-Health/Fight/", last_scr);
                             }
                             2 => {
-                                battle_scene = format!("{}{}", "BattleScene/50-Health/Fight/", last_scr);
+                                battle_scene =
+                                    format!("{}{}", "BattleScene/50-Health/Fight/", last_scr);
                             }
                             1 => {
-                                battle_scene = format!("{}{}", "BattleScene/25-Health/Fight/", last_scr);
+                                battle_scene =
+                                    format!("{}{}", "BattleScene/25-Health/Fight/", last_scr);
                             }
                             _ => {}
                         }
                     }
-                    1 => {
-                        match player_health {
-                            4 => {
-                                battle_scene = format!("{}{}", "BattleScene/Full-Health/Run/", last_scr);
-                            }
-                            3 => {
-                                battle_scene = format!("{}{}", "BattleScene/75-Health/Run/", last_scr);
-                            }
-                            2 => {
-                                battle_scene = format!("{}{}", "BattleScene/50-Health/Run/", last_scr);
-                            }
-                            1 => {
-                                battle_scene = format!("{}{}", "BattleScene/25-Health/Run/", last_scr);
-                            }
-                            _ => {}
+                    1 => match player_health {
+                        4 => {
+                            battle_scene =
+                                format!("{}{}", "BattleScene/Full-Health/Run/", last_scr);
                         }
-                    }
+                        3 => {
+                            battle_scene = format!("{}{}", "BattleScene/75-Health/Run/", last_scr);
+                        }
+                        2 => {
+                            battle_scene = format!("{}{}", "BattleScene/50-Health/Run/", last_scr);
+                        }
+                        1 => {
+                            battle_scene = format!("{}{}", "BattleScene/25-Health/Run/", last_scr);
+                        }
+                        _ => {}
+                    },
                     _ => {}
                 }
                 screen = Screen::new(&battle_scene);
-                if format!("music/{}",screen.music) != music_name.clone() {
+                if format!("music/{}", screen.music) != music_name.clone() {
                     sink.clear();
                     source =
-                        Decoder::new(
-                            BufReader::new(
-                                File::open(screen.music.clone())
-                                    .unwrap()))
+                        Decoder::new(BufReader::new(File::open(screen.music.clone()).unwrap()))
                             .unwrap()
                             .repeat_infinite();
                     music_name = screen.music.clone();
@@ -821,7 +930,7 @@ fn main() -> Result<(), pixels::Error> {
                     format!("{}{}{}", WORLD, &battle_scene, "/data.json"),
                     "start_y",
                 )
-                    .expect("Failed to read y value from file");
+                .expect("Failed to read y value from file");
                 screen.entities.push(enemy.clone());
                 screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
                 // Moves option selected to previous option
@@ -865,25 +974,38 @@ fn main() -> Result<(), pixels::Error> {
                 }
 
                 if !submit {
-                    battle_scene = format!("{}{}{}{}", "BattleScene/General-Use/", last_scr, "/fight/fight", fight_tracker + 1);
+                    battle_scene = format!(
+                        "{}{}{}{}",
+                        "BattleScene/General-Use/",
+                        last_scr,
+                        "/fight/fight",
+                        fight_tracker + 1
+                    );
                     screen = Screen::new(&battle_scene);
                     screen.entities.push(enemy.clone());
                     screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
-                    
-                    screen.fight_write(task[problem_choose].to_string() + ";" + problems[problem_choose], 55, 455);
+
+                    screen.fight_write(
+                        task[problem_choose].to_string() + ";" + problems[problem_choose],
+                        55,
+                        455,
+                    );
                     screen.fight_write(options[problem_choose][0].to_string(), 150, 66);
                     screen.fight_write(options[problem_choose][1].to_string(), 150, 150);
                     screen.fight_write(options[problem_choose][2].to_string(), 150, 234);
                     screen.fight_write(options[problem_choose][3].to_string(), 150, 318);
-                    
-                    if input.key_pressed(VirtualKeyCode::W) || input.key_pressed(VirtualKeyCode::Up) {
+
+                    if input.key_pressed(VirtualKeyCode::W) || input.key_pressed(VirtualKeyCode::Up)
+                    {
                         if fight_tracker == 0 {
                             fight_tracker = 3;
                         } else {
                             fight_tracker = fight_tracker - 1;
                         }
                     }
-                    if input.key_pressed(VirtualKeyCode::S) || input.key_pressed(VirtualKeyCode::Down) {
+                    if input.key_pressed(VirtualKeyCode::S)
+                        || input.key_pressed(VirtualKeyCode::Down)
+                    {
                         if fight_tracker == 3 {
                             fight_tracker = 0;
                         } else {
@@ -899,7 +1021,8 @@ fn main() -> Result<(), pixels::Error> {
                 }
                 if submit {
                     if options[problem_choose][fight_tracker] != answer[problem_choose] {
-                        battle_scene = format!("{}{}{}", "BattleScene/General-Use/", last_scr, "/end");
+                        battle_scene =
+                            format!("{}{}{}", "BattleScene/General-Use/", last_scr, "/end");
                         screen = Screen::new(&battle_scene);
                         screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
 
@@ -919,7 +1042,8 @@ fn main() -> Result<(), pixels::Error> {
                             fight_tracker = 0;
                         }
                     } else {
-                        battle_scene = format!("{}{}{}", "BattleScene/General-Use/", last_scr, "/end");
+                        battle_scene =
+                            format!("{}{}{}", "BattleScene/General-Use/", last_scr, "/end");
                         screen = Screen::new(&battle_scene);
                         screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
 
@@ -974,7 +1098,8 @@ fn main() -> Result<(), pixels::Error> {
 
                 if !run_did {
                     if time_count < 65 {
-                        battle_scene = format!("{}{}{}", "BattleScene/General-Use/", last_scr, "/end");
+                        battle_scene =
+                            format!("{}{}{}", "BattleScene/General-Use/", last_scr, "/end");
                         screen = Screen::new(&battle_scene);
                         screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
 
@@ -982,7 +1107,8 @@ fn main() -> Result<(), pixels::Error> {
                         time_count = time_count + 1;
                     }
                     if time_count < 130 && time_count >= 65 {
-                        battle_scene = format!("{}{}{}", "BattleScene/General-Use/", last_scr, "/end");
+                        battle_scene =
+                            format!("{}{}{}", "BattleScene/General-Use/", last_scr, "/end");
                         screen = Screen::new(&battle_scene);
                         screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
 
@@ -999,7 +1125,8 @@ fn main() -> Result<(), pixels::Error> {
 
                 if run_did {
                     if time_count < 65 {
-                        battle_scene = format!("{}{}{}", "BattleScene/General-Use/", last_scr, "/end");
+                        battle_scene =
+                            format!("{}{}{}", "BattleScene/General-Use/", last_scr, "/end");
                         screen = Screen::new(&battle_scene);
                         screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
 
@@ -1055,7 +1182,6 @@ fn main() -> Result<(), pixels::Error> {
                     screen.player.y_pos = y_save;
                     fight_tracker = 0;
                     total_correct = 0;
-
                 }
             }
             if total_correct == 3 {
@@ -1434,11 +1560,9 @@ impl Screen {
             .expect("Failed to read interaction types"),
 
             music: {
-                Screen::read_from_file_str(
-                    format!("{}{}{}", WORLD, place, "/data.json"),
-                    "music",
-                ).expect("Failed to read background music")
-            }
+                Screen::read_from_file_str(format!("{}{}{}", WORLD, place, "/data.json"), "music")
+                    .expect("Failed to read background music")
+            },
         }
     }
     fn read_from_file_u16(path: String, get: &str) -> Result<u16, std::io::Error> {
@@ -1553,7 +1677,7 @@ impl Screen {
     //not getting comments because it works
     fn draw(&self, pix: &mut [u8]) {
         //draw bg
-        for (it,pixel) in pix.chunks_exact_mut(4).enumerate() {
+        for (it, pixel) in pix.chunks_exact_mut(4).enumerate() {
             pixel[0] = self.area[3 * self.scroll_dist as usize
                 + (3 * self.screen_len * ((3 * it) / (3 * SCREEN_WIDTH) as usize))
                 + ((it * 3) % (3 * SCREEN_WIDTH as usize))];
@@ -1642,7 +1766,7 @@ impl Screen {
         let mut lett: Entity;
         for letter in text.to_lowercase().chars() {
             x += 25;
-            if x >=630 {
+            if x >= 630 {
                 x = 68;
                 y += 40;
             }
@@ -1710,12 +1834,12 @@ impl Entity {
                 format!("{}{}{}", "SpriteData/", idd, "/data.json"),
                 "height",
             )
-                .expect("failed to get height"),
+            .expect("failed to get height"),
             width: Entity::read_from_file_u8(
                 format!("{}{}{}", "SpriteData/", idd, "/data.json"),
                 "width",
             )
-                .unwrap(),
+            .unwrap(),
             x_pos: 1,
             y_pos: 1,
             move_state: 0,
@@ -1741,7 +1865,7 @@ impl Entity {
                     std::str::from_utf8(pix).expect("Failed to convert to utf8"),
                     16,
                 )
-                    .expect("Failed to convert to hex value"),
+                .expect("Failed to convert to hex value"),
             );
         }
         //return the vector with the info
