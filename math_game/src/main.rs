@@ -71,7 +71,7 @@ fn main() -> Result<(), pixels::Error> {
     }
 
     //screen object made from the house page
-    let mut screen = Screen::new("house-living","");
+    let mut screen = Screen::new("library-enterance","");
     let mut mvmt_dist: u16 = 5;
 
     //music initialization
@@ -116,7 +116,7 @@ fn main() -> Result<(), pixels::Error> {
     // Run Variables
     let mut run: bool = false;
     let mut run_did: bool = false;
-    let mut rng = rand::thread_rng();
+    let mut rng = thread_rng();
     let mut run_good: u8 = 0;
     let mut try_run: bool = false;
 
@@ -430,18 +430,6 @@ fn main() -> Result<(), pixels::Error> {
                 }
             }
 
-            if input.key_pressed(VirtualKeyCode::U) {
-                night = !night;
-                if night {
-                    screen = Screen::new(
-                        &screen.player.mvmt_destinations[0], "_night.txt"
-                    )
-                } else {
-                    screen = Screen::new(&screen.player.mvmt_destinations[0],"")
-                }
-                screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
-            }
-
             if input.key_pressed(VirtualKeyCode::Tab) {
                 track = 0;
                 last_scr = screen.scr.clone();
@@ -449,7 +437,6 @@ fn main() -> Result<(), pixels::Error> {
                 x_save = screen.player.x_pos;
                 y_save = screen.player.y_pos;
                 screen = Screen::new("pause-menu/pause-menu-a","");
-
                 screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
                 paused = !paused;
             }
@@ -507,7 +494,7 @@ fn main() -> Result<(), pixels::Error> {
                     {
                         match screen.interact[i].as_str() {
                             "move" => {
-                                screen = Screen::new(&screen.interact_action[i],"");
+                                screen = Screen::new(&screen.interact_action[i],"_night.txt");
                                 if screen.music != music_name.clone() {
                                     println!("{}{}",screen.music, music_name.clone());
                                     sink.clear();
@@ -1150,7 +1137,11 @@ fn main() -> Result<(), pixels::Error> {
                         left = false;
                         right = false;
                         down = false;
-                        screen = Screen::new(&last_scr,"");
+                        if night {
+                            screen = Screen::new(&last_scr,"_night.txt")
+                        } else {
+                            screen = Screen::new(&last_scr,"");
+                        }
                         screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
                         screen.player.x_pos = x_save;
                         screen.player.y_pos = y_save;
@@ -1182,7 +1173,11 @@ fn main() -> Result<(), pixels::Error> {
                     right = false;
                     down = false;
                     submit = false;
-                    screen = Screen::new(&last_scr,"");
+                    if night {
+                        screen = Screen::new(&last_scr,"_night.txt")
+                    } else {
+                        screen = Screen::new(&last_scr,"");
+                    }
                     screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
                     screen.player.x_pos = x_save;
                     screen.player.y_pos = y_save;
@@ -1213,7 +1208,11 @@ fn main() -> Result<(), pixels::Error> {
                     right = false;
                     down = false;
                     submit = false;
-                    screen = Screen::new(&last_scr,"");
+                    if night {
+                        screen = Screen::new(&last_scr,"_night.txt")
+                    } else {
+                        screen = Screen::new(&last_scr,"");
+                    }
                     screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
                     screen.player.x_pos = x_save;
                     screen.player.y_pos = y_save;
