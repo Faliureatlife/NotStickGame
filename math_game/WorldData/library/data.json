@@ -1,12 +1,12 @@
 {
-  "start_x": 0,
-  "start_y": 0,
+  "start_x": 360,
+  "start_y": 300,
   "collision": [424,115,460,115,496,115,515,115,419,125,520,125,0,180,36,180,72,180,108,180,144,180,180,180,216,180,252,180,288,180,324,180,360,180,396,180,419,180,520,180,556,180,592,180,628,180,664,180,700,180,736,180,772,180,808,180,844,180,836,236,836,291,836,346,836,401,836,456,836,511],
   "default_scroll": 0,
   "mvmt_dest": ["null","school","pond","null"],
   "entities": [],
   "interact": ["move","move"],
-  "interact_actions": ["library-books","library-books"],
+  "interact_actions": ["library-enterance","library-enterance"],
   "interact_pos": [452,140,496,140],
   "music": "music/Stroll_Around_Town.wav"
 }

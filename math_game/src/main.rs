@@ -71,7 +71,7 @@ fn main() -> Result<(), pixels::Error> {
     }
 
     //screen object made from the house page
-    let mut screen = Screen::new("houses");
+    let mut screen = Screen::new("library");
     let mut mvmt_dist: u16 = 5;
 
     //music initialization
@@ -266,8 +266,14 @@ fn main() -> Result<(), pixels::Error> {
     let mut fight_tracker: usize = 0;
     let mut total_correct: u8 = 0;
     let mut battle_won: bool = false;
+
+    //just to cure some errors
+    let mut selecting_mode = false;
+    let mut enemy_set = false;
     //loop that runs program
+
     event_loop.run(move |event, _, control_flow| {
+
         //When it wants to redraw do this
         if let Event::RedrawRequested(_) = event {
             //framebuffer that we shall mut
@@ -308,7 +314,7 @@ fn main() -> Result<(), pixels::Error> {
                 screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
 
                 if input.key_pressed(VirtualKeyCode::Return) {
-                    match track{
+                    match track {
                         0 => {
                             start_screen = !start_screen;
                             track = 0;
@@ -316,20 +322,18 @@ fn main() -> Result<(), pixels::Error> {
                         1 => {
                             start_screen = !start_screen;
                             screen = Screen::new(&last_scr);
-                            screen.x_pos = x_save;
-                            screen.y_pos = y_save;
+                            screen.player.x_pos = x_save;
+                            screen.player.y_pos = y_save;
                             track = 0;
                         }
                         2 => {
                             selecting_mode = !selecting_mode;
                             track = 0;
                         }
-                        3 => {
-
-                        }
+                        3 => {}
                         4 => {
-                           *control_flow = ControlFlow::Exit;
-                            return; 
+                            *control_flow = ControlFlow::Exit;
+                            return;
                         }
                         _ => {}
                     }
@@ -349,7 +353,7 @@ fn main() -> Result<(), pixels::Error> {
                         track = track + 1;
                     }
                 }
-                
+
                 if input.key_pressed(VirtualKeyCode::Escape) || input.quit() {
                     *control_flow = ControlFlow::Exit;
                     return;
@@ -384,7 +388,7 @@ fn main() -> Result<(), pixels::Error> {
                         track = track + 1;
                     }
                 }
-                
+
                 if input.key_pressed(VirtualKeyCode::Escape) || input.quit() {
                     *control_flow = ControlFlow::Exit;
                     return;
@@ -396,7 +400,7 @@ fn main() -> Result<(), pixels::Error> {
                             math_type = format!("Calculus");
                             selecting_mode = !selecting_mode;
                         }
-                        1 = > {
+                        1 => {
                             math_type = format!("Algebra");
                             selecting_mode = !selecting_mode;
                         }
@@ -407,7 +411,7 @@ fn main() -> Result<(), pixels::Error> {
                         _ => {}
                     }
                 }
-            }         
+            }
         }
         if input.update(&event) && !paused && !battle && !start_screen {
             //make into a match statement at some point maybe
@@ -502,7 +506,8 @@ fn main() -> Result<(), pixels::Error> {
                         match screen.interact[i].as_str() {
                             "move" => {
                                 screen = Screen::new(&screen.interact_action[i]);
-                                if format!("music/{}", screen.music) != music_name.clone() {
+                                if screen.music != music_name.clone() {
+                                    println!("{}{}",screen.music, music_name.clone());
                                     sink.clear();
                                     source = Decoder::new(BufReader::new(
                                         File::open(screen.music.clone()).unwrap(),
@@ -525,7 +530,7 @@ fn main() -> Result<(), pixels::Error> {
                                 screen = Screen::new("WorldData/house-room/picture.txt_night.txt");
                                 screen.screen_len =
                                     screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
-                                if format!("music/{}", screen.music) != music_name.clone() {
+                                if screen.music != music_name.clone() {
                                     sink.clear();
                                     source = Decoder::new(BufReader::new(
                                         File::open(screen.music.clone()).unwrap(),
@@ -555,7 +560,7 @@ fn main() -> Result<(), pixels::Error> {
                     } else {
                         screen = Screen::new(&screen.player.mvmt_destinations[0])
                     }
-                    if format!("music/{}", screen.music) != music_name.clone() {
+                    if screen.music != music_name.clone() {
                         sink.clear();
                         source =
                             Decoder::new(BufReader::new(File::open(screen.music.clone()).unwrap()))
@@ -581,7 +586,7 @@ fn main() -> Result<(), pixels::Error> {
                     } else {
                         screen = Screen::new(&screen.player.mvmt_destinations[1])
                     }
-                    if format!("music/{}", screen.music) != music_name.clone() {
+                    if screen.music != music_name.clone() {
                         sink.clear();
                         source =
                             Decoder::new(BufReader::new(File::open(screen.music.clone()).unwrap()))
@@ -609,7 +614,7 @@ fn main() -> Result<(), pixels::Error> {
                     } else {
                         screen = Screen::new(&screen.player.mvmt_destinations[2])
                     }
-                    if format!("music/{}", screen.music) != music_name.clone() {
+                    if screen.music != music_name.clone() {
                         sink.clear();
                         source =
                             Decoder::new(BufReader::new(File::open(screen.music.clone()).unwrap()))
@@ -635,7 +640,7 @@ fn main() -> Result<(), pixels::Error> {
                     } else {
                         screen = Screen::new(&screen.player.mvmt_destinations[3])
                     }
-                    if format!("music/{}", screen.music) != music_name.clone() {
+                    if screen.music != music_name.clone() {
                         sink.clear();
                         source =
                             Decoder::new(BufReader::new(File::open(screen.music.clone()).unwrap()))
@@ -718,7 +723,7 @@ fn main() -> Result<(), pixels::Error> {
                     y_save = screen.player.y_pos;
                     battle_scene = format!("{}{}", "BattleScene/Full-Health/Fight/", last_scr);
                     screen = Screen::new(&battle_scene);
-                    if format!("music/{}", screen.music) != music_name.clone() {
+                    if screen.music != music_name.clone() {
                         sink.clear();
                         source =
                             Decoder::new(BufReader::new(File::open(screen.music.clone()).unwrap()))
@@ -810,62 +815,57 @@ fn main() -> Result<(), pixels::Error> {
         }
 
         if battle && input.update(&event) {
-            let mut enemy = {
-                match rng.gen_range(0..3) {
-                    0 => {
-                        Entity::new(
+            let mut enemy: Entity = {
+                if !enemy_set {
+                    match rng.gen_range(0..4) {
+                        0 => Entity::new(
+                            &format!("SpriteData/Death/0.txt"),
+                            &format!("SpriteData/Death/1.txt"),
+                            &format!("SpriteData/Death/0.txt"),
+                            &format!("SpriteData/Death/1.txt"),
+                            &format!("SpriteData/Death/0.txt"),
+                            &format!("Death"),
+                        ),
+                        1 => Entity::new(
+                            &format!("SpriteData/nuggiesaurus/0.txt"),
+                            &format!("SpriteData/nuggiesaurus/1.txt"),
+                            &format!("SpriteData/nuggiesaurus/2.txt"),
+                            &format!("SpriteData/nuggiesaurus/3.txt"),
+                            &format!("SpriteData/nuggiesaurus/4.txt"),
+                            &format!("nuggiesaurus"),
+                        ),
+                        2 => Entity::new(
                             &format!("SpriteData/parasite/0.txt"),
                             &format!("SpriteData/parasite/1.txt"),
                             &format!("SpriteData/parasite/2.txt"),
                             &format!("SpriteData/parasite/3.txt"),
                             &format!("SpriteData/parasite/4.txt"),
                             &format!("parasite"),
-                        )
-                        /*
-                        Entity::new(&format!("SpriteData/Death/0.txt"),
-                                    &format!("SpriteData/Death/1.txt"),
-                                    &format!("SpriteData/Death/0.txt"),
-                                    &format!("SpriteData/Death/1.txt"),
-                                    &format!("SpriteData/Death/0.txt"),
-                                    &format!("Death")
-                        )*/
-                    }
-                    1 => {
-                        Entity::new(
-                            &format!("SpriteData/parasite/0.txt"),
-                            &format!("SpriteData/parasite/1.txt"),
-                            &format!("SpriteData/parasite/2.txt"),
-                            &format!("SpriteData/parasite/3.txt"),
-                            &format!("SpriteData/parasite/4.txt"),
+                        ),
+                        3 => Entity::new(
+                            &format!("SpriteData/punching bag/0.txt"),
+                            &format!("SpriteData/punching bag/1.txt"),
+                            &format!("SpriteData/punching bag/2.txt"),
+                            &format!("SpriteData/punching bag/3.txt"),
+                            &format!("SpriteData/punching bag/4.txt"),
                             &format!("parasite"),
-                        )
-                        /*
-                        Entity::new(&format!("SpriteData/nuggiesaurus/0.txt"),
-                                    &format!("SpriteData/nuggiesaurus/0.txt"),
-                                    &format!("SpriteData/nuggiesaurus/0.txt"),
-                                    &format!("SpriteData/nuggiesaurus/0.txt"),
-                                    &format!("SpriteData/nuggiesaurus/0.txt"),
-                                    &format!("nuggiesaurus")
-                        )*/
+                        ),
+                        _ => Entity::new(
+                            &format!("SpriteData/Turtle/0.txt"),
+                            &format!("SpriteData/Turtle/1.txt"),
+                            &format!("SpriteData/Turtle/2.txt"),
+                            &format!("SpriteData/Turtle/3.txt"),
+                            &format!("SpriteData/Turtle/4.txt"),
+                            &format!("Turtle"),
+                        ),
                     }
-                    2 => Entity::new(
-                        &format!("SpriteData/parasite/0.txt"),
-                        &format!("SpriteData/parasite/1.txt"),
-                        &format!("SpriteData/parasite/2.txt"),
-                        &format!("SpriteData/parasite/3.txt"),
-                        &format!("SpriteData/parasite/4.txt"),
-                        &format!("parasite"),
-                    ),
-                    _ => Entity::new(
-                        &format!("SpriteData/Turtle/0.txt"),
-                        &format!("SpriteData/Turtle/1.txt"),
-                        &format!("SpriteData/Turtle/2.txt"),
-                        &format!("SpriteData/Turtle/3.txt"),
-                        &format!("SpriteData/Turtle/4.txt"),
-                        &format!("Turtle"),
-                    ),
+                } else {
+                    //this has to be unsafe but eff it we ball
+                    screen.entities[0].clone()
                 }
             };
+            enemy_set = true;
+
             if input.key_pressed(VirtualKeyCode::Escape) {
                 *control_flow = ControlFlow::Exit;
                 return;
@@ -914,7 +914,7 @@ fn main() -> Result<(), pixels::Error> {
                     _ => {}
                 }
                 screen = Screen::new(&battle_scene);
-                if format!("music/{}", screen.music) != music_name.clone() {
+                if screen.music != music_name.clone() {
                     sink.clear();
                     source =
                         Decoder::new(BufReader::new(File::open(screen.music.clone()).unwrap()))
@@ -925,7 +925,7 @@ fn main() -> Result<(), pixels::Error> {
                     sink.set_volume(1.3);
                     sink.play();
                 }
-                enemy.x_pos = 650;
+                enemy.x_pos = 625;
                 enemy.y_pos = Screen::read_from_file_u16(
                     format!("{}{}{}", WORLD, &battle_scene, "/data.json"),
                     "start_y",
@@ -1151,6 +1151,7 @@ fn main() -> Result<(), pixels::Error> {
                         screen.player.y_pos = y_save;
                         track = 0;
                         total_correct = 0;
+                        enemy_set = false;
                     }
                 }
             }
@@ -1182,6 +1183,7 @@ fn main() -> Result<(), pixels::Error> {
                     screen.player.y_pos = y_save;
                     fight_tracker = 0;
                     total_correct = 0;
+                    enemy_set = false;
                 }
             }
             if total_correct == 3 {
@@ -1212,6 +1214,7 @@ fn main() -> Result<(), pixels::Error> {
                     screen.player.y_pos = y_save;
                     fight_tracker = 0;
                     total_correct = 0;
+                    enemy_set = false;
                 }
             }
             window.request_redraw();
@@ -1803,7 +1806,7 @@ impl Screen {
         }
     }
 }
-#[derive(Clone)]
+#[derive(Clone, PartialEq)]
 struct Entity {
     //horizontal position from right of screen to left of player
     x_pos: u16,
