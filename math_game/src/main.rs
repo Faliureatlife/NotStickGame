@@ -71,7 +71,7 @@ fn main() -> Result<(), pixels::Error> {
     }
 
     //screen object made from the house page
-    let mut screen = Screen::new("library-enterance","");
+    let mut screen = Screen::new("houses","");
     let mut mvmt_dist: u16 = 5;
 
     //music initialization
@@ -96,13 +96,13 @@ fn main() -> Result<(), pixels::Error> {
 
     // Start menu variables
     let mut math_type: String = "Algebra".to_string();
-    let mut start_screen: bool = false;
+    let mut start_screen: bool = true;
 
     // Pause menu variables
     let mut x_save: u16 = screen.player.x_pos;
     let mut y_save: u16 = screen.player.y_pos;
     let mut paused: bool = false;
-    let mut last_scr: String = format!("houses");
+    let mut last_scr: String = format!("pause-menu/pause-menu-a");
     let mut last_scroll: u16 = 0;
     let mut track: u8 = 0;
 
@@ -291,7 +291,7 @@ fn main() -> Result<(), pixels::Error> {
             }
         }
         //update part of code that handles key-presses and simple window things
-        if input.update(&event) && start_screen {
+        if start_screen && input.update(&event){
             if !selecting_mode {
                 match track {
                     0 => {
@@ -317,6 +317,8 @@ fn main() -> Result<(), pixels::Error> {
                     match track {
                         0 => {
                             start_screen = !start_screen;
+                            screen = Screen::new(&last_scr, "");
+                            screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
                             track = 0;
                         }
                         1 => {
@@ -373,6 +375,7 @@ fn main() -> Result<(), pixels::Error> {
                     }
                     _ => {}
                 }
+                screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
                 if input.key_pressed(VirtualKeyCode::Up) || input.key_pressed(VirtualKeyCode::W) {
                     if track == 0 {
                         track = 2;
@@ -394,24 +397,30 @@ fn main() -> Result<(), pixels::Error> {
                     return;
                 }
 
-                if input.key_pressed(VirtualKeyCode::Return) {
+                if input.key_pressed(VirtualKeyCode::Return) && time_count > 5 {
                     match track {
                         0 => {
                             math_type = format!("Calculus");
                             selecting_mode = !selecting_mode;
+                            time_count = 0;
                         }
                         1 => {
                             math_type = format!("Algebra");
                             selecting_mode = !selecting_mode;
+                            time_count = 0;
                         }
                         2 => {
                             math_type = format!("Trigonometry");
                             selecting_mode = !selecting_mode;
+                            time_count = 0;
                         }
                         _ => {}
                     }
+                } else {
+                    time_count = time_count + 1;
                 }
             }
+            window.request_redraw();
         }
         if input.update(&event) && !paused && !battle && !start_screen {
             //make into a match statement at some point maybe
@@ -708,30 +717,45 @@ fn main() -> Result<(), pixels::Error> {
                 // house-living house-garage house-room go to house_living fight
                 // library enter and library books into the library lounge
                 //or no fight in those areas
-                if encounter <= 0 && screen.scr.clone() != "house-room"{
-                    track = 0;
-                    last_scr = screen.scr.clone();
-                    x_save = screen.player.x_pos;
-                    y_save = screen.player.y_pos;
-                    battle_scene = format!("{}{}", "BattleScene/Full-Health/Fight/", last_scr);
-                    screen = Screen::new(&battle_scene,"");
-                    if screen.music != music_name.clone() {
-                        sink.clear();
-                        source =
-                            Decoder::new(BufReader::new(File::open(screen.music.clone()).unwrap()))
-                                .unwrap()
-                                .repeat_infinite();
-                        music_name = screen.music.clone();
-                        sink.append(source.clone());
-                        sink.play();
+                if encounter <= 0 {
+                    match last_scr.as_str() {
+                        "house-living"
+                        | "houses"
+                        | "lhouses" 
+                        | "library"
+                        | "pond"
+                        | "school"
+                        | "school-cafeteria"
+                        | "school-english"
+                        | "school-hall"
+                        | "school-math"
+                        | "stoor" => {
+                            track = 0;
+                            last_scr = screen.scr.clone();
+                            x_save = screen.player.x_pos;
+                            y_save = screen.player.y_pos;
+                            battle_scene = format!("{}{}", "BattleScene/Full-Health/Fight/", last_scr);
+                            screen = Screen::new(&battle_scene,"");
+                            if screen.music != music_name.clone() {
+                                sink.clear();
+                                source =
+                                    Decoder::new(BufReader::new(File::open(screen.music.clone()).unwrap()))
+                                        .unwrap()
+                                        .repeat_infinite();
+                                music_name = screen.music.clone();
+                                sink.append(source.clone());
+                                sink.play();
+                            }
+                            screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
+                            battle = !battle;
+                            screen.player.move_state = 0;
+                            left = false;
+                            right = true;
+                            up = false;
+                            down = false;
+                        }
+                        _ => {}
                     }
-                    screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
-                    battle = !battle;
-                    screen.player.move_state = 0;
-                    left = false;
-                    right = true;
-                    up = false;
-                    down = false;
                 }
             }
             //after updates happen redraw the screen
