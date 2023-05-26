@@ -5,8 +5,9 @@
   "default_scroll": 0,
   "mvmt_dest": ["pond","null","null","lhouses"],
   "entities": [],
-  "interact": ["move"],
-  "interact_actions": ["stoor-inside"],
-  "interact_pos": [],
+  "interact": ["move","move","move"],
+  "interact_actions": ["stoor-inside","stoor-inside","stoor-inside"],
+  "interact_pos": [120,170,150,170,180,170],
   "music": "music/Stroll_Around_Town.wav"
+
 }

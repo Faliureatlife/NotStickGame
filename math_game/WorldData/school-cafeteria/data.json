@@ -3,10 +3,10 @@
 	"start_y": 0,
 	"default_scroll": 0,
 	"collision": [],
-	"mvmt_dest": ["","","",""],
-	"entities": [""],
-	"interact": [""],
-	"interact_actions": [""],
+	"mvmt_dest": ["null","null","null","school-hall"],
+	"entities": [],
+	"interact": [],
+	"interact_actions": [],
 	"interact_pos": [],
 	"music": "music/Stroll_Around_Town.wav"
 }
