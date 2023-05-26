@@ -1044,8 +1044,8 @@ fn main() -> Result<(), pixels::Error> {
                         fight_tracker + 1
                     );
                     screen = Screen::new(&battle_scene,"");
-                    screen.entities.push(enemy.clone());
                     screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
+                    screen.entities.push(enemy.clone());
 
                     screen.fight_write(
                         task[problem_choose].to_string() + ";" + problems[problem_choose],
@@ -1086,6 +1086,7 @@ fn main() -> Result<(), pixels::Error> {
                         battle_scene =
                             format!("{}{}{}", "BattleScene/General-Use/", last_scr, "/end");
                         screen = Screen::new(&battle_scene,"");
+                        screen.entities.push(enemy.clone());
                         screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
 
                         if time_count <= 60 {
@@ -1107,6 +1108,7 @@ fn main() -> Result<(), pixels::Error> {
                         battle_scene =
                             format!("{}{}{}", "BattleScene/General-Use/", last_scr, "/end");
                         screen = Screen::new(&battle_scene,"");
+                        screen.entities.push(enemy.clone());
                         screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
 
                         if time_count <= 60 {
@@ -1163,6 +1165,7 @@ fn main() -> Result<(), pixels::Error> {
                         battle_scene =
                             format!("{}{}{}", "BattleScene/General-Use/", last_scr, "/end");
                         screen = Screen::new(&battle_scene,"");
+                        screen.entities.push(enemy.clone());
                         screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
 
                         screen.fight_write("Nav cant run".to_string(), 75, 455);
@@ -1172,6 +1175,7 @@ fn main() -> Result<(), pixels::Error> {
                         battle_scene =
                             format!("{}{}{}", "BattleScene/General-Use/", last_scr, "/end");
                         screen = Screen::new(&battle_scene,"");
+                        screen.entities.push(enemy.clone());
                         screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
 
                         screen.fight_write("Nav is hit".to_string(), 75, 455);
@@ -1190,6 +1194,7 @@ fn main() -> Result<(), pixels::Error> {
                         battle_scene =
                             format!("{}{}{}", "BattleScene/General-Use/", last_scr, "/end");
                         screen = Screen::new(&battle_scene,"");
+                        screen.entities.push(enemy.clone());
                         screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
 
                         screen.fight_write("Nav runs away".to_string(), 75, 455);
@@ -1225,6 +1230,7 @@ fn main() -> Result<(), pixels::Error> {
             if player_health == 0 {
                 battle_scene = format!("{}{}{}", "BattleScene/General-Use/", last_scr, "/end");
                 screen = Screen::new(&battle_scene,"");
+                screen.entities.push(enemy.clone());
                 screen.screen_len = screen.area.len() / (SCREEN_HEIGHT * 3) as usize;
 
                 screen.fight_write("you lost".to_string(), 90, 455);
